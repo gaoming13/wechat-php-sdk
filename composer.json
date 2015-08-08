@@ -1,0 +1,26 @@
+{
+    "name": "gaoming13/wechat-php-sdk",
+    "description": "微信公众平台php版开发包",
+    "keywords": [
+        "wechat",
+        "weixin",
+        "wechat-php-sdk"
+    ],
+    "license": "MIT",
+    "require": {
+        "php":">=5.3",
+        "ext-mcrypt": "*"
+    },
+    "authors": [
+        {
+            "name": "gaoming13",
+            "email": "gaoming13@yeah.net"
+        }
+    ],
+    "minimum-stability" : "dev",
+    "autoload": {
+        "psr-4": {
+            "Gaoming13\\WechatPhpSdk\\": "src/WechatPhpSdk/"
+        }
+    }
+}
