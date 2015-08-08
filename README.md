@@ -1,5 +1,6 @@
 # wechat-php-sdk
 微信公众平台php版开发包
+
 ## 功能模块
 Wechat 模块
 * 自动回复（文本、图片、语音、视频、音乐、图文）
@@ -8,6 +9,9 @@ Wechat 模块
 
 Api 模块(开发中)
 * 多客服功能
+
+## 测试微信号演示
+![](http://me.diary8.com/data/img/gh_965f8b675d0e.png)
 
 ## 安装
 1. 手动引入
