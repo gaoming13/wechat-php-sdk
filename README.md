@@ -45,20 +45,16 @@ require 'wechat-php-sdk/autoload.php';
 
 use Gaoming13\WechatPhpSdk\Wechat\Wechat;
 
-$wechat = new Wechat(array(	
-	// 开发者中心-配置项-AppID(应用ID)		
-	'app_id' 		=>	'wx733d7f24bd29224a',
-	// 开发者中心-配置项-服务器配置-Token(令牌)
-	'token' 		=> 	'gaoming13',
-	// 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
-	// 可选: 消息加解密方式勾选 兼容模式 或 安全模式 需填写
+$wechat = new Wechat(array(		
+	'appId' 		=>	'wx733d7f24bd29224a',	
+	'token' 		=> 	'gaoming13',		
 	'encodingAESKey' =>	'072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
 ));
 
-// 获取微信消息
+// 获取消息
 $msg = $wechat->serve();
 
-// 回复微信消息
+// 回复消息
 if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 	$wechat->reply("你也好！");
 } else {
@@ -74,7 +70,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 1. 进入自己微信公众平台 `开发者中心`, 进入修改`服务器配置`页面
 2. `URL`填写`demo_simple.php`的访问地址, 比如`http://wx.diary8.com/demo/demo_simple.php`,确保外网可访问到
 3. 填写`Token`和`EncodingAESKey`, `消息加解密方式`可任意选择
-4. 修改`demo.php`里配置项`app_id`和`token`,  `app_id`为`AppID(应用ID)`,`token`为第3部填写的`token`, 如果`消息加解密方式`选择了`兼容模式`或`安全模式`,还需要填写`encodingAESKey`
+4. 修改`demo.php`里配置项`appId`和`token`,  `appId`为`AppID(应用ID)`,`token`为第3部填写的`token`, 如果`消息加解密方式`选择了`兼容模式`或`安全模式`,还需要填写`encodingAESKey`
 5. 提交`服务器配置`表单
 6. ！！！ 注意成功后还需要启用服务器配置，不然不生效
 

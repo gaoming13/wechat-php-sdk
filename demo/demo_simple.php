@@ -15,7 +15,7 @@ use Gaoming13\WechatPhpSdk\Wechat\Wechat;
 
 $wechat = new Wechat(array(	
     // 开发者中心-配置项-AppID(应用ID)		
-    'app_id' 		=>	'wx733d7f24bd29224a',
+    'appId' 		=>	'wx733d7f24bd29224a',
     // 开发者中心-配置项-服务器配置-Token(令牌)
     'token' 		=> 	'gaoming13',
     // 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)

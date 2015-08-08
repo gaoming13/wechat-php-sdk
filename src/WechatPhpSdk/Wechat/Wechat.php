@@ -20,7 +20,7 @@ use Gaoming13\WechatPhpSdk\Utils\SHA1;
 class Wechat 
 {	
 	// 开发者中心-配置项-AppID(应用ID)
-	protected $app_id;
+	protected $appId;
 	// 开发者中心-配置项-服务器配置-Token(令牌)
     protected $token;
     // 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
@@ -47,7 +47,7 @@ class Wechat
      * @param array $config
      */
     public function __construct($config) {
-        $this->app_id	  		= 	$config['app_id'];        
+        $this->appId	  		= 	$config['appId'];        
         $this->token	  		= 	$config['token'];
         $this->encodingAESKey	= 	isset($config['encodingAESKey']) && !empty($config['encodingAESKey']) ? $config['encodingAESKey'] : FALSE;
     }
@@ -347,7 +347,7 @@ class Wechat
 
     		// 消息加密
     		$pc = new Prpcrypt($this->encodingAESKey);    		
-			$reply_encrypt = $pc->encrypt($xml, $this->app_id);
+			$reply_encrypt = $pc->encrypt($xml, $this->appId);
 			// 消息加密: 异常处理
 			if ($reply_encrypt === FALSE) {
 				@error_log('Encrypt Message Error.', 0);
@@ -461,7 +461,7 @@ class Wechat
 					}
 					// 解密用户消息
 					$pc = new Prpcrypt($this->encodingAESKey);
-					$xml_input1 = $pc->decrypt($xml_obj->Encrypt, $this->app_id);
+					$xml_input1 = $pc->decrypt($xml_obj->Encrypt, $this->appId);
 					if ($xml_input1 === FALSE) {
 						@error_log('Decode Message Error.', 0);
 						exit();
