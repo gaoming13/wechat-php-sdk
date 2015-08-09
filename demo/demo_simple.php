@@ -1,6 +1,7 @@
 <?php
 /**
  * demo_simple.php
+ * 简单接受用户消息并回复消息 DEMO
  * 
  * wechat-php-sdk DEMO
  *

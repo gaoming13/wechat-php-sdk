@@ -49,8 +49,9 @@ class Api
      *
      * @return bool
      */
-    public function checkToken($token) {        
-        return $token && isset($token->expires_in) && ($token->expires_in > time());        
+    public function checkToken($token) {
+        error_log($token->expires_in . ' ' .time());
+        return $token && isset($token->expires_in) && ($token->expires_in > time() + 1200);
     }
 
     /**
@@ -116,8 +117,243 @@ class Api
         }
         return $token->access_token;
     }
+    
+    /**
+     * 发送客服消息（文本、图片、语音、视频、音乐、图文）
+     *
+     * @param string $openid     
+     * @param array $msg
+     *
+     * @return bool
+     */
+    public function send ($openid, $msg) {
+        // 获取消息类型
+        $msg_type = '';
+        if (gettype($msg)=='string') {
+            $msg_type = 'text_simple';
+        } elseif (gettype($msg)=='array') {         
+            $msg_type = $msg['type'];
+        }
 
-    public function send ($msg) {
-        var_dump($this->getToken());
+        $xml = '';
+        switch ($msg_type) {
+            /**
+             * 1.1 发送文本消息(简洁输入)
+             *
+             * Examples:
+             * ```
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'hello world!');
+             * ```
+             */
+            case 'text_simple':
+                $xml = sprintf('{
+                        "touser":"%s",
+                        "msgtype":"text",
+                        "text":{
+                            "content":"%s"
+                        }}',
+                        $openid,
+                        $msg);            
+                break;
+
+            /**
+             * 1.2 发送文本消息
+             *
+             * Examples:
+             * ```
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             *  'type' => 'text',
+             *  'content' => 'hello world!'
+             * ));
+             * ```
+             */         
+            case 'text':
+                $xml = sprintf('{
+                        "touser":"%s",
+                        "msgtype":"text",
+                        "text":{
+                            "content":"%s"
+                        }%s}', 
+                        $openid,
+                        $msg['content'],
+                        isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
+                break;
+
+            /**
+             * 2 发送图片消息
+             *
+             * Examples:
+             * ```
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             *  'type' => 'image',
+             *  'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
+             * ));
+             * ```
+             */         
+            case 'image':
+                $xml = sprintf('{
+                        "touser":"%s",
+                        "msgtype":"image",
+                        "image":{
+                            "media_id":"%s"
+                        }%s}', 
+                        $openid,                        
+                        $msg['media_id'],
+                        isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
+                break;
+
+            /**
+             * 3 发送语音消息
+             *
+             * Examples:
+             * ```
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             *  'type' => 'voice',
+             *  'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
+             *  ));
+             * ```
+             */         
+            case 'voice':
+                $xml = sprintf('{
+                        "touser":"%s",
+                        "msgtype":"voice",
+                        "voice":{
+                            "media_id":"%s"
+                        }%s}', 
+                        $openid,
+                        $msg['media_id'],
+                        isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
+                break;
+
+            /**
+             * 4 发送视频消息
+             *
+             * Examples:
+             * ```
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             *  'type' => 'video',
+             *  'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
+             *  'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ',     // 可选(无效, 官方文档好像写错了)
+             *  'title' => '视频消息的标题',           // 可选
+             *  'description' => '视频消息的描述'      // 可选
+             * ));                         
+             * ```
+             */         
+            case 'video':
+                $xml = sprintf('{
+                        "touser":"%s",
+                        "msgtype":"video",
+                        "video":{
+                            "media_id":"%s",
+                            "thumb_media_id":"%s",
+                            "title":"%s",
+                            "description":"%s"                            
+                        }%s}', 
+                        $openid,
+                        $msg['media_id'],
+                        $msg['thumb_media_id'],
+                        isset($msg['title']) ? $msg['title'] : '',
+                        isset($msg['description']) ? $msg['description'] : '',
+                        isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
+                break;
+
+            /**
+             * 5 发送音乐消息
+             *
+             * Examples:
+             * ```
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             *  'type' => 'music',
+             *  'title' => '音乐标题',                      //可选
+             *  'description' => '音乐描述',                //可选
+             *  'music_url' => 'http://me.diary8.com/data/music/2.mp3',     //可选
+             *  'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',   //可选
+             *  'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
+             * ));             
+             * ```
+             */         
+            case 'music':
+                $xml = sprintf('{
+                        "touser":"%s",
+                        "msgtype":"music",
+                        "music":{
+                            "title":"%s",
+                            "description":"%s",
+                            "musicurl":"%s",
+                            "hqmusicurl":"%s",
+                            "thumb_media_id":"%s" 
+                        }%s}', 
+                        $openid,
+                        isset($msg['title']) ? $msg['title'] : '',
+                        isset($msg['description']) ? $msg['description'] : '',
+                        isset($msg['music_url']) ? $msg['music_url'] : '',
+                        isset($msg['hqmusic_url']) ? $msg['hqmusic_url'] : '',
+                        $msg['thumb_media_id'],
+                        isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
+                break;
+
+            /**
+             * 6 发送图文消息
+             *
+             * Examples:
+             * ```
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             *  'type' => 'music',
+             *  'title' => '音乐标题',                      //可选
+             *  'description' => '音乐描述',                //可选
+             *  'music_url' => 'http://me.diary8.com/data/music/2.mp3',     //可选
+             *  'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',   //可选
+             *  'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
+             * ));             
+             * ```
+             */         
+            case 'news':
+                $articles = array();             
+                foreach ($msg['articles'] as $article) {
+                    array_push($articles, sprintf('{
+                        "title":"%s",
+                        "description":"%s",
+                        "url":"%s",
+                        "picurl":"%s"
+                        }',
+                        $article['title'],
+                        $article['description'],                        
+                        $article['url'],
+                        $article['picurl']));
+                }
+                $articles = implode(",", $articles);
+                $xml = sprintf('{
+                        "touser":"%s",
+                        "msgtype":"news",
+                        "news":{"articles": [%s]}%s}',
+                        $openid,
+                        $articles,
+                        isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
+                break;
+
+            /**
+             * 0 异常消息处理
+             *
+             */ 
+            default:
+                @error_log("$msg_type is not a message type that can be used.", 0);
+                exit();             
+                break;
+        }
+
+        $url = self::API_DOMAIN . 'cgi-bin/message/custom/send?access_token=' . $this->getToken();
+        $res = Http::post($url, $xml, 'json');
+        // 异常处理: 获取access_token网络错误
+        if ($res === FALSE) {
+            @error_log("Http Send $msg_type Message Error.", 0);
+            return FALSE;
+        }
+        // 判断是否调用成功     
+        if ($res->errcode == 0) {
+            return TRUE;
+        } else {
+            @error_log(json_encode($res), 0);
+            return FALSE;
+        }
     }
 }

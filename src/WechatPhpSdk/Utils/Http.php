@@ -33,7 +33,7 @@ class Http {
                 return json_decode($sContent);
             } else {
                 return $sContent;
-            }            
+            }
         } else {
             return FALSE;
         }
@@ -45,18 +45,23 @@ class Http {
      * @param array $param     
      * @return string content
      */
-    static public function post($url, $param) {
+    static public function post($url, $param, $type='text') {
         $oCurl = curl_init();
         if(stripos($url, 'https://')!==FALSE){
             curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, FALSE);
             curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, FALSE);
             curl_setopt($oCurl, CURLOPT_SSLVERSION, 1); //CURL_SSLVERSION_TLSv1
         }
-        $aPOST = array();
-        foreach($param as $key=>$val) {
-            $aPOST[] = $key.'='.urlencode($val);
+        $strPOST = '';
+        if (gettype($param)=='array') {
+            $aPOST = array();
+            foreach($param as $key=>$val) {
+                $aPOST[] = $key.'='.urlencode($val);
+            }
+            $strPOST = join('&', $aPOST);
+        } else {
+            $strPOST = $param;
         }
-        $strPOST = join('&', $aPOST);
         curl_setopt($oCurl, CURLOPT_URL, $url);
         curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt($oCurl, CURLOPT_POST,true);
@@ -65,7 +70,11 @@ class Http {
         $aStatus = curl_getinfo($oCurl);
         curl_close($oCurl);
         if(intval($aStatus['http_code']) == 200) {
-            return $sContent;
+            if ($type == 'json') {
+                return json_decode($sContent);
+            } else {
+                return $sContent;
+            }            
         } else {
             return FALSE;
         }

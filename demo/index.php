@@ -1,6 +1,7 @@
 <?php
 /**
- * demo_wechat.php
+ * demo_message.php
+ * 主送发送客服消息 DEMO
  * 
  * wechat-php-sdk DEMO
  *
@@ -12,22 +13,52 @@
 require '../autoload.php';
 
 use Gaoming13\WechatPhpSdk\Wechat;
+use Gaoming13\WechatPhpSdk\Api;
 
-$wechat = new Wechat(array(	
-	// 开发者中心-配置项-AppID(应用ID)		
-	'appId' 		=>	'wx733d7f24bd29224a',
-	// 开发者中心-配置项-服务器配置-Token(令牌)
-	'token' 		=> 	'gaoming13',
-	// 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
-	// 可选: 消息加解密方式勾选 兼容模式 或 安全模式 需填写
-	'encodingAESKey' =>	'072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
+// 开发者中心-配置项-AppID(应用ID)
+$appId = 'wx733d7f24bd29224a';
+// 开发者中心-配置项-AppSecret(应用密钥)
+$appSecret = 'c6d165c5785226806f42440e376a410e';
+// 开发者中心-配置项-服务器配置-Token(令牌)
+$token = 'gaoming13';
+// 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
+$encodingAESKey = '072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV';
+
+// 这是使用了Memcached来保存access_token
+// 由于access_token每日请求次数有限
+// 用户需要自己定义获取和保存access_token的方法
+$m = new Memcached();
+$m->addServer('localhost', 11211);
+
+// wechat模块 - 处理用户发送的消息和回复消息
+$wechat = new Wechat(array(		
+	'appId' => $appId,	
+	'token' => 	$token,
+	'encodingAESKey' =>	$encodingAESKey
 ));
+
+// api模块 - 包含各种系统主动发起的功能
+$api = new Api(
+	array('appId' => $appId,'appSecret'	=> $appSecret),
+	function(){
+		// 用户需要自己实现access_token的返回
+		global $m;		
+		return $m->get('wechat_token');
+	}, 
+	function($token) {
+		// 用户需要自己实现access_token的保存
+		global $m;
+		$m->set('wechat_token', $token, 0);
+	}
+);
+
 
 // 获取微信消息
 $msg = $wechat->serve();
 
+
 // 默认消息
-$default_msg = "/微笑  欢迎关注本测试号:\n 回复1: 回复文本消息\n 回复2: 回复图片消息\n 回复3: 回复语音消息\n 回复4: 回复视频消息\n 回复5: 回复音乐消息\n 回复6: 回复图文消息";
+$default_msg = "/微笑  欢迎关注本测试号:\n 回复1: 回复文本消息\n 回复2: 回复图片消息\n 回复3: 回复语音消息\n 回复4: 回复视频消息\n 回复5: 回复音乐消息\n 回复6: 回复图文消息\n 回复7: 主动回复";
 
 // 用户关注微信号后 - 回复用户普通文本消息
 if ($msg->MsgType == 'event' && $msg->Event == 'subscribe') {
@@ -127,7 +158,22 @@ if ($msg->MsgType == 'text' && $msg->Content == '6') {
 	exit();
 }
 
+// 用户回复7 - 发送主动消息
+if ($msg->MsgType == 'text' && $msg->Content == '7') {
+	// 被动回复
+	$wechat->reply("这是被动回复的一条消息");
+	// 主动发送
+	$api->send($msg->FromUserName, '这是主动发送的一条消息');
+	// 主动发送
+	$api->send($msg->FromUserName, array(
+		'type' => 'text',
+		'content' => '这是一个客服主动发送的一条消息!',
+		'kf_account' => 'test1@kftest'
+	));	
+	// 主动发送
+	$api->send($msg->FromUserName, '您的openid是: ' . $msg->FromUserName);
+	exit();
+}
+
 // 默认回复默认信息
 $wechat->reply($default_msg);
-
-// error_log(ob_get_contents(), 0);

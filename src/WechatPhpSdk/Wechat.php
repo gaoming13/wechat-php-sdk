@@ -87,7 +87,10 @@ class Wechat
     		/**
     		 * 1.1 回复文本消息(简洁输入)
     		 *
-    		 * $wechat->reply('hello world!');    		 
+    		 * Examples:
+             * ```
+    		 * $wechat->reply('hello world!');
+    		 * ```
     		 */
     		case 'text_simple':
     			$xml = sprintf('<xml>
@@ -106,10 +109,13 @@ class Wechat
     		/**
     		 * 1.2 回复文本消息
     		 *
+    		 * Examples:
+             * ```
     		 * $wechat->reply(array(
 			 *	'type' => 'text',
 			 *	'content' => '嘿嘿，呵呵~~'
 			 * ));
+			 * ```
     		 */    		
     		case 'text':
     			$xml = sprintf('<xml>
@@ -128,10 +134,13 @@ class Wechat
     		/**
     		 * 2 回复图片消息
     		 *
+    		 * Examples:
+             * ```
     		 * $wechat->reply(array(
 	 		 * 	'type' => 'image',
 	 		 *	'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
 			 * ));
+			 * ```
     		 */    		
     		case 'image':
     			$xml = sprintf('<xml>
@@ -152,10 +161,13 @@ class Wechat
     		/**
     		 * 3 回复语音消息
     		 *
+    		 * Examples:
+             * ```
     		 * $wechat->reply(array(
 	 		 * 	'type' => 'voice',
 	 		 *	'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
 			 * ));
+			 * ```
     		 */    		
     		case 'voice':
     			$xml = sprintf('<xml>
@@ -176,12 +188,15 @@ class Wechat
     		/**
     		 * 4 回复视频消息
     		 *
+    		 * Examples:
+             * ```
     		 * $wechat->reply(array(
 	 		 *	'type' => 'video',
 	 		 *	'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
 	 		 *	'title' => '视频消息的标题',			//可选
 	 		 *	'description' => '视频消息的描述'		//可选
 			 * ));
+			 * ```
     		 */    		
     		case 'video':
     			$xml = sprintf('<xml>
@@ -206,6 +221,8 @@ class Wechat
     		/**
     		 * 5 回复音乐消息
     		 *
+    		 * Examples:
+             * ```
     		 * $wechat->reply(array(    		 
 	 		 *	'type' => 'music',
 	 		 *	'title' => '音乐标题',						//可选
@@ -214,6 +231,7 @@ class Wechat
 	 		 *	'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',	//可选
 	 		 *	'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
 			 * ));
+			 * ```
     		 */    		
     		case 'music':
     			$xml = sprintf('<xml>
@@ -242,6 +260,8 @@ class Wechat
     		/**
     		 * 6 回复图文消息
     		 *
+    		 * Examples:
+             * ```
     		 * $wechat->reply(array(
 	 		 *	'type' => 'news',
 	 		 *	'articles' => array(
@@ -265,6 +285,7 @@ class Wechat
 	 		 *		)
 	 		 * 	)
 			 * ));
+			 * ```
     		 */    		
     		case 'news':
     			$articles = '';    			
@@ -298,10 +319,13 @@ class Wechat
     		/**
     		 * 0 转发到多客服接口
     		 *
+    		 * Examples:
+             * ```
     		 * $wechat->reply(array(
 			 *	'type' => 'transfer_customer_service',
 			 *	'kf_account' => 'test1@test'				// 可选
 			 * ));
+			 * ```
     		 */    		
     		case 'transfer_customer_service':
     			$xml_transinfo = '';

@@ -1,7 +1,8 @@
 <?php
 /**
  * demo_wechat.php
- * 
+ * 接受用户消息并回复消息 DEMO 
+ *
  * wechat-php-sdk DEMO
  *
  * @author 		gaoming13 <gaoming13@yeah.net>
