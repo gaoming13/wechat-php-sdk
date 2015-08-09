@@ -12,7 +12,7 @@
  * @link 		http://me.diary8.com/
  */
 
-namespace Gaoming13\WechatPhpSdk\Wechat;
+namespace Gaoming13\WechatPhpSdk;
 
 use Gaoming13\WechatPhpSdk\Utils\Prpcrypt;
 use Gaoming13\WechatPhpSdk\Utils\SHA1;
@@ -47,7 +47,7 @@ class Wechat
      * @param array $config
      */
     public function __construct($config) {
-        $this->appId	  		= 	$config['appId'];        
+        $this->appId	  		= 	$config['appId'];
         $this->token	  		= 	$config['token'];
         $this->encodingAESKey	= 	isset($config['encodingAESKey']) && !empty($config['encodingAESKey']) ? $config['encodingAESKey'] : FALSE;
     }

@@ -22,7 +22,7 @@ Api 模块(开发中)
 	  require "wechat-php-sdk/autoload.php";
 
 	  // 使用Wechat模块
-	  use Gaoming13\WechatPhpSdk\Wechat\Wechat;
+	  use Gaoming13\WechatPhpSdk\Wechat;
 
 	  ...
   ```
@@ -36,7 +36,7 @@ Api 模块(开发中)
 
   ```php   
   require "vendor/autoload.php";
-  use Gaoming13\WechatPhpSdk\Wechat\Wechat;
+  use Gaoming13\WechatPhpSdk\Wechat;
   ```
     
 ## 使用
@@ -47,7 +47,7 @@ Api 模块(开发中)
 ```php
 require 'wechat-php-sdk/autoload.php';
 
-use Gaoming13\WechatPhpSdk\Wechat\Wechat;
+use Gaoming13\WechatPhpSdk\Wechat;
 
 $wechat = new Wechat(array(		
 	'appId' 		=>	'wx733d7f24bd29224a',	

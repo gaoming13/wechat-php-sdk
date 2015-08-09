@@ -11,7 +11,7 @@
 
 require '../autoload.php';
 
-use Gaoming13\WechatPhpSdk\Wechat\Wechat;
+use Gaoming13\WechatPhpSdk\Wechat;
 
 $wechat = new Wechat(array(	
     // 开发者中心-配置项-AppID(应用ID)		
