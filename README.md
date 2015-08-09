@@ -68,7 +68,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 ```
     
 ### 接入微信公众平台开发方法
-[查看官方wiki](http://mp.weixin.qq.com/wiki/17/2d4265491f12608cd170a95559800f2d.html)
+[官方wiki](http://mp.weixin.qq.com/wiki/17/2d4265491f12608cd170a95559800f2d.html)
 
 以项目中的 `demo/demo_simple.php` 为例
 
@@ -81,14 +81,14 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 
 ## Wechat 模块
 
-[查看官方wiki 被动回复用户消息](http://mp.weixin.qq.com/wiki/14/89b871b5466b19b3efa4ada8e577d45e.html)
+[官方wiki](http://mp.weixin.qq.com/wiki/14/89b871b5466b19b3efa4ada8e577d45e.html)
 
 ### 接收普通消息/事件推送
 
 接受到的普通消息与事件推送会原样以数组对象返回，具体每种消息结构请看:
 
-[查看官方wiki 接收普通消息](http://mp.weixin.qq.com/wiki/10/79502792eef98d6e0c6e1739da387346.html)
-[查看官方wiki 接收事件推送](http://mp.weixin.qq.com/wiki/2/5baf56ce4947d35003b86a9805634b1e.html)
+[官方wiki 接收普通消息](http://mp.weixin.qq.com/wiki/10/79502792eef98d6e0c6e1739da387346.html)
+[官方wiki 接收事件推送](http://mp.weixin.qq.com/wiki/2/5baf56ce4947d35003b86a9805634b1e.html)
 
 ```php
 $msg = $wechat->serve();
@@ -277,7 +277,7 @@ $api->send($msg->FromUserName, '这是我主动发送的消息！');
 
 ## Api 模块 - 发送客服消息（文本、图片、语音、视频、音乐、图文）
 
-[查看官方wiki 客服接口-发消息](http://mp.weixin.qq.com/wiki/1/70a29afed17f56d537c833f89be979c9.html)
+[官方wiki](http://mp.weixin.qq.com/wiki/1/70a29afed17f56d537c833f89be979c9.html)
 
 ### 主动发送文本消息
     
