@@ -11,9 +11,6 @@ Api 模块
 * 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
 * 多客服功能 (开发中)
 
-## 测试微信号演示
-![](http://me.diary8.com/data/img/gh_965f8b675d0e.png)
-
 ## 安装
 1. 手动引入
 
@@ -39,6 +36,37 @@ Api 模块
   require "vendor/autoload.php";
   use Gaoming13\WechatPhpSdk\Wechat;
   ```
+  
+3. 使用 `ThinkPHP`
+
+将SDK内 `src` 文件夹重命名为 `Gaoming13`, 拷贝至 `ThinkPHP/Library/` 下即可使用 `Wechat` 和 `Api` 类库.
+
+Thinkphp控制器内使用SDK的DEMO:
+
+具体代码见: 项目内 `demo/demo_thinkPHP.php`
+
+```php
+$wechat = new \Gaoming13\WechatPhpSdk\Wechat(array(		
+	'appId' => $appId,	
+	'token' => 	$token,
+	'encodingAESKey' =>	$encodingAESKey
+));
+
+$api = new \Gaoming13\WechatPhpSdk\Api(
+	array(
+		'appId' => $appId,
+		'appSecret'	=> $appSecret
+	),
+	function(){
+		// 用户需要自己实现access_token的返回				
+		return S('wechat_token');
+	}, 
+	function($token) {
+		// 用户需要自己实现access_token的保存				
+		S('wechat_token', $token);
+	}
+);
+```
     
 ## 使用
 具体代码见项目内`demo`文件夹
