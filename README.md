@@ -106,6 +106,31 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 5. 提交`服务器配置`表单
 6. ！！！ 注意成功后还需要启用服务器配置，不然不生效
 
+
+## Wechat: 模块使用说明
+
+```php
+$wechat = new Wechat(array(	
+    // 开发者中心-配置项-AppID(应用ID)		
+    'appId' 		=>	'wx733d7f24bd29224a',
+    // 开发者中心-配置项-服务器配置-Token(令牌)
+    'token' 		=> 	'gaoming13',
+    // 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
+    // 可选: 消息加解密方式勾选 兼容模式 或 安全模式 需填写
+    'encodingAESKey' =>	'072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
+));
+
+// 获取微信消息
+$msg = $wechat->serve();
+
+// 回复微信消息
+if ($msg->MsgType == 'text' && $msg->Content == '你好') {
+    $wechat->reply("你也好！");
+} else {
+    $wechat->reply("听不懂！");
+}
+```
+
 ## Wechat: 接收普通消息/事件推送
 
 接受到的普通消息与事件推送会原样以数组对象返回，具体每种消息结构请看:
@@ -302,7 +327,7 @@ $wechat->reply('这是我被动发送的消息！');
 $api->send($msg->FromUserName, '这是我主动发送的消息！');
 ```
 
-## Api: 主动发送客服消息（文本、图片、语音、视频、音乐、图文）
+## Api：发送客服消息（文本、图片、语音、视频、音乐、图文）
 
 [官方wiki](http://mp.weixin.qq.com/wiki/1/70a29afed17f56d537c833f89be979c9.html)
 
