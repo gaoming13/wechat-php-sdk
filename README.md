@@ -2,75 +2,18 @@
 微信公众平台php版开发包
 
 ## 功能模块
-Wechat 模块
-* 自动回复（文本、图片、语音、视频、音乐、图文）
+Wechat （处理获取微信消息与被动回复）
+* 接收普通消息/事件推送
+* 被动回复（文本、图片、语音、视频、音乐、图文）
 * 转发到多客服接口
 * 支持消息加解密方式的明文模式、兼容模式、安全模式
+* 支持接入微信公众平台
 
-Api 模块
+Api （处理需要access_token的主动接口）
 * 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
 * 多客服功能 (开发中)
 
-## 安装
-1. 手动引入
-
-  ```php
-  <?php
-	  // 引入autoload.php
-	  require "wechat-php-sdk/autoload.php";
-
-	  // 使用Wechat模块
-	  use Gaoming13\WechatPhpSdk\Wechat;
-
-	  ...
-  ```
-            
-2. 使用 `composer`
-
-  ```shell
-  #安装composer依赖
-  composer require "gaoming13/wechat-php-sdk:1.0.*"
-  ``` 
-
-  ```php   
-  require "vendor/autoload.php";
-  use Gaoming13\WechatPhpSdk\Wechat;
-  ```
-  
-3. 使用 `ThinkPHP`
-
-将SDK内 `src` 文件夹重命名为 `Gaoming13`, 拷贝至 `ThinkPHP/Library/` 下即可使用 `Wechat` 和 `Api` 类库.
-
-Thinkphp控制器内使用SDK的DEMO:
-
-具体代码见: 项目内 `demo/demo_thinkPHP.php`
-
-```php
-$wechat = new \Gaoming13\WechatPhpSdk\Wechat(array(		
-	'appId' => $appId,	
-	'token' => 	$token,
-	'encodingAESKey' =>	$encodingAESKey
-));
-
-$api = new \Gaoming13\WechatPhpSdk\Api(
-	array(
-		'appId' => $appId,
-		'appSecret'	=> $appSecret
-	),
-	function(){
-		// 用户需要自己实现access_token的返回				
-		return S('wechat_token');
-	}, 
-	function($token) {
-		// 用户需要自己实现access_token的保存				
-		S('wechat_token', $token);
-	}
-);
-```
-    
-## 使用
-具体代码见项目内`demo`文件夹
-### 简单DEMO
+## DEMO
 项目内 `demo/demo_simple.php`
 
 ```php
@@ -94,7 +37,63 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 	$wechat->reply("听不懂！");
 }
 ```
-    
+
+## 如何引入wechat-php-sdk
+1. 手动引入
+
+  ```php
+  <?php	  
+	  require "wechat-php-sdk/autoload.php";	// 引入自动加载SDK类的方法
+	  
+	  use Gaoming13\WechatPhpSdk\Wechat;
+	  use Gaoming13\WechatPhpSdk\Api;
+	  ...
+  ```
+            
+2. 使用 `composer`
+
+  ```shell
+  #安装composer依赖
+  composer require "gaoming13/wechat-php-sdk:1.0.*"
+  ``` 
+
+  ```php   
+  require "vendor/autoload.php";
+  use Gaoming13\WechatPhpSdk\Wechat;
+  use Gaoming13\WechatPhpSdk\Api;
+  ```
+  
+3. `ThinkPHP` 内使用
+
+  将SDK内 `src` 文件夹重命名为 `Gaoming13`, 拷贝至 `ThinkPHP/Library/` 下即可使用 `Wechat` 和 `Api` 类库.
+
+  Thinkphp控制器内使用SDK的DEMO:
+
+  具体代码见: 项目内 `demo/demo_thinkPHP.php`
+
+  ```php
+  $wechat = new \Gaoming13\WechatPhpSdk\Wechat(array(		
+  	'appId' => $appId,	
+  	'token' => 	$token,
+  	'encodingAESKey' =>	$encodingAESKey
+  ));
+
+  $api = new \Gaoming13\WechatPhpSdk\Api(
+  	array(
+  		'appId' => $appId,
+  		'appSecret'	=> $appSecret
+  	),
+  	function(){
+  		// 用户需要自己实现access_token的返回
+  		...				  		
+  	}, 
+  	function($token) {
+  		// 用户需要自己实现access_token的保存
+  		...
+  	}
+  );
+  ```
+
 ### 接入微信公众平台开发方法
 [官方wiki](http://mp.weixin.qq.com/wiki/17/2d4265491f12608cd170a95559800f2d.html)
 
@@ -107,11 +106,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 5. 提交`服务器配置`表单
 6. ！！！ 注意成功后还需要启用服务器配置，不然不生效
 
-## Wechat 模块
-
-[官方wiki](http://mp.weixin.qq.com/wiki/14/89b871b5466b19b3efa4ada8e577d45e.html)
-
-### 接收普通消息/事件推送
+## Wechat: 接收普通消息/事件推送
 
 接受到的普通消息与事件推送会原样以数组对象返回，具体每种消息结构请看:
 
@@ -121,6 +116,10 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 ```php
 $msg = $wechat->serve();
 ```
+
+## Wechat: 被动回复（文本、图片、语音、视频、音乐、图文）
+
+[官方wiki](http://mp.weixin.qq.com/wiki/14/89b871b5466b19b3efa4ada8e577d45e.html)
 
 ### 回复文本消息
     
@@ -206,7 +205,7 @@ $wechat->reply(array(
 ));
 ```
 
-### 转发到多客服接口
+## Wechat: 转发到多客服接口
     
 ```php
 $wechat->reply(array(
@@ -215,7 +214,7 @@ $wechat->reply(array(
 ));
 ```
 
-## Api 模块 - 说明
+## Api: 模块使用说明
 
 由于微信的access_token请求次数有限制，
 
@@ -303,7 +302,7 @@ $wechat->reply('这是我被动发送的消息！');
 $api->send($msg->FromUserName, '这是我主动发送的消息！');
 ```
 
-## Api 模块 - 发送客服消息（文本、图片、语音、视频、音乐、图文）
+## Api: 主动发送客服消息（文本、图片、语音、视频、音乐、图文）
 
 [官方wiki](http://mp.weixin.qq.com/wiki/1/70a29afed17f56d537c833f89be979c9.html)
 
