@@ -11,7 +11,8 @@ Wechat （处理获取微信消息与被动回复）
 
 Api （处理需要access_token的主动接口）
 * 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
-* 多客服功能 (开发中)
+* 多客服功能（客服管理、多客服回话控制、获取客服聊天记录等）
+* 素材管理(开发中...)
 
 ## DEMO
 项目内 `demo/demo_simple.php`
@@ -241,6 +242,7 @@ $wechat->reply(array(
 
 ## Api: 模块使用说明
 
+### access_token需要用户自己实现缓存
 由于微信的access_token请求次数有限制，
 
 用户需要自己实现access_token的获取和保存，
@@ -325,6 +327,22 @@ $wechat->reply('这是我被动发送的消息！');
 
 // 主动发送文本消息
 $api->send($msg->FromUserName, '这是我主动发送的消息！');
+```
+
+### Api模块接口返回值格式
+所有Api模块的接口返回值格式为: `array($err, $data);`
+
+`$err`为错误信息, `$data`为正确处理返回的数据
+
+可用`list`接收: 
+
+```php
+list($err, $kf_list) = $api->get_kf_list();
+if (is_null($err)) {
+	// 接口正确返回处理
+} else {
+	// 接口错误返回处理
+}
 ```
 
 ## Api：发送客服消息（文本、图片、语音、视频、音乐、图文）
@@ -417,6 +435,82 @@ $api->send($msg->FromUserName, array(
 	),
 	'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
 ));
+```
+
+## Api：多客服功能（客服管理、多客服回话控制、获取客服聊天记录等）
+
+[官方wiki](http://mp.weixin.qq.com/wiki/5/ae230189c9bd07a6b221f48619aeef35.html)
+
+### 添加客服账号
+    
+```php
+list($err, $res) = $api->add_kf('test1234@微信号', '客服昵称', '客服密码');
+```
+
+### 设置客服信息
+    
+```php
+list($err, $res) = $api->update_kf('test1234@微信号', '客服昵称', '客服密码');
+```
+
+### 上传客服头像
+    
+```php
+list($err, $res) = $api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
+```
+
+### 删除客服帐号
+    
+```php
+list($err, $res) = $api->del_kf('test1234@微信号');
+```
+
+### 获取所有客服账号
+    
+```php
+list($err, $kf_list) = $api->get_kf_list();
+```
+
+### 获取在线客服接待信息
+    
+```php
+list($err, $kf_list) = $api->get_online_kf_list();
+```
+
+### 获取客服聊天记录接口
+    
+```php
+list($err, $record_list) = $api->get_kf_records(1439348167, 1439384060, 1, 10);
+```
+
+### 创建客户与客服的会话
+    
+```php
+list($err, $res) = $api->create_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '小明请求接入会话!');
+```
+
+### 关闭客户与客服的会话
+    
+```php
+list($err, $res) = $api->close_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '与小明的回话已关闭!');
+```
+
+### 获取客户的会话状态
+    
+```php
+list($err, $data) = $api->get_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw');
+```
+
+### 获取客服的会话列表
+    
+```php
+list($err, $data) = $api->get_kf_session_list('test1@微信号');
+```
+
+### 获取未接入会话列表的客户
+    
+```php
+list($err, $data) = $api->get_waitcase_list();
 ```
 
 ## License

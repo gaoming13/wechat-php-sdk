@@ -1,10 +1,10 @@
 <?php
 /**
  * Api.php
- * 
- * 微信公共平台除需要自动回复外的服务中间件
- * - 生成 access_token
- * - 发送客服消息（文本、图片、语音、视频、音乐、图文）
+ *  
+ * Api模块 （处理需要access_token的主动接口）
+ * - 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
+ * - 多客服功能（客服管理、多客服回话控制、获取客服聊天记录...）
  *
  * @author 		gaoming13 <gaoming13@yeah.net>
  * @link 		https://github.com/gaoming13/wechat-php-sdk
@@ -13,7 +13,8 @@
 
 namespace Gaoming13\WechatPhpSdk;
 
-use Gaoming13\WechatPhpSdk\Utils\Http;
+use Gaoming13\WechatPhpSdk\Utils\HttpCurl;
+use Gaoming13\WechatPhpSdk\Utils\Error;
 
 class Api 
 {
@@ -61,7 +62,7 @@ class Api
      */
     public function newToken() {        
         $url = self::API_DOMAIN . 'cgi-bin/token?grant_type=client_credential&appid=' . $this->appId . '&secret=' . $this->appSecret;
-        $res = Http::get($url, 'json');
+        $res = HttpCurl::get($url, 'json');
 
         // 异常处理: 获取access_token网络错误
         if ($res === FALSE) {
@@ -121,10 +122,10 @@ class Api
     /**
      * 发送客服消息（文本、图片、语音、视频、音乐、图文）
      *
-     * @param string $openid     
+     * @param string $openid
      * @param array $msg
      *
-     * @return bool
+     * @return array(err, data)
      */
     public function send ($openid, $msg) {
         // 获取消息类型
@@ -336,24 +337,391 @@ class Api
              *
              */ 
             default:
-                @error_log("$msg_type is not a message type that can be used.", 0);
-                exit();             
+            	return Error::code('ERR_MEG_TYPE');                
                 break;
         }
 
         $url = self::API_DOMAIN . 'cgi-bin/message/custom/send?access_token=' . $this->getToken();
-        $res = Http::post($url, $xml, 'json');
+        $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取access_token网络错误
         if ($res === FALSE) {
-            @error_log("Http Send $msg_type Message Error.", 0);
-            return FALSE;
+        	return Error::code('ERR_GET');
         }
         // 判断是否调用成功     
         if ($res->errcode == 0) {
-            return TRUE;
+        	return array(NULL, TRUE);            
         } else {
-            @error_log(json_encode($res), 0);
-            return FALSE;
+        	return array($res, NULL);            
         }
+    }
+
+
+    /**
+     * 添加客服账号
+     *
+     * @param string $kf_account
+     * @param string $nickname
+     * @param string $password
+	 *
+     * @return array(err, res)
+     * 
+	 * Examples:
+	 * ```	 
+	 * list($err, $res) = $api->add_kf('test1234@微信号', '客服昵称', '客服密码');
+	 * ```               
+     */
+    public function add_kf ($kf_account, $nickname, $password) {
+    	$password = md5($password);
+    	$xml = sprintf('{
+    			"kf_account" : "%s",
+    			"nickname" : "%s",
+    			"password" : "%s"}',
+				$kf_account,
+				$nickname,
+				md5($password));
+    	$url = self::API_DOMAIN . 'customservice/kfaccount/add?access_token=' . $this->getToken();    	
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+        	return Error::code('ERR_GET');
+        }        
+        // 判断是否调用成功        
+        if ($res->errcode == 0) {
+        	return array(NULL, TRUE);
+        } else {
+        	return array($res, NULL);
+        }
+    }
+
+    /**
+     * 设置客服信息
+     *
+     * @param string $kf_account
+     * @param string $nickname
+     * @param string $password
+	 *
+     * @return array(err, res)
+     * 
+	 * Examples:
+	 * ```	 
+	 * list($err, $res) = $api->update_kf('test1234@微信号', '客服昵称', '客服密码');
+	 * ```               
+     */
+    public function update_kf ($kf_account, $nickname, $password) {
+    	$password = md5($password);
+    	$xml = sprintf('{
+    			"kf_account" : "%s",
+    			"nickname" : "%s",
+    			"password" : "%s"}',
+				$kf_account,
+				$nickname,
+				md5($password));
+    	$url = self::API_DOMAIN . 'customservice/kfaccount/update?access_token=' . $this->getToken();    	
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+        	return Error::code('ERR_GET');
+        }        
+        // 判断是否调用成功        
+        if ($res->errcode == 0) {
+        	return array(NULL, TRUE);
+        } else {
+        	return array($res, NULL);
+        }
+    }
+
+    /**
+     * 上传客服头像
+     *
+     * @param string $kf_account
+     * @param string $path     
+	 *
+     * @return array(err, res)
+     * 
+	 * Examples:
+	 * ```	 
+	 * list($err, $res) = $api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
+	 * ```               
+     */
+    public function set_kf_avatar ($kf_account, $path) {
+    	$url = self::API_DOMAIN . 'customservice/kfaccount/uploadheadimg?access_token=' . $this->getToken() . '&kf_account=' . $kf_account;        
+        $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');        
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+        	return Error::code('ERR_GET');
+        }        
+        // 判断是否调用成功        
+        if ($res->errcode == 0) {
+        	return array(NULL, TRUE);
+        } else {
+        	return array($res, NULL);
+        }        
+    }
+
+    /**
+     * 删除客服帐号
+     *
+     * @param string $kf_account
+     *
+     * @return array(err, res)
+     *
+	 * Examples:
+	 * ```	 
+	 * list($err, $res) = $api->del_kf('test1234@微信号');
+	 * ```               
+     */
+    public function del_kf ($kf_account) {    	
+    	$url = self::API_DOMAIN . 'customservice/kfaccount/del?access_token=' . $this->getToken() . '&kf_account=' . $kf_account;    	
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+        	return Error::code('ERR_GET');
+        }        
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+        	return array(NULL, TRUE);
+        } else {
+        	return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取所有客服账号
+     *
+     * @return array(err, data)
+     *
+	 * Examples:
+	 * ```	 
+	 * list($err, $kf_list) = $api->get_kf_list();
+	 * ```               
+     */
+    public function get_kf_list () {    		
+    	$url = self::API_DOMAIN . 'cgi-bin/customservice/getkflist?access_token=' . $this->getToken();
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+        	return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if (isset($res->kf_list)) {
+        	return array(NULL, $res->kf_list);
+        } else {        	
+        	return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取在线客服接待信息
+     *
+     * @return array(err, data)
+     *
+	 * Examples:
+	 * ```
+	 * list($err, $kf_list) = $api->get_online_kf_list();
+	 * ```               
+     */
+    public function get_online_kf_list () {    	
+    	$url = self::API_DOMAIN . 'cgi-bin/customservice/getonlinekflist?access_token=' . $this->getToken();
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+        	return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if (isset($res->kf_online_list)) {
+        	return array(NULL, $res->kf_online_list);
+        } else {        	
+        	return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取客服聊天记录接口
+     *
+     * @param int $starttime
+     * @param int $endtime
+     * @param int $pageindex
+     * @param int $pagesize
+     *
+     * @return array(err, data)
+     *
+     * Examples:
+     * ```
+     * list($err, $record_list) = $api->get_kf_records(1439348167, 1439384060, 1, 10);
+     * ```
+     */
+    public function get_kf_records ($starttime, $endtime, $pageindex, $pagesize) {        
+        $url = self::API_DOMAIN . 'customservice/msgrecord/getrecord?access_token=' . $this->getToken();
+        $xml = sprintf('{
+                    "endtime" : %s,
+                    "pageindex" : %s,
+                    "pagesize" : %s,
+                    "starttime" : %s}',
+                    $endtime,
+                    $pageindex,
+                    $pagesize,
+                    $starttime);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if (isset($res->recordlist)) {
+            return array(NULL, $res->recordlist);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 创建客户与客服的会话
+     *
+     * @param string $kf_account
+     * @param string $openid
+     * @param string $text (可选)
+     *
+     * @return array(err, data)
+     *
+     * Examples:
+     * ```
+     * list($err, $res) = $api->create_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '小明请求接入会话!');
+     * ```
+     */
+    public function create_kf_session ($openid, $kf_account, $text='') {        
+        $url = self::API_DOMAIN . 'customservice/kfsession/create?access_token=' . $this->getToken();
+        $xml = sprintf(' {
+                    "kf_account" : "%s",
+                    "openid" : "%s",
+                    "text" : "%s"}',
+                    $kf_account,
+                    $openid,
+                    $text);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, TRUE);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 关闭客户与客服的会话
+     *
+     * @param string $kf_account
+     * @param string $openid
+     * @param string $text (可选)
+     *
+     * @return array(err, data)
+     *
+     * Examples:
+     * ```
+     * list($err, $res) = $api->close_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '与小明的回话已关闭!');
+     * ```
+     */
+    public function close_kf_session ($openid, $kf_account, $text='') {
+        $url = self::API_DOMAIN . 'customservice/kfsession/close?access_token=' . $this->getToken();
+        $xml = sprintf(' {
+                    "kf_account" : "%s",
+                    "openid" : "%s",
+                    "text" : "%s"}',
+                    $kf_account,
+                    $openid,
+                    $text);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, TRUE);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取客户的会话状态
+     *     
+     * @param string $openid
+     *
+     * @return array(err, data)
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->get_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw');
+     * ```
+     */
+    public function get_kf_session ($openid) {        
+        $url = self::API_DOMAIN . 'customservice/kfsession/getsession?access_token=' . $this->getToken() . '&openid=' . $openid;
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取客服的会话列表
+     *     
+     * @param string $kf_account
+     *
+     * @return array(err, data)
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->get_kf_session_list('test1@微信号');
+     * ```
+     */
+    public function get_kf_session_list ($kf_account) {        
+        $url = self::API_DOMAIN . 'customservice/kfsession/getsessionlist?access_token=' . $this->getToken() . '&kf_account=' . $kf_account;
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if (isset($res->sessionlist)) {
+            return array(NULL, $res->sessionlist);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取未接入会话列表的客户        
+     *
+     * @return array(err, data)
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->get_waitcase_list();
+     * ```
+     */
+    public function get_waitcase_list () {        
+        $url = self::API_DOMAIN . 'customservice/kfsession/getwaitcase?access_token=' . $this->getToken();
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }    
+        // 判断是否调用成功
+        if (isset($res->waitcaselist)) {
+            return array(NULL, $res->waitcaselist);
+        } else {            
+            return array($res, NULL);
+        }        
     }
 }
