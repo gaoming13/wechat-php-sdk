@@ -444,73 +444,73 @@ $api->send($msg->FromUserName, array(
 ### 添加客服账号
     
 ```php
-list($err, $res) = $api->add_kf('test1234@微信号', '客服昵称', '客服密码');
+$api->add_kf('test1234@微信号', '客服昵称', '客服密码');
 ```
 
 ### 设置客服信息
     
 ```php
-list($err, $res) = $api->update_kf('test1234@微信号', '客服昵称', '客服密码');
+$api->update_kf('test1234@微信号', '客服昵称', '客服密码');
 ```
 
 ### 上传客服头像
     
 ```php
-list($err, $res) = $api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
+$api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
 ```
 
 ### 删除客服帐号
     
 ```php
-list($err, $res) = $api->del_kf('test1234@微信号');
+$api->del_kf('test1234@微信号');
 ```
 
 ### 获取所有客服账号
     
 ```php
-list($err, $kf_list) = $api->get_kf_list();
+$api->get_kf_list();
 ```
 
 ### 获取在线客服接待信息
     
 ```php
-list($err, $kf_list) = $api->get_online_kf_list();
+$api->get_online_kf_list();
 ```
 
 ### 获取客服聊天记录接口
     
 ```php
-list($err, $record_list) = $api->get_kf_records(1439348167, 1439384060, 1, 10);
+$api->get_kf_records(1439348167, 1439384060, 1, 10);
 ```
 
 ### 创建客户与客服的会话
     
 ```php
-list($err, $res) = $api->create_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '小明请求接入会话!');
+$api->create_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '小明请求接入会话!');
 ```
 
 ### 关闭客户与客服的会话
     
 ```php
-list($err, $res) = $api->close_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '与小明的回话已关闭!');
+$api->close_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '与小明的回话已关闭!');
 ```
 
 ### 获取客户的会话状态
     
 ```php
-list($err, $data) = $api->get_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw');
+$api->get_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw');
 ```
 
 ### 获取客服的会话列表
     
 ```php
-list($err, $data) = $api->get_kf_session_list('test1@微信号');
+$api->get_kf_session_list('test1@微信号');
 ```
 
 ### 获取未接入会话列表的客户
     
 ```php
-list($err, $data) = $api->get_waitcase_list();
+$api->get_waitcase_list();
 ```
 
 ## License
