@@ -84,7 +84,7 @@ class Api
      *
      * @return string
      */
-    public function getToken() {
+    public function getToken() {        
         $token = FALSE;
         
         if ($this->getTokenDiy !== FALSE) {
@@ -96,13 +96,12 @@ class Api
         } else {
             // 异常处理: 获取access_token方法未定义
             @error_log('Not set getTokenDiy method, AccessToken will be refreshed each time.', 0);
-        }
-
-        // 验证AccessToken是否有效
+        }        
+        // 验证AccessToken是否有效        
         if (!$this->checkToken($token)) {
 
             // 生成新的AccessToken
-            $token = $this->newToken();
+            $token = $this->newToken();            
             if ($token === FALSE) {
                 return FALSE;
             }
@@ -115,7 +114,7 @@ class Api
                 // 异常处理: 保存access_token方法未定义
                 @error_log('Not set saveTokenDiy method, AccessToken will be refreshed each time.', 0);
             }
-        }
+        }        
         return $token->access_token;
     }
     
@@ -590,7 +589,7 @@ class Api
      */
     public function create_kf_session ($openid, $kf_account, $text='') {        
         $url = self::API_DOMAIN . 'customservice/kfsession/create?access_token=' . $this->getToken();
-        $xml = sprintf(' {
+        $xml = sprintf('{
                     "kf_account" : "%s",
                     "openid" : "%s",
                     "text" : "%s"}',
@@ -626,7 +625,7 @@ class Api
      */
     public function close_kf_session ($openid, $kf_account, $text='') {
         $url = self::API_DOMAIN . 'customservice/kfsession/close?access_token=' . $this->getToken();
-        $xml = sprintf(' {
+        $xml = sprintf('{
                     "kf_account" : "%s",
                     "openid" : "%s",
                     "text" : "%s"}',
@@ -720,6 +719,183 @@ class Api
         // 判断是否调用成功
         if (isset($res->waitcaselist)) {
             return array(NULL, $res->waitcaselist);
+        } else {            
+            return array($res, NULL);
+        }        
+    }
+
+
+    /**
+     * 新增临时素材
+     *
+     * @param string $type
+     * @param string $path
+     *
+     * @return array(err, res)
+     * 
+     * Examples:
+     * ```   
+     * list($err, $res) = $api->upload_media('image', '/data/img/fighting.jpg');
+     * list($err, $res) = $api->upload_media('voice', '/data/img/song.amr');
+     * list($err, $res) = $api->upload_media('video', '/data/img/go.mp4');
+     * list($err, $res) = $api->upload_media('thumb', '/data/img/sky.jpg');
+     * ```               
+     */
+    public function upload_media ($type, $path) {        
+        $url = self::API_DOMAIN . 'cgi-bin/media/upload?access_token=' . $this->getToken() . '&type=' . $type;        
+        $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');        
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }        
+        // 判断是否调用成功
+        if (isset($res->media_id)) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取临时素材URL
+     *
+     * @param string $type
+     * @param string $path
+     *
+     * @return array(err, res)
+     * 
+     * Examples:
+     * ```   
+     * $url = $api->get_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
+     * ```               
+     */
+    public function get_media ($media_id) {        
+        return self::API_DOMAIN . 'cgi-bin/media/get?access_token=' . $this->getToken() . '&media_id=' . $media_id;
+    }
+
+    /**
+     * 下载临时素材
+     *
+     * @param string $type
+     * @param string $path
+     *
+     * @return array(err, res)
+     * 
+     * Examples:
+     * ```   
+     * header('Content-type: image/jpg');
+     * list($err, $data) = $api->download_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
+     * echo $data;
+     * ```               
+     */
+    public function download_media ($media_id, $path) {
+        $url = $this->get_media($media_id);
+        $res = HttpCurl::get($url);
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        return array(NULL, $res);
+    }
+
+    /**
+     * 新增永久素材
+     *
+     * @param string $type
+     * @param string $path
+     *
+     * @return array(err, res)
+     * 
+     * Examples:
+     * ```   
+     * list($err, $res) = $api->add_material('image', '/website/me/data/img/fighting.jpg');
+     * list($err, $res) = $api->add_material('voice', '/data/img/song.amr');
+     * list($err, $res) = $api->add_material('video', '/website/me/data/video/2.mp4', '视频素材的标题', '视频素材的描述');
+     * list($err, $res) = $api->add_material('thumb', '/data/img/sky.jpg');
+     * ```               
+     */
+    public function add_material ($type, $path, $title='', $introduction='') {        
+        $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->getToken() . '&type=' . $type;        
+        $post_data = array('media' => '@'.$path);
+        if ($type == 'video') {
+            $post_data['description'] = sprintf('{
+                        "title":"%s",                        
+                        "introduction":"%s"}',
+                        $title,                        
+                        $introduction);
+        }        
+        $res = HttpCurl::post($url, $post_data, 'json');        
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if (isset($res->media_id)) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取素材总数        
+     *     
+     * @return array(err, data)
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->get_material_count();
+     * ```
+     */    
+    public function get_material_count () {        
+        $url = self::API_DOMAIN . 'cgi-bin/material/get_materialcount?access_token=' . $this->getToken();        
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }    
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取素材列表        
+     *
+     * @param string $type
+     * @param string $offset
+     * @param string $count
+     *
+     * @return array(err, data)
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->get_materials('image', 0, 20);
+     * list($err, $data) = $api->get_materials('voice', 0, 20);
+     * list($err, $data) = $api->get_materials('video', 0, 20);
+     * list($err, $data) = $api->get_materials('thumb', 0, 20);
+     * ```
+     */    
+    public function get_materials ($type, $offset, $count) {        
+        $url = self::API_DOMAIN . 'cgi-bin/material/batchget_material?access_token=' . $this->getToken();
+        $xml = sprintf('{
+                    "type":"%s",
+                    "offset":"%s",
+                    "count":"%s"}',
+                    $type,
+                    $offset,
+                    $count);        
+        $res = HttpCurl::post($url, $xml, 'json');    
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }    
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
         } else {            
             return array($res, NULL);
         }        
