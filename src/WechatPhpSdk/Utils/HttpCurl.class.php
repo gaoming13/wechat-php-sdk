@@ -73,7 +73,7 @@ class HttpCurl {
         }
         curl_setopt($cl, CURLOPT_URL, $url);
         curl_setopt($cl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt($cl, CURLOPT_POST, true);
+        curl_setopt($cl, CURLOPT_POST, true);        
         curl_setopt($cl, CURLOPT_POSTFIELDS, $fields);
         $content = curl_exec($cl);
         $status = curl_getinfo($cl);

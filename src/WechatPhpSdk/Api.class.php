@@ -5,6 +5,8 @@
  * Api模块 （处理需要access_token的主动接口）
  * - 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
  * - 多客服功能（客服管理、多客服回话控制、获取客服聊天记录...）
+ * - 素材管理（临时素材、永久素材、素材统计）
+ * - 自定义菜单管理（开发中...）
  *
  * @author 		gaoming13 <gaoming13@yeah.net>
  * @link 		https://github.com/gaoming13/wechat-php-sdk
@@ -297,14 +299,30 @@ class Api
              *
              * Examples:
              * ```
-             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
-             *  'type' => 'music',
-             *  'title' => '音乐标题',                      //可选
-             *  'description' => '音乐描述',                //可选
-             *  'music_url' => 'http://me.diary8.com/data/music/2.mp3',     //可选
-             *  'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',   //可选
-             *  'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
-             * ));             
+             * $api->send($msg->FromUserName, array(
+             *  'type' => 'news',
+             *  'articles' => array(
+             *      array(
+             *          'title' => '图文消息标题1',                           //可选
+             *          'description' => '图文消息描述1',                     //可选
+             *          'picurl' => 'http://me.diary8.com/data/img/demo1.jpg',  //可选
+             *          'url' => 'http://www.example.com/'                      //可选
+             *      ),
+             *      array(
+             *          'title' => '图文消息标题2',
+             *          'description' => '图文消息描述2',
+             *          'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
+             *          'url' => 'http://www.example.com/'
+             *      ),
+             *      array(
+             *          'title' => '图文消息标题3',
+             *          'description' => '图文消息描述3',
+             *          'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
+             *          'url' => 'http://www.example.com/'
+             *      )
+             *  ),
+             *  'kf_account' => 'test1@kftest'      // 可选(指定某个客服发送, 会显示这个客服的头像)
+             * ));          
              * ```
              */         
             case 'news':
@@ -728,18 +746,31 @@ class Api
     /**
      * 新增临时素材
      *
-     * @param string $type
-     * @param string $path
-     *
-     * @return array(err, res)
-     * 
      * Examples:
-     * ```   
+     * ```
      * list($err, $res) = $api->upload_media('image', '/data/img/fighting.jpg');
      * list($err, $res) = $api->upload_media('voice', '/data/img/song.amr');
      * list($err, $res) = $api->upload_media('video', '/data/img/go.mp4');
      * list($err, $res) = $api->upload_media('thumb', '/data/img/sky.jpg');
-     * ```               
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         type: "image",
+     *         media_id: "CVS_UPz62LKIfDwc7bUWtI250x_KBLhOuYgkHr1GjVxJCP8N9rOYfgIKXSY5Wg9n",
+     *         created_at: 1439623233
+     *     }
+     * ]
+     * ```
+     *
+     * @param string $type 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb，主要用于视频与音乐格式的缩略图）
+     * @param string $path 素材的绝对路径
+     *
+     * @return array(err, res)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
      */
     public function upload_media ($type, $path) {        
         $url = self::API_DOMAIN . 'cgi-bin/media/upload?access_token=' . $this->getToken() . '&type=' . $type;        
@@ -759,15 +790,18 @@ class Api
     /**
      * 获取临时素材URL
      *
-     * @param string $type
-     * @param string $path
-     *
-     * @return array(err, res)
-     * 
      * Examples:
      * ```   
      * $url = $api->get_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
-     * ```               
+     * ```
+     * Result:
+     * ```
+     * https://api.weixin.qq.com/cgi-bin/media/get?access_token=egpGMhgnhbrqOo77wkUS7HmEFp40bITkRZNJk1gCGTH8i-BiVxai9zs0CcWk223dz6LiypGprpLHBRL9upjKQLqPgtAnqUeK9qznUyDsNXg&media_id=CVS_UPz62LKIfDwc7bUWtI250x_KBLhOuYgkHr1GjVxJCP8N9rOYfgIKXSY5Wg9n  
+     * ```     
+     *     
+     * @param string $media_id 媒体文件ID
+     *
+     * @return string $url 媒体文件的URL     
      */
     public function get_media ($media_id) {        
         return self::API_DOMAIN . 'cgi-bin/media/get?access_token=' . $this->getToken() . '&media_id=' . $media_id;
@@ -776,19 +810,20 @@ class Api
     /**
      * 下载临时素材
      *
-     * @param string $type
-     * @param string $path
-     *
-     * @return array(err, res)
-     * 
      * Examples:
      * ```   
      * header('Content-type: image/jpg');
      * list($err, $data) = $api->download_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
      * echo $data;
-     * ```               
+     * ```
+     *
+     * @param string $media_id 媒体文件ID
+     *
+     * @return array(err, res)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象        
      */
-    public function download_media ($media_id, $path) {
+    public function download_media ($media_id) {
         $url = $this->get_media($media_id);
         $res = HttpCurl::get($url);
         // 异常处理: 获取时网络错误
@@ -801,29 +836,43 @@ class Api
     /**
      * 新增永久素材
      *
-     * @param string $type
-     * @param string $path
+     * Examples:
+     * ```
+     * // 新增图片素材
+     * list($err, $res) = $api->add_material('image', '/website/me/data/img/fighting.jpg');
+     * // 新增音频素材
+     * list($err, $res) = $api->add_material('voice', '/data/img/song.amr');
+     * // 新增视频素材
+     * list($err, $res) = $api->add_material('video', '/website/me/data/video/2.mp4', '视频素材的标题', '视频素材的描述');
+     * // 新增略缩图素材
+     * list($err, $res) = $api->add_material('thumb', '/data/img/sky.jpg');
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         media_id: "BZ-ih-dnjWDyNXjai6i6sbK8hTy_bs-PHtnLn8C-IAs",
+     *         url: "https://mmbiz.qlogo.cn/mmbiz/InxuM0bx4ZWgxicicoy2tLibV2hyO5hWT4VlHNI6LticmppBiaG12cJ8icDoSR83zFSKDAz8qnY1miatZiaX8pZKUaIt7w/0?wx_fmt=jpeg"
+     *     }
+     * ]
+     * ```   
+     *
+     * @param string $type 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb）
+     * @param string $path 要上传文件的绝对路径
+     * @param string $title 可选: 视频素材的标题（video）
+     * @param string $introduction 可选: 视频素材的描述（video）
      *
      * @return array(err, res)
-     * 
-     * Examples:
-     * ```   
-     * list($err, $res) = $api->add_material('image', '/website/me/data/img/fighting.jpg');
-     * list($err, $res) = $api->add_material('voice', '/data/img/song.amr');
-     * list($err, $res) = $api->add_material('video', '/website/me/data/video/2.mp4', '视频素材的标题', '视频素材的描述');
-     * list($err, $res) = $api->add_material('thumb', '/data/img/sky.jpg');
-     * ```               
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
      */
     public function add_material ($type, $path, $title='', $introduction='') {        
-        $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->getToken() . '&type=' . $type;        
+        $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->getToken() . '&type=' . $type;                
         $post_data = array('media' => '@'.$path);
         if ($type == 'video') {
-            $post_data['description'] = sprintf('{
-                        "title":"%s",                        
-                        "introduction":"%s"}',
-                        $title,                        
-                        $introduction);
-        }        
+            $post_data['description'] = sprintf('{"title":"%s","introduction":"%s"}', $title, $introduction);
+        }
         $res = HttpCurl::post($url, $post_data, 'json');        
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -838,13 +887,254 @@ class Api
     }
 
     /**
+     * 新增永久图文素材
+     *
+     * @param string $articles     
+     *
+     * @return array(err, res)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象 
+     *
+     * Examples:
+     * ```     
+     * list($err, $res) = $api->add_news(array(
+     *     array(
+     *         'title' => '标题',
+     *         'thumb_media_id' => '图文消息的封面图片素材id（必须是永久mediaID）',
+     *         'author' => '作者',
+     *         'digest' => '图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空',
+     *         'show_cover_pic' => '是否显示封面，0为false，即不显示，1为true，即显示',
+     *         'content' => '图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS',
+     *         'content_source_url' => '图文消息的原文地址，即点击“阅读原文”后的URL'
+     *     ),
+     *     array(
+     *         'title' => '这是图文的标题',
+     *         'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
+     *         'author' => '这是图文的作者',
+     *         'digest' => '',
+     *         'show_cover_pic' => true,
+     *         'content' => '这是图文消息的具体内容',
+     *         'content_source_url' => 'http://www.baidu.com/'
+     *     )
+     * ));
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         media_id: "BZ-ih-dnjWDyNXjai6i6sbK8hTy_bs-PHtnLn8C-IAs"     
+     *     }
+     * ]
+     * ```
+     */
+    public function add_news ($articles) {        
+        $url = self::API_DOMAIN . 'cgi-bin/material/add_news?access_token=' . $this->getToken();
+        $articles1 = array();             
+        foreach ($articles as $article) {
+            array_push($articles1, sprintf('{
+                "title":"%s",
+                "thumb_media_id":"%s",
+                "digest":"%s",
+                "show_cover_pic":"%s",
+                "content":"%s",
+                "content_source_url":"%s"}',
+                $article['title'],
+                $article['thumb_media_id'],                        
+                $article['digest'],
+                $article['show_cover_pic'],
+                $article['content'],                
+                $article['content_source_url']));
+        }
+        $articles1 = implode(",", $articles1);
+        $xml = sprintf('{"articles": [%s]}', $articles1);
+        $res = HttpCurl::post($url, $xml, 'json');        
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if (isset($res->media_id)) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 修改永久图文素材
+     *
+     * Examples:
+     * ```     
+     * list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', array(
+     *     'title' => '标题',
+     *     'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
+     *     'author' => '作者',
+     *     'digest' => '图文消息的摘要',
+     *     'show_cover_pic' => true,
+     *     'content' => '图文消息的具体内容',
+     *     'content_source_url' => 'http://www.diandian.com/'
+     * ), 1); 
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
+     * ``` 
+     *     
+     * @param string $media_id 要修改的图文消息的id
+     * @param string $article 
+     * @param string $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
+     *
+     * @return array(err, res)        
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象      
+     */
+    public function update_news ($media_id, $article, $index = 0) {        
+        $url = self::API_DOMAIN . 'cgi-bin/material/update_news?access_token=' . $this->getToken();        
+        $xml = sprintf('{
+            "media_id":"%s",
+            "index":"%s",
+            "articles": {
+                "title": "%s",
+                "thumb_media_id": "%s",
+                "author": "%s",
+                "digest": "%s",
+                "show_cover_pic": "%s",
+                "content": "%s",
+                "content_source_url": "%s"
+            }}',
+            $media_id, 
+            $index,
+            $article['title'],
+            $article['thumb_media_id'],
+            $article['author'],
+            $article['digest'],
+            $article['show_cover_pic'],
+            $article['content'],                
+            $article['content_source_url']);        
+        $res = HttpCurl::post($url, $xml, 'json');        
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取永久素材
+     *
+     * Examples:
+     * ```   
+     * // 获取图片、音频、略缩图素材
+     * // 返回素材的内容，可保存为文件或直接输出
+     * header('Content-type: image/jpg');
+     * list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g');
+     * echo $data;
+     *
+     * // 获取视频素材
+     * // 返回带down_url的json字符串
+     * list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sbOICualzdwwnWWBqxW39Xk');
+     * var_dump(json_decode($data));
+     *
+     * // 获取图文素材
+     * // 返回图文的json字符串     
+     * list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g');
+     * var_dump(json_decode($data));
+     * ```   
+     *     
+     * @param string $media_id 要获取的素材的media_id
+     *
+     * @return array(err, res)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function get_material ($media_id) {                
+        $url = self::API_DOMAIN . 'cgi-bin/material/get_material?access_token=' . $this->getToken();
+        $xml = '{"media_id":"' . $media_id . '"}';
+        $res = HttpCurl::post($url, $xml);
+        // 异常处理: 获取时网络错误        
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        return array(NULL, $res);
+    }
+
+    /**
+     * 删除永久素材
+     *
+     * Examples:
+     * ```   
+     * list($err, $res) = $api->del_material('BZ-ih-dnjWDyNXjai6i6sbOICualzdwwnWWBqxW39Xk');
+     * if (is_null($err)) {
+     *  // 删除成功
+     * }
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
+     * ``` 
+     *     
+     * @param string $media_id 要删除的素材的media_id
+     *
+     * @return array(err, res)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象                 
+     */
+    public function del_material ($media_id) {        
+        $url = self::API_DOMAIN . 'cgi-bin/material/del_material?access_token=' . $this->getToken();
+        $xml = '{"media_id":"' . $media_id . '"}';
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误        
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {            
+            return array($res, NULL);
+        }        
+    }
+
+    /**
      * 获取素材总数        
      *     
      * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象       
      *
      * Examples:
      * ```
      * list($err, $data) = $api->get_material_count();
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         voice_count: 0,
+     *         video_count: 0,
+     *         image_count: 2858,
+     *         news_count: 278
+     *     }
+     * ]
      * ```
      */    
     public function get_material_count () {        
@@ -865,9 +1155,9 @@ class Api
     /**
      * 获取素材列表        
      *
-     * @param string $type
-     * @param string $offset
-     * @param string $count
+     * @param string $type 素材的类型，图片（image）、视频（video）、语音 （voice）、图文（news）
+     * @param string $offset 从全部素材的该偏移位置开始返回，0表示从第一个素材 返回
+     * @param string $count 返回素材的数量，取值在1到20之间
      *
      * @return array(err, data)
      *

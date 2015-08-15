@@ -12,7 +12,8 @@ Wechat （处理获取微信消息与被动回复）
 Api （处理需要access_token的主动接口）
 * 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
 * 多客服功能（客服管理、多客服回话控制、获取客服聊天记录等）
-* 素材管理(开发中...)
+* 素材管理（临时素材、永久素材、素材统计）
+* 自定义菜单管理（开发中...）
 
 ## DEMO
 项目内 `demo/demo_simple.php`
@@ -511,6 +512,129 @@ $api->get_kf_session_list('test1@微信号');
     
 ```php
 $api->get_waitcase_list();
+```
+
+## Api：素材管理（临时素材、永久素材、素材统计）
+
+[官方wiki](http://mp.weixin.qq.com/wiki/5/963fc70b80dc75483a271298a76a8d59.html)
+
+### 新增临时素材
+    
+```php
+$api->upload_media('image', '/data/img/fighting.jpg');
+$api->upload_media('voice', '/data/img/song.amr');
+$api->upload_media('video', '/data/img/go.mp4');
+$api->upload_media('thumb', '/data/img/sky.jpg');
+```
+
+### 获取临时素材URL
+    
+```php
+$api->get_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
+```
+
+### 下载临时素材
+    
+```php
+header('Content-type: image/jpg');
+list($err, $data) = $api->download_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
+echo $data;
+```
+
+### 新增永久素材
+    
+```php
+// 新增图片素材
+list($err, $res) = $api->add_material('image', '/website/me/data/img/fighting.jpg');
+// 新增音频素材
+list($err, $res) = $api->add_material('voice', '/data/img/song.amr');
+// 新增视频素材
+list($err, $res) = $api->add_material('video', '/website/me/data/video/2.mp4', '视频素材的标题', '视频素材的描述');
+// 新增略缩图素材
+list($err, $res) = $api->add_material('thumb', '/data/img/sky.jpg');
+```
+
+### 新增永久图文素材
+    
+```php
+$api->add_news(array(
+	array(
+		'title' => '标题',
+		'thumb_media_id' => '图文消息的封面图片素材id（必须是永久mediaID）',
+		'author' => '作者',
+		'digest' => '图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空',
+		'show_cover_pic' => '是否显示封面，0为false，即不显示，1为true，即显示',
+		'content' => '图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS',
+		'content_source_url' => '图文消息的原文地址，即点击“阅读原文”后的URL'
+	),
+	array(
+		'title' => '这是图文的标题',
+		'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
+		'author' => '这是图文的作者',
+		'digest' => '',
+		'show_cover_pic' => true,
+		'content' => '这是图文消息的具体内容',
+		'content_source_url' => 'http://www.baidu.com/'
+	)
+));
+```
+
+### 修改永久图文素材
+    
+```php
+list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', array(
+	'title' => '标题',
+	'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
+	'author' => '作者',
+	'digest' => '图文消息的摘要',
+	'show_cover_pic' => true,
+	'content' => '图文消息的具体内容',
+	'content_source_url' => 'http://www.diandian.com/'
+), 1); 
+```
+
+### 获取永久素材
+    
+```php
+// 获取图片、音频、略缩图素材
+// 返回素材的内容，可保存为文件或直接输出
+header('Content-type: image/jpg');
+list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g');
+echo $data;
+
+// 获取视频素材
+// 返回带down_url的json字符串
+list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sbOICualzdwwnWWBqxW39Xk');
+var_dump(json_decode($data));
+
+// 获取图文素材
+// 返回图文的json字符串     
+list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g');
+var_dump(json_decode($data));
+```
+
+### 删除永久素材
+    
+```php
+list($err, $res) = $api->del_material('BZ-ih-dnjWDyNXjai6i6sbOICualzdwwnWWBqxW39Xk');
+if (is_null($err)) {
+	// 删除成功
+}
+```
+
+### 获取素材总数
+    
+```php
+$api->get_material_count();
+```
+
+### 获取素材列表
+    
+```php
+$api->get_materials('image', 0, 20);
+$api->get_materials('voice', 0, 20);
+$api->get_materials('video', 0, 20);
+$api->get_materials('thumb', 0, 20);
 ```
 
 ## License
