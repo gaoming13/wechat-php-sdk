@@ -13,7 +13,8 @@ Api （处理需要access_token的主动接口）
 * [主送发送客服消息（文本、图片、语音、视频、音乐、图文）](#api发送客服消息文本图片语音视频音乐图文) 
 * [多客服功能（客服管理、多客服回话控制、获取客服聊天记录等）](#api多客服功能客服管理多客服回话控制获取客服聊天记录等) 
 * [素材管理（临时素材、永久素材、素材统计）](#api素材管理临时素材永久素材素材统计) 
-* 自定义菜单管理（开发中...）
+* [自定义菜单管理（创建、查询、删除菜单）](#api自定义菜单管理创建查询删除菜单) 
+* 用户管理（开发中）
 
 ## DEMO
 项目内 `demo/demo_simple.php`
@@ -635,6 +636,93 @@ $api->get_materials('image', 0, 20);
 $api->get_materials('voice', 0, 20);
 $api->get_materials('video', 0, 20);
 $api->get_materials('thumb', 0, 20);
+```
+
+## Api：自定义菜单管理（创建、查询、删除菜单）
+
+[官方wiki](http://mp.weixin.qq.com/wiki/13/43de8269be54a0a6f64413e4dfa94f39.html)
+
+### 自定义菜单创建接口
+    
+```php
+$api->create_menu('
+{
+    "button":[
+        {   
+          "type":"click",
+          "name":"主菜单1",
+          "key":"V1001_TODAY_MUSIC"
+        },
+        {
+            "name":"主菜单2",
+            "sub_button":[
+                {
+                    "type":"click",
+                    "name":"点击推事件",
+                    "key":"click_event1"
+                },
+                {
+                    "type":"view",
+                    "name":"跳转URL",
+                    "url":"http://www.example.com/"
+                },
+                {
+                    "type":"scancode_push",
+                    "name":"扫码推事件",
+                    "key":"scancode_push_event1"
+                },
+                {
+                    "type":"scancode_waitmsg",
+                    "name":"扫码带提示",
+                    "key":"scancode_waitmsg_event1"
+                }
+            ]
+       },
+       {
+            "name":"主菜单3",
+            "sub_button":[
+                {
+                    "type":"pic_sysphoto",
+                    "name":"系统拍照发图",
+                    "key":"pic_sysphoto_event1"
+                },
+                {
+                    "type":"pic_photo_or_album",
+                    "name":"拍照或者相册发图",
+                    "key":"pic_photo_or_album_event1"
+                },
+                {
+                    "type":"pic_weixin",
+                    "name":"微信相册发图",
+                    "key":"pic_weixin_event1"
+                },
+                {
+                    "type":"location_select",
+                    "name":"发送位置",
+                    "key":"location_select_event1"
+                }
+            ]
+       }
+    ]
+}');
+```
+
+### 自定义菜单查询接口
+    
+```php
+$api->get_menu();
+```
+
+### 自定义菜单删除接口
+    
+```php
+$api->delete_menu();
+```
+
+### 自定义菜单删除接口
+    
+```php
+$api->delete_menu();
 ```
 
 ## License

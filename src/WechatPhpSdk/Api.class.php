@@ -1171,13 +1171,7 @@ class Api
      */    
     public function get_materials ($type, $offset, $count) {        
         $url = self::API_DOMAIN . 'cgi-bin/material/batchget_material?access_token=' . $this->getToken();
-        $xml = sprintf('{
-                    "type":"%s",
-                    "offset":"%s",
-                    "count":"%s"}',
-                    $type,
-                    $offset,
-                    $count);        
+        $xml = sprintf('{"type":"%s","offset":"%s","count":"%s"}', $type, $offset, $count);
         $res = HttpCurl::post($url, $xml, 'json');    
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -1185,6 +1179,265 @@ class Api
         }    
         // 判断是否调用成功
         if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {            
+            return array($res, NULL);
+        }        
+    }
+
+    /**
+     * 自定义菜单创建接口        
+     *     
+     * @param string $json 菜单的json串，具体结构见微信公众平台文档
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象       
+     *
+     * Examples:
+     * ```
+     * $api->create_menu('
+     * {
+     *     "button":[
+     *         {   
+     *           "type":"click",
+     *           "name":"主菜单1",
+     *           "key":"V1001_TODAY_MUSIC"
+     *         },
+     *         {
+     *             "name":"主菜单2",
+     *             "sub_button":[
+     *                 {
+     *                     "type":"click",
+     *                     "name":"点击推事件",
+     *                     "key":"click_event1"
+     *                 },
+     *                 {
+     *                     "type":"view",
+     *                     "name":"跳转URL",
+     *                     "url":"http://www.example.com/"
+     *                 },
+     *                 {
+     *                     "type":"scancode_push",
+     *                     "name":"扫码推事件",
+     *                     "key":"scancode_push_event1"
+     *                 },
+     *                 {
+     *                     "type":"scancode_waitmsg",
+     *                     "name":"扫码带提示",
+     *                     "key":"scancode_waitmsg_event1"
+     *                 }
+     *             ]
+     *        },
+     *        {
+     *             "name":"主菜单3",
+     *             "sub_button":[
+     *                 {
+     *                     "type":"pic_sysphoto",
+     *                     "name":"系统拍照发图",
+     *                     "key":"pic_sysphoto_event1"
+     *                 },
+     *                 {
+     *                     "type":"pic_photo_or_album",
+     *                     "name":"拍照或者相册发图",
+     *                     "key":"pic_photo_or_album_event1"
+     *                 },
+     *                 {
+     *                     "type":"pic_weixin",
+     *                     "name":"微信相册发图",
+     *                     "key":"pic_weixin_event1"
+     *                 },
+     *                 {
+     *                     "type":"location_select",
+     *                     "name":"发送位置",
+     *                     "key":"location_select_event1"
+     *                 }
+     *             ]
+     *        }
+     *     ]
+     * }');
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
+     * ```
+     */    
+    public function create_menu ($json) {        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/create?access_token=' . $this->getToken();        
+        $res = HttpCurl::post($url, $json, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功        
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 自定义菜单查询接口        
+     *     
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象       
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->get_menu();
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         menu: {
+     *             button: [
+     *                 {
+     *                     type: "click",
+     *                     name: "主菜单1",
+     *                     key: "V1001_TODAY_MUSIC",
+     *                     sub_button: [ ]
+     *                 },
+     *                 {
+     *                     name: "主菜单2",
+     *                     sub_button: [
+     *                         {
+     *                             type: "click",
+     *                             name: "点击推事件",
+     *                             key: "click_event1",
+     *                             sub_button: [ ]
+     *                         },
+     *                         {
+     *                             type: "view",
+     *                             name: "跳转URL",
+     *                             url: "http://www.example.com/",
+     *                             sub_button: [ ]
+     *                         }
+     *                     ]
+     *                 }
+     *             ]
+     *         }
+     *     }
+     * ]     
+     * ```
+     */    
+    public function get_menu () {        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/get?access_token=' . $this->getToken();        
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }        
+        // 判断是否调用成功        
+        if (isset($res->menu)) {
+            return array(NULL, $res);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 自定义菜单删除接口        
+     *     
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象       
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->delete_menu();
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
+     * ```
+     */    
+    public function delete_menu () {        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/delete?access_token=' . $this->getToken();        
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }        
+        // 判断是否调用成功        
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {            
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取自定义菜单配置接口        
+     *     
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象       
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->get_selfmenu();
+     * ```
+     * Result:
+     * ```    
+     * [
+     *     null,
+     *     {
+     *         is_menu_open: 1,
+     *         selfmenu_info: {
+     *             button: [
+     *                 {
+     *                     type: "click",
+     *                     name: "主菜单1",
+     *                     key: "V1001_TODAY_MUSIC"
+     *                 },
+     *                 {
+     *                     name: "主菜单2",
+     *                     sub_button: {
+     *                         list: [
+     *                             {
+     *                                 type: "click",
+     *                                 name: "点击推事件",
+     *                                 key: "click_event1"
+     *                             },
+     *                             {
+     *                                 type: "view",
+     *                                 name: "跳转URL",
+     *                                 url: "http://www.example.com/"
+     *                             }
+     *                         ]
+     *                     }
+     *                 }
+     *             ]
+     *         }
+     *     }
+     * ]
+     * ```
+     */    
+    public function get_selfmenu () {        
+        $url = self::API_DOMAIN . 'cgi-bin/get_current_selfmenu_info?access_token=' . $this->getToken();        
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }    
+        // 判断是否调用成功        
+        if (isset($res->is_menu_open)) {
             return array(NULL, $res);
         } else {            
             return array($res, NULL);
