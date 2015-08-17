@@ -719,10 +719,10 @@ $api->get_menu();
 $api->delete_menu();
 ```
 
-### 自定义菜单删除接口
+### 获取自定义菜单配置接口
     
 ```php
-$api->delete_menu();
+$api->get_selfmenu();
 ```
 
 ## License
