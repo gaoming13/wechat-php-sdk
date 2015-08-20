@@ -39,17 +39,20 @@ $wechat = new Wechat(array(
 
 // api模块 - 包含各种系统主动发起的功能
 $api = new Api(
-	array('appId' => $appId,'appSecret'	=> $appSecret),
-	function(){
-		// 用户需要自己实现access_token的返回
-		global $m;		
-		return $m->get('wechat_token');
-	}, 
-	function($token) {
-		// 用户需要自己实现access_token的保存
-		global $m;
-		$m->set('wechat_token', $token, 0);
-	}
+    array(
+        'appId' => $appId,
+        'appSecret'	=> $appSecret,
+        'get_access_token' => function() {
+            // 用户需要自己实现access_token的返回
+            global $m;
+            return $m->get('access_token');
+        },
+        'save_access_token' => function($token) {
+            // 用户需要自己实现access_token的保存
+            global $m;
+            $m->set('access_token', $token, 0);
+        }
+    )
 );
 
 

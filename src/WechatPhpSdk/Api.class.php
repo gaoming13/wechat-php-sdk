@@ -6,6 +6,8 @@
  * - 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
  * - 多客服功能（客服管理、多客服回话控制、获取客服聊天记录...）
  * - 素材管理（临时素材、永久素材、素材统计）
+ * - 微信JSSDK（生成微信JSSDK所需的配置信息）
+ * - 账号管理（生成带参数的二维码、长链接转短链接接口）
  * - 自定义菜单管理（开发中...）
  *
  * @author 		gaoming13 <gaoming13@yeah.net>
@@ -17,6 +19,7 @@ namespace Gaoming13\WechatPhpSdk;
 
 use Gaoming13\WechatPhpSdk\Utils\HttpCurl;
 use Gaoming13\WechatPhpSdk\Utils\Error;
+use Gaoming13\WechatPhpSdk\Utils\SHA1;
 
 class Api 
 {
@@ -29,20 +32,27 @@ class Api
     protected $appSecret;
 
     // 用户自定义获取access_token的方法
-    protected $getTokenDiy;
+    protected $get_access_token_diy;
     // 用户自定义保存access_token的方法
-    protected $saveTokenDiy;
+    protected $save_access_token_diy;
+
+    // 用户自定义获取jsapi_ticket的方法
+    protected $get_jsapi_ticket_diy;
+    // 用户自定义保存jsapi_ticket的方法
+    protected $save_jsapi_ticket_diy;
 
 	/**
      * 设定配置项
      *
      * @param array $config
      */
-    public function __construct($config, $getTokenDiy = FALSE, $saveTokenDiy = FALSE) {
-        $this->appId            =   $config['appId'];
-        $this->appSecret        =   $config['appSecret'];
-        $this->getTokenDiy      =   $getTokenDiy;
-        $this->saveTokenDiy     =   $saveTokenDiy;
+    public function __construct($config) {
+        $this->appId                    =   $config['appId'];
+        $this->appSecret                =   $config['appSecret'];
+        $this->get_access_token_diy     =   isset($config['get_access_token']) ? $config['get_access_token'] : FALSE;
+        $this->save_access_token_diy    =   isset($config['save_access_token']) ? $config['save_access_token'] : FALSE;
+        $this->get_jsapi_ticket_diy     =   isset($config['get_jsapi_ticket']) ? $config['get_jsapi_ticket'] : FALSE;
+        $this->save_jsapi_ticket_diy    =   isset($config['save_jsapi_ticket']) ? $config['save_jsapi_ticket'] : FALSE;
     }
 
     /**
@@ -52,8 +62,7 @@ class Api
      *
      * @return bool
      */
-    public function checkToken($token) {
-        error_log($token->expires_in . ' ' .time());
+    public function valid_access_token($token) {
         return $token && isset($token->expires_in) && ($token->expires_in > time() + 1200);
     }
 
@@ -62,7 +71,7 @@ class Api
      *
      * @return mixed
      */
-    public function newToken() {        
+    public function new_access_token() {
         $url = self::API_DOMAIN . 'cgi-bin/token?grant_type=client_credential&appid=' . $this->appId . '&secret=' . $this->appSecret;
         $res = HttpCurl::get($url, 'json');
 
@@ -86,32 +95,31 @@ class Api
      *
      * @return string
      */
-    public function getToken() {        
+    public function get_access_token() {
         $token = FALSE;
-        
-        if ($this->getTokenDiy !== FALSE) {
+        if ($this->get_access_token_diy !== FALSE) {
             // 调用用户自定义获取AccessToken方法
-            $token = call_user_func($this->getTokenDiy);
+            $token = call_user_func($this->get_access_token_diy);
             if ($token) {
                 $token = json_decode($token);
             }
         } else {
             // 异常处理: 获取access_token方法未定义
-            @error_log('Not set getTokenDiy method, AccessToken will be refreshed each time.', 0);
+            @error_log('Not set get_tokenDiy method, AccessToken will be refreshed each time.', 0);
         }        
         // 验证AccessToken是否有效        
-        if (!$this->checkToken($token)) {
+        if (!$this->valid_access_token($token)) {
 
             // 生成新的AccessToken
-            $token = $this->newToken();            
+            $token = $this->new_access_token();
             if ($token === FALSE) {
                 return FALSE;
             }
 
             // 保存新生成的AccessToken
-            if ($this->saveTokenDiy !== FALSE) {                
+            if ($this->save_access_token_diy !== FALSE) {
                 // 用户自定义保存AccessToken方法    
-                call_user_func($this->saveTokenDiy, json_encode($token));
+                call_user_func($this->save_access_token_diy, json_encode($token));
             } else {
                 // 异常处理: 保存access_token方法未定义
                 @error_log('Not set saveTokenDiy method, AccessToken will be refreshed each time.', 0);
@@ -358,7 +366,7 @@ class Api
                 break;
         }
 
-        $url = self::API_DOMAIN . 'cgi-bin/message/custom/send?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'cgi-bin/message/custom/send?access_token=' . $this->get_access_token();
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取access_token网络错误
         if ($res === FALSE) {
@@ -396,7 +404,7 @@ class Api
 				$kf_account,
 				$nickname,
 				md5($password));
-    	$url = self::API_DOMAIN . 'customservice/kfaccount/add?access_token=' . $this->getToken();    	
+    	$url = self::API_DOMAIN . 'customservice/kfaccount/add?access_token=' . $this->get_access_token();    	
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -433,7 +441,7 @@ class Api
 				$kf_account,
 				$nickname,
 				md5($password));
-    	$url = self::API_DOMAIN . 'customservice/kfaccount/update?access_token=' . $this->getToken();    	
+    	$url = self::API_DOMAIN . 'customservice/kfaccount/update?access_token=' . $this->get_access_token();    	
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -461,7 +469,7 @@ class Api
 	 * ```               
      */
     public function set_kf_avatar ($kf_account, $path) {
-    	$url = self::API_DOMAIN . 'customservice/kfaccount/uploadheadimg?access_token=' . $this->getToken() . '&kf_account=' . $kf_account;        
+    	$url = self::API_DOMAIN . 'customservice/kfaccount/uploadheadimg?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;        
         $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');        
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -488,7 +496,7 @@ class Api
 	 * ```               
      */
     public function del_kf ($kf_account) {    	
-    	$url = self::API_DOMAIN . 'customservice/kfaccount/del?access_token=' . $this->getToken() . '&kf_account=' . $kf_account;    	
+    	$url = self::API_DOMAIN . 'customservice/kfaccount/del?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;    	
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -513,7 +521,7 @@ class Api
 	 * ```               
      */
     public function get_kf_list () {    		
-    	$url = self::API_DOMAIN . 'cgi-bin/customservice/getkflist?access_token=' . $this->getToken();
+    	$url = self::API_DOMAIN . 'cgi-bin/customservice/getkflist?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -538,7 +546,7 @@ class Api
 	 * ```               
      */
     public function get_online_kf_list () {    	
-    	$url = self::API_DOMAIN . 'cgi-bin/customservice/getonlinekflist?access_token=' . $this->getToken();
+    	$url = self::API_DOMAIN . 'cgi-bin/customservice/getonlinekflist?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -568,7 +576,7 @@ class Api
      * ```
      */
     public function get_kf_records ($starttime, $endtime, $pageindex, $pagesize) {        
-        $url = self::API_DOMAIN . 'customservice/msgrecord/getrecord?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'customservice/msgrecord/getrecord?access_token=' . $this->get_access_token();
         $xml = sprintf('{
                     "endtime" : %s,
                     "pageindex" : %s,
@@ -606,7 +614,7 @@ class Api
      * ```
      */
     public function create_kf_session ($openid, $kf_account, $text='') {        
-        $url = self::API_DOMAIN . 'customservice/kfsession/create?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'customservice/kfsession/create?access_token=' . $this->get_access_token();
         $xml = sprintf('{
                     "kf_account" : "%s",
                     "openid" : "%s",
@@ -642,7 +650,7 @@ class Api
      * ```
      */
     public function close_kf_session ($openid, $kf_account, $text='') {
-        $url = self::API_DOMAIN . 'customservice/kfsession/close?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'customservice/kfsession/close?access_token=' . $this->get_access_token();
         $xml = sprintf('{
                     "kf_account" : "%s",
                     "openid" : "%s",
@@ -676,7 +684,7 @@ class Api
      * ```
      */
     public function get_kf_session ($openid) {        
-        $url = self::API_DOMAIN . 'customservice/kfsession/getsession?access_token=' . $this->getToken() . '&openid=' . $openid;
+        $url = self::API_DOMAIN . 'customservice/kfsession/getsession?access_token=' . $this->get_access_token() . '&openid=' . $openid;
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -703,7 +711,7 @@ class Api
      * ```
      */
     public function get_kf_session_list ($kf_account) {        
-        $url = self::API_DOMAIN . 'customservice/kfsession/getsessionlist?access_token=' . $this->getToken() . '&kf_account=' . $kf_account;
+        $url = self::API_DOMAIN . 'customservice/kfsession/getsessionlist?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -728,7 +736,7 @@ class Api
      * ```
      */
     public function get_waitcase_list () {        
-        $url = self::API_DOMAIN . 'customservice/kfsession/getwaitcase?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'customservice/kfsession/getwaitcase?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -773,7 +781,7 @@ class Api
      * - `res`, 调用正常时得到的对象
      */
     public function upload_media ($type, $path) {        
-        $url = self::API_DOMAIN . 'cgi-bin/media/upload?access_token=' . $this->getToken() . '&type=' . $type;        
+        $url = self::API_DOMAIN . 'cgi-bin/media/upload?access_token=' . $this->get_access_token() . '&type=' . $type;        
         $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');        
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -804,7 +812,7 @@ class Api
      * @return string $url 媒体文件的URL     
      */
     public function get_media ($media_id) {        
-        return self::API_DOMAIN . 'cgi-bin/media/get?access_token=' . $this->getToken() . '&media_id=' . $media_id;
+        return self::API_DOMAIN . 'cgi-bin/media/get?access_token=' . $this->get_access_token() . '&media_id=' . $media_id;
     }
 
     /**
@@ -868,7 +876,7 @@ class Api
      * - `res`, 调用正常时得到的对象
      */
     public function add_material ($type, $path, $title='', $introduction='') {        
-        $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->getToken() . '&type=' . $type;                
+        $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->get_access_token() . '&type=' . $type;                
         $post_data = array('media' => '@'.$path);
         if ($type == 'video') {
             $post_data['description'] = sprintf('{"title":"%s","introduction":"%s"}', $title, $introduction);
@@ -929,7 +937,7 @@ class Api
      * ```
      */
     public function add_news ($articles) {        
-        $url = self::API_DOMAIN . 'cgi-bin/material/add_news?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'cgi-bin/material/add_news?access_token=' . $this->get_access_token();
         $articles1 = array();             
         foreach ($articles as $article) {
             array_push($articles1, sprintf('{
@@ -996,7 +1004,7 @@ class Api
      * - `res`, 调用正常时得到的对象      
      */
     public function update_news ($media_id, $article, $index = 0) {        
-        $url = self::API_DOMAIN . 'cgi-bin/material/update_news?access_token=' . $this->getToken();        
+        $url = self::API_DOMAIN . 'cgi-bin/material/update_news?access_token=' . $this->get_access_token();        
         $xml = sprintf('{
             "media_id":"%s",
             "index":"%s",
@@ -1060,7 +1068,7 @@ class Api
      * - `res`, 调用正常时得到的对象
      */
     public function get_material ($media_id) {                
-        $url = self::API_DOMAIN . 'cgi-bin/material/get_material?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'cgi-bin/material/get_material?access_token=' . $this->get_access_token();
         $xml = '{"media_id":"' . $media_id . '"}';
         $res = HttpCurl::post($url, $xml);
         // 异常处理: 获取时网络错误        
@@ -1098,7 +1106,7 @@ class Api
      * - `res`, 调用正常时得到的对象                 
      */
     public function del_material ($media_id) {        
-        $url = self::API_DOMAIN . 'cgi-bin/material/del_material?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'cgi-bin/material/del_material?access_token=' . $this->get_access_token();
         $xml = '{"media_id":"' . $media_id . '"}';
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误        
@@ -1138,7 +1146,7 @@ class Api
      * ```
      */    
     public function get_material_count () {        
-        $url = self::API_DOMAIN . 'cgi-bin/material/get_materialcount?access_token=' . $this->getToken();        
+        $url = self::API_DOMAIN . 'cgi-bin/material/get_materialcount?access_token=' . $this->get_access_token();        
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -1170,7 +1178,7 @@ class Api
      * ```
      */    
     public function get_materials ($type, $offset, $count) {        
-        $url = self::API_DOMAIN . 'cgi-bin/material/batchget_material?access_token=' . $this->getToken();
+        $url = self::API_DOMAIN . 'cgi-bin/material/batchget_material?access_token=' . $this->get_access_token();
         $xml = sprintf('{"type":"%s","offset":"%s","count":"%s"}', $type, $offset, $count);
         $res = HttpCurl::post($url, $xml, 'json');    
         // 异常处理: 获取时网络错误
@@ -1269,7 +1277,7 @@ class Api
      * ```
      */    
     public function create_menu ($json) {        
-        $url = self::API_DOMAIN . 'cgi-bin/menu/create?access_token=' . $this->getToken();        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/create?access_token=' . $this->get_access_token();        
         $res = HttpCurl::post($url, $json, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -1331,7 +1339,7 @@ class Api
      * ```
      */    
     public function get_menu () {        
-        $url = self::API_DOMAIN . 'cgi-bin/menu/get?access_token=' . $this->getToken();        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/get?access_token=' . $this->get_access_token();        
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -1368,7 +1376,7 @@ class Api
      * ```
      */    
     public function delete_menu () {        
-        $url = self::API_DOMAIN . 'cgi-bin/menu/delete?access_token=' . $this->getToken();        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/delete?access_token=' . $this->get_access_token();        
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -1430,7 +1438,7 @@ class Api
      * ```
      */    
     public function get_selfmenu () {        
-        $url = self::API_DOMAIN . 'cgi-bin/get_current_selfmenu_info?access_token=' . $this->getToken();        
+        $url = self::API_DOMAIN . 'cgi-bin/get_current_selfmenu_info?access_token=' . $this->get_access_token();        
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
@@ -1442,5 +1450,283 @@ class Api
         } else {            
             return array($res, NULL);
         }        
+    }
+
+    /**
+     * JS-SDK 生成一个新的jsapi_ticket
+     *
+     * @return mixed
+     */
+    public function new_jsapi_ticket () {
+        $url = self::API_DOMAIN . 'cgi-bin/ticket/getticket?access_token=' . $this->get_access_token() . '&type=jsapi';
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return (object)array(
+                'ticket' => $res->ticket,
+                'expires_in' => $res->expires_in + time()
+            );
+        } else {
+            return FALSE;
+        }
+    }
+
+    /**
+     * JS-SDK 校验jsapi_ticket是否过期
+     *
+     * @param object $ticket
+     *
+     * @return bool
+     */
+    public function valid_jsapi_ticket ($ticket) {
+        return $ticket && isset($ticket->expires_in) && ($ticket->expires_in > time() + 1200);
+    }
+
+    /**
+     * JS-SDK 获取jsapi_ticket
+     *
+     * @return string $ticket
+     */
+    public function get_jsapi_ticket () {
+        $ticket = FALSE;
+        if ($this->get_jsapi_ticket_diy !== FALSE) {
+            // 调用用户自定义获取jsapi_ticket方法
+            $ticket = call_user_func($this->get_jsapi_ticket_diy);
+            if ($ticket) {
+                $ticket = json_decode($ticket);
+            }
+        } else {
+            // 异常处理: 获取jsapi_ticket方法未定义
+            @error_log('Not set getTicketDiy method, jsapi_ticket will be refreshed each time.', 0);
+        }
+
+        // 验证jsapi_ticket是否有效
+        if (!$this->valid_jsapi_ticket($ticket)) {
+
+            // 生成新的jsapi_ticket
+            $ticket = $this->new_jsapi_ticket();
+            if ($ticket === FALSE) {
+                return FALSE;
+            }
+
+            // 保存新生成的AccessToken
+            if ($this->save_jsapi_ticket_diy !== FALSE) {
+                // 用户自定义保存AccessToken方法
+                call_user_func($this->save_jsapi_ticket_diy, json_encode($ticket));
+            } else {
+                // 异常处理: 保存access_token方法未定义
+                @error_log('Not set saveTokenDiy method, jsapi_ticket will be refreshed each time.', 0);
+            }
+        }
+        return $ticket->ticket;
+    }
+
+    /**
+     * JS-SDK 获取JS-SDK配置需要的信息
+     *
+     * @param string $url 可选：调取JS-SDK的页面url，默认为HTTP_REFERER
+     * @param string $type 可选：返回配置信息的格式 json & jsonp, 默认为对象数组
+     * @param string $$jsonp_callback 可选：使用json的callback名称
+     *
+     * Examples:
+     * ```
+     * $api->get_jsapi_config();
+     * $api->get_jsapi_config('http://www.baidu.com/');
+     * ```
+     * Result:
+     * ```
+     * {
+     *      errcode: 0,
+     *      appId: "wx733d7f24bd29224a",
+     *      timestamp: 1440073485,
+     *      nonceStr: "5Ars5fLaLuPEXSgm",
+     *      signature: "7f830aff99ff11fa931cae61b5b932b1f2c8ee10",
+     *      url: "http://www.baidu.com/"
+     * }
+     * ```
+     *
+     * Examples:
+     * ```
+     * $api->get_jsapi_config('', 'json');
+     * ```
+     * Result:
+     * ```
+     * {"errcode":0,"appId":"wx733d7f24bd29224a","timestamp":1440073708,"nonceStr":"caFkkXnOhVrcq3Ke","signature":"1c6c08ddf6e0e3c0fd33aafcb160a9f67d6b8f94","url":null}
+     * ```
+     *
+     * Examples:
+     * ```
+     * $api->get_jsapi_config('', 'jsonp');
+     * $api->get_jsapi_config('', 'jsonp', 'callback');
+     * ```
+     * Result:
+     * ```
+     * ;jQuery17105012127514928579_1440073858610({"errcode":0,"appId":"wx733d7f24bd29224a","timestamp":1440073875,"nonceStr":"vsGBSM0MMiWeIJFQ","signature":"616005786e404fe0da226a6decc2730624bedbfc","url":null})
+     * ```
+     *
+     * @return mixed
+     */
+    public function get_jsapi_config ($url = '', $type = '', $jsonp_callback = 'callback') {
+        $jsapi_ticket = $this->get_jsapi_ticket();
+        $nonce_str = SHA1::get_random_str();
+        $timestamp = time();
+        if ($url == '') {
+            $url = $_SERVER['HTTP_REFERER'];
+        }
+        $signature = SHA1::get_jsapi_signature($jsapi_ticket, $nonce_str, $timestamp, $url);
+
+        if ($signature === FALSE) {
+            $jsapi_config = array(
+                'errcode' => -1,
+                'errmsg' => 'get jsapi signature error.'
+            );
+        } else {
+            $jsapi_config = array(
+                'errcode' => 0,
+                'appId' => $this->appId,
+                'timestamp' => $timestamp,
+                'nonceStr' => $nonce_str,
+                'signature' => $signature,
+                'url' => $url
+            );
+        }
+        if ($type == 'json' || $type == 'jsonp') {
+            $jsapi_config = json_encode($jsapi_config);
+            if ($type == 'jsonp' && isset($_REQUEST[$jsonp_callback]) && !empty($_REQUEST[$jsonp_callback])) {
+                $jsapi_config = ';' . $_REQUEST[$jsonp_callback] . '(' . $jsapi_config . ')';
+            }
+        }
+        return $jsapi_config;
+    }
+
+    /**
+     * 生成带参数的二维码
+     *
+     * @int $scene_id 场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
+     * @int $expire_seconds 可选：该二维码有效时间，以秒为单位。 最大不超过604800（即7天），默认为永久二维码，填写该项为临时二维码
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->create_qrcode(1234); // 创建一个永久二维码
+     * list($err, $data) = $api->create_qrcode(1234, 100); //创建一个临时二维码，有效期100秒
+     * ```
+     * Result:
+     * ```
+     * [
+     *  null,
+     *  {
+     *      ticket: "gQFM8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzlVeU83dGZsMXNldlAtQ0hmbUswAAIEQcrVVQMEZAAAAA==",
+     *      expire_seconds: 100,
+     *      url: "http://weixin.qq.com/q/9UyO7tfl1sevP-CHfmK0"
+     *  }
+     * ]
+     * ```
+     */
+    public function create_qrcode ($scene_id, $expire_seconds = 0) {
+        $url = self::API_DOMAIN . 'cgi-bin/qrcode/create?access_token=' . $this->get_access_token();
+        $expire = $expire_seconds == 0 ? '' : '"expire_seconds": ' . $expire_seconds . ',';
+        $action_name = $expire_seconds == 0 ? 'QR_LIMIT_SCENE' : 'QR_SCENE';
+        $xml = sprintf('{%s"action_name": "%s", "action_info": {"scene": {"scene_id": %s}}}',
+            $expire,
+            $action_name,
+            $scene_id);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if (isset($res->ticket)) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 通过ticket换取二维码，返回二维码url地址
+     *
+     * @string $ticket 二维码的ticket
+     *
+     * @return string 二维码的url地址
+     *
+     * Examples:
+     * ```
+     * echo $api->get_qrcode_url('gQH58DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzQweUctT2psME1lcEJPYWJkbUswAAIEApzVVQMEZAAAAA==');
+     * ```
+     * Result:
+     * ```
+     * https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQH58DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzQweUctT2psME1lcEJPYWJkbUswAAIEApzVVQMEZAAAAA==
+     * ```
+     */
+    public function get_qrcode_url ($ticket) {
+        return 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' . $ticket;
+    }
+
+    /**
+     * 通过ticket换取二维码，返回二维码图片的内容
+     *
+     * @string $ticket 获取到的二维码ticket
+     *
+     * @return string 二维码图片的内容
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->get_qrcode('gQGa8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzlVeXJZWS1seGNlODZ2SV9XMkMwAAIEo5rVVQMEAAAAAA==');
+     * header('Content-type: image/jpg');
+     * echo $data;
+     * ```
+     */
+    public function get_qrcode ($ticket) {
+        $url = self::get_qrcode_url($ticket);
+        $res = HttpCurl::get($url);
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        return array(NULL, $res);
+    }
+
+    /**
+     * 长链接转短链接接口
+     *
+     * @string $long_url 需要转换的长链接，支持http://、https://、weixin://wxpay 格式的url
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     *
+     * Examples:
+     * ```
+     * list($err, $data) = $api->shorturl('http://me.diary8.com/category/web-front-end.html');
+     * echo $data->short_url;
+     * ```
+     * Result:
+     * ```
+     * http://w.url.cn/s/ABJrkxE
+     * ```
+     */
+    public function shorturl ($long_url) {
+        $url = self::API_DOMAIN . 'cgi-bin/shorturl?access_token=' . $this->get_access_token();
+        $xml = '{"action":"long2short","long_url":"' . $long_url . '"}';
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
     }
 }

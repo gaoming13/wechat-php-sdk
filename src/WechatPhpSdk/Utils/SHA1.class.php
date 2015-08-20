@@ -52,5 +52,40 @@ class SHA1 {
 			@error_log('getSignature Error: ' . $e->getMessage(), 0);			
 			return FALSE;
 		}
-	}	
+	}
+
+    /**
+     * JS-SDK权限验证的签名
+     *
+     * @param string $token 票据
+     * @param string $timestamp 时间戳
+     * @param string $nonce 随机字符串
+     */
+    static function get_jsapi_signature($jsapi_ticket, $nonceStr, $timestamp, $url) {
+        //排序
+        try {
+            // $array = array($jsapi_ticket, $nonce_str, $timestamp, $url);
+            // sort($array, SORT_STRING);
+            // $str = implode("&", $array);
+            $str = "jsapi_ticket=$jsapi_ticket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
+            return sha1($str);
+        } catch (Exception $e) {
+            @error_log('get_jsapi_signature Error: ' . $e->getMessage(), 0);
+            return FALSE;
+        }
+    }
+
+    /**
+     * 随机生成16位字符串
+     * @return string 生成的字符串
+     */
+    static function get_random_str($length = 16) {
+        $str = "";
+        $str_pol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+        $max = strlen($str_pol) - 1;
+        for ($i = 0; $i < $length; $i++) {
+            $str .= $str_pol[mt_rand(0, $max)];
+        }
+        return $str;
+    }
 }

@@ -13,7 +13,9 @@ Api （处理需要access_token的主动接口）
 * [主送发送客服消息（文本、图片、语音、视频、音乐、图文）](#api发送客服消息文本图片语音视频音乐图文) 
 * [多客服功能（客服管理、多客服回话控制、获取客服聊天记录等）](#api多客服功能客服管理多客服回话控制获取客服聊天记录等) 
 * [素材管理（临时素材、永久素材、素材统计）](#api素材管理临时素材永久素材素材统计) 
-* [自定义菜单管理（创建、查询、删除菜单）](#api自定义菜单管理创建查询删除菜单) 
+* [自定义菜单管理（创建、查询、删除菜单）](#api自定义菜单管理创建查询删除菜单)
+* 微信JSSDK（生成微信JSSDK所需的配置信息）
+* 账号管理（生成带参数的二维码、长链接转短链接接口）
 * 用户管理（开发中）
 
 ## DEMO
@@ -305,19 +307,29 @@ $wechat = new Wechat(array(
 // api模块 - 包含各种系统主动发起的功能
 $api = new Api(
 	array(
-		'appId' => $appId,
-		'appSecret'	=> $appSecret
-	),
-	function(){
-		// 用户需要自己实现access_token的返回
-		global $m;		
-		return $m->get('wechat_token');
-	}, 
-	function($token) {
-		// 用户需要自己实现access_token的保存
-		global $m;
-		$m->set('wechat_token', $token, 0);
-	}
+        'appId' => $appId,
+        'appSecret'	=> $appSecret,
+        'get_access_token' => function() {
+            // 用户需要自己实现access_token的返回
+            global $m;
+            return $m->get('access_token');
+        },
+        'save_access_token' => function($token) {
+            // 用户需要自己实现access_token的保存
+            global $m;
+            $m->set('access_token', $token, 0);
+        },
+        'get_jsapi_ticket' => function() {
+            // 可选：用户需要自己实现jsapi_ticket的返回（若使用get_jsapi_config，则必须定义）
+            global $m;
+            return $m->get('jsapi_ticket');
+        },
+        'save_jsapi_ticket' => function($jsapi_ticket) {
+            // 可选：用户需要自己实现jsapi_ticket的保存（若使用get_jsapi_config，则必须定义）
+            global $m;
+            $m->set('jsapi_ticket', $jsapi_ticket, 0);
+        }
+    )
 );
 
 
@@ -723,6 +735,53 @@ $api->delete_menu();
     
 ```php
 $api->get_selfmenu();
+```
+
+## Api：微信JSSDK（生成微信JSSDK所需的配置信息）
+
+[官方wiki](http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html)
+
+### 获取JS-SDK配置需要的信息
+
+```php
+$api->get_jsapi_config();
+$api->get_jsapi_config('http://www.baidu.com/');
+
+$api->get_jsapi_config('', 'json');
+$api->get_jsapi_config('', 'jsonp');
+$api->get_jsapi_config('', 'jsonp', 'callback');
+```
+
+## Api：账号管理（生成带参数的二维码、长链接转短链接接口）
+
+[官方wiki](http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html)
+
+### 生成带参数的二维码
+
+```php
+list($err, $data) = $api->create_qrcode(1234); // 创建一个永久二维码
+list($err, $data) = $api->create_qrcode(1234, 100); //创建一个临时二维码，有效期100秒
+```
+
+### 通过ticket换取二维码，返回二维码url地址
+
+```php
+$api->get_qrcode_url('gQH58DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzQweUctT2psME1lcEJPYWJkbUswAAIEApzVVQMEZAAAAA==');
+```
+
+### 通过ticket换取二维码，返回二维码图片的内容
+
+```php
+list($err, $data) = $api->get_qrcode('gQGa8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzlVeXJZWS1seGNlODZ2SV9XMkMwAAIEo5rVVQMEAAAAAA==');
+header('Content-type: image/jpg');
+echo $data;
+```
+
+### 长链接转短链接接口
+
+```php
+list($err, $data) = $api->shorturl('http://me.diary8.com/category/web-front-end.html');
+echo $data->short_url;
 ```
 
 ## License
