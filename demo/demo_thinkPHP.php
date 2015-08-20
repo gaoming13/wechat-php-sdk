@@ -46,15 +46,18 @@ class TestController extends BaseController {
         ));
         // api模块 - 包含各种系统主动发起的功能
         $api = new \Gaoming13\WechatPhpSdk\Api(
-            array('appId' => $appId,'appSecret'	=> $appSecret),
-            function(){
-                // 用户需要自己实现access_token的返回
-                return S('wechat_token');
-            },
-            function($token) {
-                // 用户需要自己实现access_token的保存
-                S('wechat_token', $token);
-            }
+            array(
+                'appId' => $appId,
+                'appSecret'	=> $appSecret,
+                'get_access_token' => function(){
+                    // 用户需要自己实现access_token的返回
+                    return S('wechat_token');
+                },
+                'save_access_token' => function($token) {
+                    // 用户需要自己实现access_token的保存
+                    S('wechat_token', $token);
+                }
+            )
         );
 
         // 获取微信消息
