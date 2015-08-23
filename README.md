@@ -1,13 +1,13 @@
 # wechat-php-sdk
 微信公众平台php版开发包
+* 支持消息加解密方式的明文模式、兼容模式、安全模式
+* 支持接入微信公众平台（[步骤](#接入微信公众平台开发方法)） 
 
 ## 功能模块
 Wechat （处理获取微信消息与被动回复）
 * [接收普通消息/事件推送](#wechat-接收普通消息事件推送)
 * [被动回复（文本、图片、语音、视频、音乐、图文）](#wechat-被动回复文本图片语音视频音乐图文)
 * [转发到多客服接口](#wechat-转发到多客服接口)
-* 支持消息加解密方式的明文模式、兼容模式、安全模式
-* [支持接入微信公众平台](#接入微信公众平台开发方法) 
 
 Api （处理需要access_token的主动接口）
 * [主送发送客服消息（文本、图片、语音、视频、音乐、图文）](#api发送客服消息文本图片语音视频音乐图文) 
@@ -16,7 +16,8 @@ Api （处理需要access_token的主动接口）
 * [自定义菜单管理（创建、查询、删除菜单）](#api自定义菜单管理创建查询删除菜单)
 * [微信JSSDK（生成微信JSSDK所需的配置信息）](#api微信jssdk生成微信jssdk所需的配置信息)
 * [账号管理（生成带参数的二维码、长链接转短链接接口）](#api账号管理生成带参数的二维码长链接转短链接接口)
-* 用户管理（开发中）
+* 用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）
+* 数据统计接口（开发中...）
 
 ## DEMO
 项目内 `demo/demo_simple.php`
@@ -783,6 +784,85 @@ echo $data;
 list($err, $data) = $api->shorturl('http://me.diary8.com/category/web-front-end.html');
 echo $data->short_url;
 ```
+
+## Api：用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）
+
+[官方wiki](http://mp.weixin.qq.com/wiki/0/56d992c605a97245eb7e617854b169fc.html)
+
+### 用户分组管理 - 创建分组
+
+```php
+list($err, $data) = $api->create_group('新的一个分组');
+echo $data->group->id;
+```
+
+### 用户分组管理 - 查询所有分组
+
+```php
+list($err, $data) = $api->get_groups();
+foreach ($data->groups as $group) {
+    var_dump($group);
+}
+```
+
+### 用户分组管理 - 查询用户所在分组
+
+```php
+list($err, $data) = $api->get_user_group('ocNtAt0YPGDme5tJBXyTphvrQIrc');
+echo $data->groupid;
+```
+
+### 用户分组管理 - 修改分组名
+
+```php
+$api->update_group(100, '自定义分组了');
+```
+
+### 用户分组管理 - 移动用户分组
+
+```php
+$api->update_user_group('ocNtAt0YPGDme5tJBXyTphvrQIrc', 100);
+```
+
+### 用户分组管理 - 批量移动用户分组
+
+```php
+$api->batchupdate_user_group(array(
+    'ocNtAt0YPGDme5tJBXyTphvrQIrc',
+    'ocNtAt_TirhYM6waGeNUbCfhtZoA',
+    'ocNtAt_K8nRlAdmNEo_R0WVg_rRw'
+    ), 100);
+```
+
+### 用户分组管理 - 删除分组
+
+```php
+$api->delete_group(102);
+```
+
+### 设置用户备注名
+
+```php
+$api->update_user_remark('ocNtAt0YPGDme5tJBXyTphvrQIrc', '用户的备注名');
+```
+
+### 获取用户基本信息
+
+```php
+$api->get_user_info('ocNtAt_K8nRlAdmNEo_R0WVg_rRw');
+$api->get_user_info('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'zh_TW');
+```
+
+### 获取用户列表
+
+```php
+$api->get_user_list();
+$api->get_user_list('ocNtAt_TirhYM6waGeNUbCfhtZoA');
+```
+
+### 网页授权获取用户基本信息
+
+TODO: 开发中...
 
 ## License
 

@@ -1951,15 +1951,21 @@ class Api
      *
      * Examples:
      * ```
-     * $api->update_user_group('ocNtAt0YPGDme5tJBXyTphvrQIrc', 100);
-     * ```
-     * Result:
-     * ```
      * $api->batchupdate_user_group(array(
      *     'ocNtAt0YPGDme5tJBXyTphvrQIrc',
      *     'ocNtAt_TirhYM6waGeNUbCfhtZoA',
      *     'ocNtAt_K8nRlAdmNEo_R0WVg_rRw'
      *     ), 100);
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
      * ```
      *
      * @param array $open_id_arr
