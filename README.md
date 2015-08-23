@@ -1,22 +1,22 @@
 # wechat-php-sdk
 微信公众平台php版开发包
 * 支持消息加解密方式的明文模式、兼容模式、安全模式
-* 支持接入微信公众平台（[步骤](#接入微信公众平台开发方法)） 
+* 支持自动接入微信公众平台（[步骤](#接入微信公众平台开发方法)） 
 
 ## 功能模块
-Wechat （处理获取微信消息与被动回复）
+Wechat （处理自动接入、获取与回复微信消息）([使用说明](#wechat-模块使用说明))
 * [接收普通消息/事件推送](#wechat-接收普通消息事件推送)
 * [被动回复（文本、图片、语音、视频、音乐、图文）](#wechat-被动回复文本图片语音视频音乐图文)
 * [转发到多客服接口](#wechat-转发到多客服接口)
 
-Api （处理需要access_token的主动接口）
+Api （处理需要access_token的主动接口）([使用说明](#api-模块使用说明))
 * [主送发送客服消息（文本、图片、语音、视频、音乐、图文）](#api发送客服消息文本图片语音视频音乐图文) 
 * [多客服功能（客服管理、多客服回话控制、获取客服聊天记录等）](#api多客服功能客服管理多客服回话控制获取客服聊天记录等) 
 * [素材管理（临时素材、永久素材、素材统计）](#api素材管理临时素材永久素材素材统计) 
 * [自定义菜单管理（创建、查询、删除菜单）](#api自定义菜单管理创建查询删除菜单)
 * [微信JSSDK（生成微信JSSDK所需的配置信息）](#api微信jssdk生成微信jssdk所需的配置信息)
 * [账号管理（生成带参数的二维码、长链接转短链接接口）](#api账号管理生成带参数的二维码长链接转短链接接口)
-* 用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）
+* [用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）](#api用户管理用户分组管理设置用户备注名获取用户基本信息获取用户列表网页授权获取用户基本信息)
 * 数据统计接口（开发中...）
 
 ## DEMO
@@ -85,18 +85,18 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
   ));
 
   $api = new \Gaoming13\WechatPhpSdk\Api(
-  	array(
-  		'appId' => $appId,
-  		'appSecret'	=> $appSecret
-  	),
-  	function(){
-  		// 用户需要自己实现access_token的返回
-  		...				  		
-  	}, 
-  	function($token) {
-  		// 用户需要自己实现access_token的保存
-  		...
-  	}
+    array(
+        'appId' => $appId,
+        'appSecret'	=> $appSecret,
+        'get_access_token' => function(){
+            // 用户需要自己实现access_token的返回
+            ...
+        },
+        'save_access_token' => function($token) {
+            // 用户需要自己实现access_token的保存
+            ...
+        }
+    )
   );
   ```
 
@@ -257,20 +257,19 @@ $wechat->reply(array(
 
 ```php
 $api = new Api(
-	array(
-		'appId' => $appId,
-		'appSecret'	=> $appSecret
-	),
-	function(){
-		// 用户需要在这里实现access_token的返回
-		...
-	}, 
-	function($token) {
-		// 用户需要在这里实现access_token的保存
-		...
-	}
+    array(
+        'appId' => $appId,
+        'appSecret' => $appSecret,
+        'get_access_token' => function() {
+            // 用户需要在这里实现access_token的返回
+            ...
+        },
+        'save_access_token' => function($token) {
+            // 用户需要在这里实现access_token的保存
+            ...
+        }
+    )
 );
-
 ```
 
 access_token可以保存在数据库、Memcached、xcache 等.
