@@ -6,9 +6,11 @@
  * - 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
  * - 多客服功能（客服管理、多客服回话控制、获取客服聊天记录...）
  * - 素材管理（临时素材、永久素材、素材统计）
+ * - 自定义菜单管理（创建、查询、删除菜单）
  * - 微信JSSDK（生成微信JSSDK所需的配置信息）
  * - 账号管理（生成带参数的二维码、长链接转短链接接口）
- * - 自定义菜单管理（开发中...）
+ * - 用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）
+ * - 数据统计接口（开发中...）
  *
  * @author 		gaoming13 <gaoming13@yeah.net>
  * @link 		https://github.com/gaoming13/wechat-php-sdk
@@ -1479,7 +1481,6 @@ class Api
      * JS-SDK 校验jsapi_ticket是否过期
      *
      * @param object $ticket
-     *
      * @return bool
      */
     public function valid_jsapi_ticket ($ticket) {
@@ -1532,6 +1533,8 @@ class Api
      * @param string $type 可选：返回配置信息的格式 json & jsonp, 默认为对象数组
      * @param string $$jsonp_callback 可选：使用json的callback名称
      *
+     * @return mixed
+     *
      * Examples:
      * ```
      * $api->get_jsapi_config();
@@ -1567,8 +1570,6 @@ class Api
      * ```
      * ;jQuery17105012127514928579_1440073858610({"errcode":0,"appId":"wx733d7f24bd29224a","timestamp":1440073875,"nonceStr":"vsGBSM0MMiWeIJFQ","signature":"616005786e404fe0da226a6decc2730624bedbfc","url":null})
      * ```
-     *
-     * @return mixed
      */
     public function get_jsapi_config ($url = '', $type = '', $jsonp_callback = 'callback') {
         $jsapi_ticket = $this->get_jsapi_ticket();
@@ -1674,9 +1675,9 @@ class Api
     /**
      * 通过ticket换取二维码，返回二维码图片的内容
      *
-     * @string $ticket 获取到的二维码ticket
+     * @string $ticket [获取到的二维码ticket]
      *
-     * @return string 二维码图片的内容
+     * @return string [二维码图片的内容]
      *
      * Examples:
      * ```
@@ -1698,7 +1699,7 @@ class Api
     /**
      * 长链接转短链接接口
      *
-     * @string $long_url 需要转换的长链接，支持http://、https://、weixin://wxpay 格式的url
+     * @string $long_url [需要转换的长链接，支持http://、https://、weixin://wxpay 格式的url]
      *
      * @return array(err, data)
      * - `err`, 调用失败时得到的异常
@@ -1720,10 +1721,450 @@ class Api
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
         if ($res === FALSE) {
-            return Error::code('ERR_GET');
+            return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 用户分组管理 - 创建分组
+     *
+     * Examples:
+     * ```
+     * $api->create_group('新的一个分组');
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         group: {
+     *             id: 104,
+     *             name: "新的一个分组"
+     *         }
+     *     }
+     * ]
+     * ```
+     *
+     * @param string $group_name [分组名字（30个字符以内）]
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function create_group ($group_name) {
+        $url = self::API_DOMAIN . 'cgi-bin/groups/create?access_token=' .$this->get_access_token();
+        $xml = sprintf('{"group":{"name":"%s"}}', $group_name);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if (isset($res->group)) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 用户分组管理 - 查询所有分组
+     *
+     * Examples:
+     * ```
+     * $api->get_groups();
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         groups: [
+     *             {
+     *                 id: 0,
+     *                 name: "未分组",
+     *                 count: 1
+     *             },
+     *             {
+     *                 id: 1,
+     *                 name: "黑名单",
+     *                 count: 0
+     *             },
+     *             {
+     *                 id: 100,
+     *                 name: "自定义分组1",
+     *                 count: 3
+     *             }
+     *         ]
+     *     }
+     * ]
+     * ```
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function get_groups () {
+        $url = self::API_DOMAIN . 'cgi-bin/groups/get?access_token=' .$this->get_access_token();
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if (isset($res->groups)) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 用户分组管理 - 查询用户所在分组
+     *
+     * Examples:
+     * ```
+     * $api->get_user_group('ocNtAt0YPGDme5tJBXyTphvrQIrc');
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         groupid: 100
+     *     }
+     * ]
+     * ```
+     *
+     * @param string $open_id [用户的OpenID]
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function get_user_group ($open_id) {
+        $url = self::API_DOMAIN . 'cgi-bin/groups/getid?access_token=' .$this->get_access_token();
+        $xml = sprintf('{"openid":"%s"}', $open_id);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if (isset($res->groupid)) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     *  用户分组管理 - 修改分组名
+     *
+     * Examples:
+     * ```
+     * $api->update_group(100, '自定义分组了');
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
+     * ```
+     *
+     * @param int $group_id [分组id，由微信分配]
+     * @param string $group_name [分组名字（30个字符以内）]
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function update_group ($group_id, $group_name) {
+        $url = self::API_DOMAIN . 'cgi-bin/groups/update?access_token=' .$this->get_access_token();
+        $xml = sprintf('{"group":{"id":"%s","name":"%s"}}', $group_id, $group_name);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 用户分组管理 - 移动用户分组
+     *
+     * Examples:
+     * ```
+     * $api->update_user_group('ocNtAt0YPGDme5tJBXyTphvrQIrc', 100);
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
+     * ```
+     *
+     * @param string $open_id [用户唯一标识符]
+     * @param int $to_groupid [分组id]
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function update_user_group ($open_id, $to_groupid) {
+        $url = self::API_DOMAIN . 'cgi-bin/groups/members/update?access_token=' .$this->get_access_token();
+        $xml = sprintf('{"openid":"%s","to_groupid":"%s"}', $open_id, $to_groupid);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 用户分组管理 - 批量移动用户分组
+     *
+     * Examples:
+     * ```
+     * $api->update_user_group('ocNtAt0YPGDme5tJBXyTphvrQIrc', 100);
+     * ```
+     * Result:
+     * ```
+     * $api->batchupdate_user_group(array(
+     *     'ocNtAt0YPGDme5tJBXyTphvrQIrc',
+     *     'ocNtAt_TirhYM6waGeNUbCfhtZoA',
+     *     'ocNtAt_K8nRlAdmNEo_R0WVg_rRw'
+     *     ), 100);
+     * ```
+     *
+     * @param array $open_id_arr
+     * @param int $to_groupid
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function batchupdate_user_group ($open_id_arr, $to_groupid) {
+        $url = self::API_DOMAIN . 'cgi-bin/groups/members/batchupdate?access_token=' .$this->get_access_token();
+        $open_ids = json_encode($open_id_arr);
+        $xml = sprintf('{"openid_list":%s,"to_groupid":"%s"}', $open_ids, $to_groupid);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 用户分组管理 - 删除分组
+     *
+     * Examples:
+     * ```
+     * $api->delete_group(102);
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
+     * ```
+     *
+     * @param int $group_id
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function delete_group ($group_id) {
+        $url = self::API_DOMAIN . 'cgi-bin/groups/delete?access_token=' .$this->get_access_token();
+        $xml = sprintf('{"group":{"id":"%s"}}', $group_id);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 设置用户备注名
+     *
+     * Examples:
+     * ```
+     * $api->update_user_remark('ocNtAt0YPGDme5tJBXyTphvrQIrc', '用户的备注名');
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         errcode: 0,
+     *         errmsg: "ok"
+     *     }
+     * ]
+     * ```
+     *
+     * @param string $open_id [用户标识]
+     * @param string $remark [新的备注名，长度必须小于30字符]
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function update_user_remark ($open_id, $remark) {
+        $url = self::API_DOMAIN . 'cgi-bin/user/info/updateremark?access_token=' .$this->get_access_token();
+        $xml = sprintf('{"openid":"%s", "remark":"%s"}', $open_id, $remark);
+        $res = HttpCurl::post($url, $xml, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if ($res->errcode == 0) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取用户基本信息
+     *
+     * Examples:
+     * ```
+     * $api->get_user_info('ocNtAt_K8nRlAdmNEo_R0WVg_rRw');
+     * $api->get_user_info('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'zh_TW');
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         subscribe: 1,
+     *         openid: "ocNtAt_K8nRlAdmNEo_R0WVg_rRw",
+     *         nickname: "赵利明",
+     *         sex: 1,
+     *         language: "zh_CN",
+     *         city: "浦東新區",
+     *         province: "上海",
+     *         country: "中國",
+     *         headimgurl: "http://wx.qlogo.cn/mmopen/eFIz8Uk9INlmmw4dAblRbUxIhjoJtPUUGGJXaWp6rd48v4vUMhmk7GvfNv2Kd0xSvRWfMk7PnOIoicz3ibMf38zvWnr7bCXNZC/0",
+     *         subscribe_time: 1440150875,
+     *         remark: "",
+     *         groupid: 100
+     *     }
+     * ]
+     * ```
+     *
+     * @param string $open_id [普通用户的标识，对当前公众号唯一]
+     * @param string $lang [可选：返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语]
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function get_user_info ($open_id, $lang = '') {
+        if ($lang != '') {
+            $lang = '&lang=' . $lang;
+        }
+        $url = self::API_DOMAIN . 'cgi-bin/user/info?access_token=' . $this->get_access_token() . '&openid=' . $open_id . $lang;
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if (isset($res->openid)) {
+            return array(NULL, $res);
+        } else {
+            return array($res, NULL);
+        }
+    }
+
+    /**
+     * 获取用户列表
+     *
+     * Examples:
+     * ```
+     * $api->get_user_list();
+     * $api->get_user_list('ocNtAt_TirhYM6waGeNUbCfhtZoA');
+     * ```
+     * Result:
+     * ```
+     * [
+     *     null,
+     *     {
+     *         total: 4,
+     *         count: 2,
+     *         data: {
+     *             openid: [
+     *                 "ocNtAt_K8nRlAdmNEo_R0WVg_rRw",
+     *                 "ocNtAt9DVhWngpiMyZzPFWr4IXD0"
+     *             ]
+     *         },
+     *         next_openid: "ocNtAt9DVhWngpiMyZzPFWr4IXD0"
+     *     }
+     * ]
+     * ```
+     *
+     * @param string $next_openid [可选：第一个拉取的OPENID，不填默认从头开始拉取]
+     *
+     * @return array(err, data)
+     * - `err`, 调用失败时得到的异常
+     * - `res`, 调用正常时得到的对象
+     */
+    public function get_user_list ($next_openid = '') {
+        if ($next_openid != '') {
+            $next_openid = '&next_openid=' . $next_openid;
+        }
+        $url = self::API_DOMAIN . 'cgi-bin/user/get?access_token=' . $this->get_access_token() . $next_openid;
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === FALSE) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if (isset($res->data)) {
             return array(NULL, $res);
         } else {
             return array($res, NULL);
