@@ -743,6 +743,8 @@ $api->get_selfmenu();
 
 ### 获取JS-SDK配置需要的信息
 
+使用前请确认，初始化Api时，已填写并实现了`get_jsapi_ticket`和`save_jsapi_ticket`
+
 ```php
 $api->get_jsapi_config();
 $api->get_jsapi_config('http://www.baidu.com/');
