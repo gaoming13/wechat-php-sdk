@@ -51,13 +51,14 @@ class Api
      *
      * @param array $config
      */
-    public function __construct($config) {
+    public function __construct($config)
+    {
         $this->appId                    =   $config['appId'];
         $this->appSecret                =   $config['appSecret'];
-        $this->get_access_token_diy     =   isset($config['get_access_token']) ? $config['get_access_token'] : FALSE;
-        $this->save_access_token_diy    =   isset($config['save_access_token']) ? $config['save_access_token'] : FALSE;
-        $this->get_jsapi_ticket_diy     =   isset($config['get_jsapi_ticket']) ? $config['get_jsapi_ticket'] : FALSE;
-        $this->save_jsapi_ticket_diy    =   isset($config['save_jsapi_ticket']) ? $config['save_jsapi_ticket'] : FALSE;
+        $this->get_access_token_diy     =   isset($config['get_access_token']) ? $config['get_access_token'] : false;
+        $this->save_access_token_diy    =   isset($config['save_access_token']) ? $config['save_access_token'] : false;
+        $this->get_jsapi_ticket_diy     =   isset($config['get_jsapi_ticket']) ? $config['get_jsapi_ticket'] : false;
+        $this->save_jsapi_ticket_diy    =   isset($config['save_jsapi_ticket']) ? $config['save_jsapi_ticket'] : false;
     }
 
     /**
@@ -67,7 +68,8 @@ class Api
      *
      * @return bool
      */
-    public function valid_access_token($token) {
+    public function valid_access_token($token)
+    {
         return $token && isset($token->expires_in) && ($token->expires_in > time() + 1200);
     }
 
@@ -76,20 +78,21 @@ class Api
      *
      * @return mixed
      */
-    public function new_access_token() {
+    public function new_access_token()
+    {
         $url = self::API_DOMAIN . 'cgi-bin/token?grant_type=client_credential&appid=' . $this->appId . '&secret=' . $this->appSecret;
         $res = HttpCurl::get($url, 'json');
 
         // 异常处理: 获取access_token网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             @error_log('Http Get AccessToken Error.', 0);
-            return FALSE;            
+            return false;            
         }
 
         // 异常处理: access_token获取失败
         if (!isset($res->access_token)) {
             @error_log('Get AccessToken Error: ' . json_encode($res), 0);
-            return FALSE;
+            return false;
         }
         $res->expires_in += time();
         return $res;
@@ -100,9 +103,10 @@ class Api
      *
      * @return string
      */
-    public function get_access_token() {
-        $token = FALSE;
-        if ($this->get_access_token_diy !== FALSE) {
+    public function get_access_token()
+    {
+        $token = false;
+        if ($this->get_access_token_diy !== false) {
             // 调用用户自定义获取AccessToken方法
             $token = call_user_func($this->get_access_token_diy);
             if ($token) {
@@ -117,12 +121,12 @@ class Api
 
             // 生成新的AccessToken
             $token = $this->new_access_token();
-            if ($token === FALSE) {
-                return FALSE;
+            if ($token === false) {
+                return false;
             }
 
             // 保存新生成的AccessToken
-            if ($this->save_access_token_diy !== FALSE) {
+            if ($this->save_access_token_diy !== false) {
                 // 用户自定义保存AccessToken方法    
                 call_user_func($this->save_access_token_diy, json_encode($token));
             } else {
@@ -141,7 +145,8 @@ class Api
      *
      * @return array(err, data)
      */
-    public function send ($openid, $msg) {
+    public function send($openid, $msg)
+    {
         // 获取消息类型
         $msg_type = '';
         if (gettype($msg)=='string') {
@@ -374,14 +379,14 @@ class Api
         $url = self::API_DOMAIN . 'cgi-bin/message/custom/send?access_token=' . $this->get_access_token();
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取access_token网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
         	return Error::code('ERR_GET');
         }
         // 判断是否调用成功     
         if ($res->errcode == 0) {
-        	return array(NULL, TRUE);            
+        	return array(null, true);            
         } else {
-        	return array($res, NULL);            
+        	return array($res, null);            
         }
     }
 
@@ -400,7 +405,8 @@ class Api
 	 * list($err, $res) = $api->add_kf('test1234@微信号', '客服昵称', '客服密码');
 	 * ```               
      */
-    public function add_kf ($kf_account, $nickname, $password) {
+    public function add_kf ($kf_account, $nickname, $password)
+    {
     	$password = md5($password);
     	$xml = sprintf('{
     			"kf_account" : "%s",
@@ -412,14 +418,14 @@ class Api
     	$url = self::API_DOMAIN . 'customservice/kfaccount/add?access_token=' . $this->get_access_token();    	
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
         	return Error::code('ERR_GET');
         }        
         // 判断是否调用成功        
         if ($res->errcode == 0) {
-        	return array(NULL, TRUE);
+        	return array(null, true);
         } else {
-        	return array($res, NULL);
+        	return array($res, null);
         }
     }
 
@@ -437,7 +443,8 @@ class Api
 	 * list($err, $res) = $api->update_kf('test1234@微信号', '客服昵称', '客服密码');
 	 * ```               
      */
-    public function update_kf ($kf_account, $nickname, $password) {
+    public function update_kf($kf_account, $nickname, $password)
+    {
     	$password = md5($password);
     	$xml = sprintf('{
     			"kf_account" : "%s",
@@ -449,14 +456,14 @@ class Api
     	$url = self::API_DOMAIN . 'customservice/kfaccount/update?access_token=' . $this->get_access_token();    	
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
         	return Error::code('ERR_GET');
         }        
         // 判断是否调用成功        
         if ($res->errcode == 0) {
-        	return array(NULL, TRUE);
+        	return array(null, true);
         } else {
-        	return array($res, NULL);
+        	return array($res, null);
         }
     }
 
@@ -473,18 +480,19 @@ class Api
 	 * list($err, $res) = $api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
 	 * ```               
      */
-    public function set_kf_avatar ($kf_account, $path) {
+    public function set_kf_avatar($kf_account, $path)
+    {
     	$url = self::API_DOMAIN . 'customservice/kfaccount/uploadheadimg?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;        
         $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');        
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
         	return Error::code('ERR_GET');
         }        
         // 判断是否调用成功        
         if ($res->errcode == 0) {
-        	return array(NULL, TRUE);
+        	return array(null, true);
         } else {
-        	return array($res, NULL);
+        	return array($res, null);
         }        
     }
 
@@ -500,18 +508,19 @@ class Api
 	 * list($err, $res) = $api->del_kf('test1234@微信号');
 	 * ```               
      */
-    public function del_kf ($kf_account) {    	
+    public function del_kf($kf_account)
+    {
     	$url = self::API_DOMAIN . 'customservice/kfaccount/del?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;    	
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
         	return Error::code('ERR_GET');
         }        
         // 判断是否调用成功
         if ($res->errcode == 0) {
-        	return array(NULL, TRUE);
+        	return array(null, true);
         } else {
-        	return array($res, NULL);
+        	return array($res, null);
         }
     }
 
@@ -525,18 +534,19 @@ class Api
 	 * list($err, $kf_list) = $api->get_kf_list();
 	 * ```               
      */
-    public function get_kf_list () {    		
+    public function get_kf_list()
+    {
     	$url = self::API_DOMAIN . 'cgi-bin/customservice/getkflist?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
         	return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if (isset($res->kf_list)) {
-        	return array(NULL, $res->kf_list);
+        	return array(null, $res->kf_list);
         } else {        	
-        	return array($res, NULL);
+        	return array($res, null);
         }
     }
 
@@ -550,18 +560,19 @@ class Api
 	 * list($err, $kf_list) = $api->get_online_kf_list();
 	 * ```               
      */
-    public function get_online_kf_list () {    	
+    public function get_online_kf_list ()
+    {
     	$url = self::API_DOMAIN . 'cgi-bin/customservice/getonlinekflist?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
         	return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if (isset($res->kf_online_list)) {
-        	return array(NULL, $res->kf_online_list);
+        	return array(null, $res->kf_online_list);
         } else {        	
-        	return array($res, NULL);
+        	return array($res, null);
         }
     }
 
@@ -580,7 +591,8 @@ class Api
      * list($err, $record_list) = $api->get_kf_records(1439348167, 1439384060, 1, 10);
      * ```
      */
-    public function get_kf_records ($starttime, $endtime, $pageindex, $pagesize) {        
+    public function get_kf_records($starttime, $endtime, $pageindex, $pagesize)
+    {
         $url = self::API_DOMAIN . 'customservice/msgrecord/getrecord?access_token=' . $this->get_access_token();
         $xml = sprintf('{
                     "endtime" : %s,
@@ -593,14 +605,14 @@ class Api
                     $starttime);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if (isset($res->recordlist)) {
-            return array(NULL, $res->recordlist);
+            return array(null, $res->recordlist);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -618,7 +630,8 @@ class Api
      * list($err, $res) = $api->create_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '小明请求接入会话!');
      * ```
      */
-    public function create_kf_session ($openid, $kf_account, $text='') {        
+    public function create_kf_session($openid, $kf_account, $text='')
+    {
         $url = self::API_DOMAIN . 'customservice/kfsession/create?access_token=' . $this->get_access_token();
         $xml = sprintf('{
                     "kf_account" : "%s",
@@ -629,14 +642,14 @@ class Api
                     $text);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, TRUE);
+            return array(null, true);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -654,7 +667,8 @@ class Api
      * list($err, $res) = $api->close_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '与小明的回话已关闭!');
      * ```
      */
-    public function close_kf_session ($openid, $kf_account, $text='') {
+    public function close_kf_session($openid, $kf_account, $text='')
+    {
         $url = self::API_DOMAIN . 'customservice/kfsession/close?access_token=' . $this->get_access_token();
         $xml = sprintf('{
                     "kf_account" : "%s",
@@ -665,14 +679,14 @@ class Api
                     $text);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, TRUE);
+            return array(null, true);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -688,18 +702,19 @@ class Api
      * list($err, $data) = $api->get_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw');
      * ```
      */
-    public function get_kf_session ($openid) {        
+    public function get_kf_session($openid)
+    {
         $url = self::API_DOMAIN . 'customservice/kfsession/getsession?access_token=' . $this->get_access_token() . '&openid=' . $openid;
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -715,18 +730,19 @@ class Api
      * list($err, $data) = $api->get_kf_session_list('test1@微信号');
      * ```
      */
-    public function get_kf_session_list ($kf_account) {        
+    public function get_kf_session_list($kf_account)
+    {
         $url = self::API_DOMAIN . 'customservice/kfsession/getsessionlist?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if (isset($res->sessionlist)) {
-            return array(NULL, $res->sessionlist);
+            return array(null, $res->sessionlist);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -740,18 +756,19 @@ class Api
      * list($err, $data) = $api->get_waitcase_list();
      * ```
      */
-    public function get_waitcase_list () {        
+    public function get_waitcase_list()
+    {
         $url = self::API_DOMAIN . 'customservice/kfsession/getwaitcase?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }    
         // 判断是否调用成功
         if (isset($res->waitcaselist)) {
-            return array(NULL, $res->waitcaselist);
+            return array(null, $res->waitcaselist);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }        
     }
 
@@ -785,18 +802,19 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function upload_media ($type, $path) {        
+    public function upload_media($type, $path)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/media/upload?access_token=' . $this->get_access_token() . '&type=' . $type;        
         $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');        
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }        
         // 判断是否调用成功
         if (isset($res->media_id)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -816,7 +834,8 @@ class Api
      *
      * @return string $url 媒体文件的URL     
      */
-    public function get_media ($media_id) {        
+    public function get_media($media_id)
+    {
         return self::API_DOMAIN . 'cgi-bin/media/get?access_token=' . $this->get_access_token() . '&media_id=' . $media_id;
     }
 
@@ -836,14 +855,15 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象        
      */
-    public function download_media ($media_id) {
+    public function download_media($media_id)
+    {
         $url = $this->get_media($media_id);
         $res = HttpCurl::get($url);
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
-        return array(NULL, $res);
+        return array(null, $res);
     }
 
     /**
@@ -880,7 +900,8 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function add_material ($type, $path, $title='', $introduction='') {        
+    public function add_material($type, $path, $title='', $introduction='')
+    {
         $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->get_access_token() . '&type=' . $type;                
         $post_data = array('media' => '@'.$path);
         if ($type == 'video') {
@@ -888,14 +909,14 @@ class Api
         }
         $res = HttpCurl::post($url, $post_data, 'json');        
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if (isset($res->media_id)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -941,7 +962,8 @@ class Api
      * ]
      * ```
      */
-    public function add_news ($articles) {        
+    public function add_news($articles)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/material/add_news?access_token=' . $this->get_access_token();
         $articles1 = array();             
         foreach ($articles as $article) {
@@ -963,14 +985,14 @@ class Api
         $xml = sprintf('{"articles": [%s]}', $articles1);
         $res = HttpCurl::post($url, $xml, 'json');        
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if (isset($res->media_id)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1008,7 +1030,8 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象      
      */
-    public function update_news ($media_id, $article, $index = 0) {        
+    public function update_news($media_id, $article, $index = 0)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/material/update_news?access_token=' . $this->get_access_token();        
         $xml = sprintf('{
             "media_id":"%s",
@@ -1033,14 +1056,14 @@ class Api
             $article['content_source_url']);        
         $res = HttpCurl::post($url, $xml, 'json');        
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1072,15 +1095,16 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function get_material ($media_id) {                
+    public function get_material($media_id)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/material/get_material?access_token=' . $this->get_access_token();
         $xml = '{"media_id":"' . $media_id . '"}';
         $res = HttpCurl::post($url, $xml);
         // 异常处理: 获取时网络错误        
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
-        return array(NULL, $res);
+        return array(null, $res);
     }
 
     /**
@@ -1110,19 +1134,20 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象                 
      */
-    public function del_material ($media_id) {        
+    public function del_material($media_id)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/material/del_material?access_token=' . $this->get_access_token();
         $xml = '{"media_id":"' . $media_id . '"}';
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误        
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }        
     }
 
@@ -1150,18 +1175,19 @@ class Api
      * ]
      * ```
      */    
-    public function get_material_count () {        
+    public function get_material_count()
+    {
         $url = self::API_DOMAIN . 'cgi-bin/material/get_materialcount?access_token=' . $this->get_access_token();        
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }    
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1182,19 +1208,20 @@ class Api
      * list($err, $data) = $api->get_materials('thumb', 0, 20);
      * ```
      */    
-    public function get_materials ($type, $offset, $count) {        
+    public function get_materials($type, $offset, $count)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/material/batchget_material?access_token=' . $this->get_access_token();
         $xml = sprintf('{"type":"%s","offset":"%s","count":"%s"}', $type, $offset, $count);
         $res = HttpCurl::post($url, $xml, 'json');    
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }    
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }        
     }
 
@@ -1281,18 +1308,19 @@ class Api
      * ]
      * ```
      */    
-    public function create_menu ($json) {        
+    public function create_menu($json)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/menu/create?access_token=' . $this->get_access_token();        
         $res = HttpCurl::post($url, $json, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功        
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1343,18 +1371,19 @@ class Api
      * ]     
      * ```
      */    
-    public function get_menu () {        
+    public function get_menu()
+    {
         $url = self::API_DOMAIN . 'cgi-bin/menu/get?access_token=' . $this->get_access_token();        
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }        
         // 判断是否调用成功        
         if (isset($res->menu)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1380,18 +1409,19 @@ class Api
      * ]
      * ```
      */    
-    public function delete_menu () {        
+    public function delete_menu()
+    {
         $url = self::API_DOMAIN . 'cgi-bin/menu/delete?access_token=' . $this->get_access_token();        
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }        
         // 判断是否调用成功        
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1442,18 +1472,19 @@ class Api
      * ]
      * ```
      */    
-    public function get_selfmenu () {        
+    public function get_selfmenu()
+    {
         $url = self::API_DOMAIN . 'cgi-bin/get_current_selfmenu_info?access_token=' . $this->get_access_token();        
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }    
         // 判断是否调用成功        
         if (isset($res->is_menu_open)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {            
-            return array($res, NULL);
+            return array($res, null);
         }        
     }
 
@@ -1462,11 +1493,12 @@ class Api
      *
      * @return mixed
      */
-    public function new_jsapi_ticket () {
+    public function new_jsapi_ticket()
+    {
         $url = self::API_DOMAIN . 'cgi-bin/ticket/getticket?access_token=' . $this->get_access_token() . '&type=jsapi';
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
@@ -1476,7 +1508,7 @@ class Api
                 'expires_in' => $res->expires_in + time()
             );
         } else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -1486,7 +1518,8 @@ class Api
      * @param object $ticket
      * @return bool
      */
-    public function valid_jsapi_ticket ($ticket) {
+    public function valid_jsapi_ticket($ticket)
+    {
         return $ticket && isset($ticket->expires_in) && ($ticket->expires_in > time() + 1200);
     }
 
@@ -1495,9 +1528,10 @@ class Api
      *
      * @return string $ticket
      */
-    public function get_jsapi_ticket () {
-        $ticket = FALSE;
-        if ($this->get_jsapi_ticket_diy !== FALSE) {
+    public function get_jsapi_ticket()
+    {
+        $ticket = false;
+        if ($this->get_jsapi_ticket_diy !== false) {
             // 调用用户自定义获取jsapi_ticket方法
             $ticket = call_user_func($this->get_jsapi_ticket_diy);
             if ($ticket) {
@@ -1513,12 +1547,12 @@ class Api
 
             // 生成新的jsapi_ticket
             $ticket = $this->new_jsapi_ticket();
-            if ($ticket === FALSE) {
-                return FALSE;
+            if ($ticket === false) {
+                return false;
             }
 
             // 保存新生成的AccessToken
-            if ($this->save_jsapi_ticket_diy !== FALSE) {
+            if ($this->save_jsapi_ticket_diy !== false) {
                 // 用户自定义保存AccessToken方法
                 call_user_func($this->save_jsapi_ticket_diy, json_encode($ticket));
             } else {
@@ -1574,7 +1608,8 @@ class Api
      * ;jQuery17105012127514928579_1440073858610({"errcode":0,"appId":"wx733d7f24bd29224a","timestamp":1440073875,"nonceStr":"vsGBSM0MMiWeIJFQ","signature":"616005786e404fe0da226a6decc2730624bedbfc","url":null})
      * ```
      */
-    public function get_jsapi_config ($url = '', $type = '', $jsonp_callback = 'callback') {
+    public function get_jsapi_config($url = '', $type = '', $jsonp_callback = 'callback')
+    {
         $jsapi_ticket = $this->get_jsapi_ticket();
         $nonce_str = SHA1::get_random_str();
         $timestamp = time();
@@ -1583,7 +1618,7 @@ class Api
         }
         $signature = SHA1::get_jsapi_signature($jsapi_ticket, $nonce_str, $timestamp, $url);
 
-        if ($signature === FALSE) {
+        if ($signature === false) {
             $jsapi_config = array(
                 'errcode' => -1,
                 'errmsg' => 'get jsapi signature error.'
@@ -1634,7 +1669,8 @@ class Api
      * ]
      * ```
      */
-    public function create_qrcode ($scene_id, $expire_seconds = 0) {
+    public function create_qrcode($scene_id, $expire_seconds = 0)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/qrcode/create?access_token=' . $this->get_access_token();
         $expire = $expire_seconds == 0 ? '' : '"expire_seconds": ' . $expire_seconds . ',';
         $action_name = $expire_seconds == 0 ? 'QR_LIMIT_SCENE' : 'QR_SCENE';
@@ -1644,14 +1680,14 @@ class Api
             $scene_id);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if (isset($res->ticket)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1671,7 +1707,8 @@ class Api
      * https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQH58DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzQweUctT2psME1lcEJPYWJkbUswAAIEApzVVQMEZAAAAA==
      * ```
      */
-    public function get_qrcode_url ($ticket) {
+    public function get_qrcode_url($ticket)
+    {
         return 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' . $ticket;
     }
 
@@ -1689,14 +1726,15 @@ class Api
      * echo $data;
      * ```
      */
-    public function get_qrcode ($ticket) {
+    public function get_qrcode($ticket)
+    {
         $url = self::get_qrcode_url($ticket);
         $res = HttpCurl::get($url);
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_GET');
         }
-        return array(NULL, $res);
+        return array(null, $res);
     }
 
     /**
@@ -1718,19 +1756,20 @@ class Api
      * http://w.url.cn/s/ABJrkxE
      * ```
      */
-    public function shorturl ($long_url) {
+    public function shorturl($long_url)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/shorturl?access_token=' . $this->get_access_token();
         $xml = '{"action":"long2short","long_url":"' . $long_url . '"}';
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1760,19 +1799,20 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function create_group ($group_name) {
+    public function create_group($group_name)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/groups/create?access_token=' .$this->get_access_token();
         $xml = sprintf('{"group":{"name":"%s"}}', $group_name);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if (isset($res->group)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1813,18 +1853,19 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function get_groups () {
+    public function get_groups()
+    {
         $url = self::API_DOMAIN . 'cgi-bin/groups/get?access_token=' .$this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if (isset($res->groups)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1851,19 +1892,20 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function get_user_group ($open_id) {
+    public function get_user_group($open_id)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/groups/getid?access_token=' .$this->get_access_token();
         $xml = sprintf('{"openid":"%s"}', $open_id);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if (isset($res->groupid)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1892,19 +1934,20 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function update_group ($group_id, $group_name) {
+    public function update_group($group_id, $group_name)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/groups/update?access_token=' .$this->get_access_token();
         $xml = sprintf('{"group":{"id":"%s","name":"%s"}}', $group_id, $group_name);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1933,19 +1976,20 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function update_user_group ($open_id, $to_groupid) {
+    public function update_user_group($open_id, $to_groupid)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/groups/members/update?access_token=' .$this->get_access_token();
         $xml = sprintf('{"openid":"%s","to_groupid":"%s"}', $open_id, $to_groupid);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -1978,20 +2022,21 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function batchupdate_user_group ($open_id_arr, $to_groupid) {
+    public function batchupdate_user_group($open_id_arr, $to_groupid)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/groups/members/batchupdate?access_token=' .$this->get_access_token();
         $open_ids = json_encode($open_id_arr);
         $xml = sprintf('{"openid_list":%s,"to_groupid":"%s"}', $open_ids, $to_groupid);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -2019,19 +2064,20 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function delete_group ($group_id) {
+    public function delete_group($group_id)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/groups/delete?access_token=' .$this->get_access_token();
         $xml = sprintf('{"group":{"id":"%s"}}', $group_id);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -2060,19 +2106,20 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function update_user_remark ($open_id, $remark) {
+    public function update_user_remark($open_id, $remark)
+    {
         $url = self::API_DOMAIN . 'cgi-bin/user/info/updateremark?access_token=' .$this->get_access_token();
         $xml = sprintf('{"openid":"%s", "remark":"%s"}', $open_id, $remark);
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -2112,21 +2159,22 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function get_user_info ($open_id, $lang = '') {
+    public function get_user_info($open_id, $lang = '')
+    {
         if ($lang != '') {
             $lang = '&lang=' . $lang;
         }
         $url = self::API_DOMAIN . 'cgi-bin/user/info?access_token=' . $this->get_access_token() . '&openid=' . $open_id . $lang;
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if (isset($res->openid)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
 
@@ -2162,78 +2210,103 @@ class Api
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
-    public function get_user_list ($next_openid = '') {
+    public function get_user_list($next_openid = '')
+    {
         if ($next_openid != '') {
             $next_openid = '&next_openid=' . $next_openid;
         }
         $url = self::API_DOMAIN . 'cgi-bin/user/get?access_token=' . $this->get_access_token() . $next_openid;
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
-        if ($res === FALSE) {
+        if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if (isset($res->data)) {
-            return array(NULL, $res);
+            return array(null, $res);
         } else {
-            return array($res, NULL);
+            return array($res, null);
         }
     }
-    
+
     /**
-     * 页面授权获取用户信息
-     * @param string $redirect_url 必须先url encode
-     * 用户必须定义好$redirect_url,随后微信回调$redirect_url,$redirect_url将会附带code参数,同时第二次指向该方法即可完成数据的获取,用户在做相应后续处理
-     * @return array(err, data)
+     * 得到获取用户授权需要打开的页面链接
+     *
+     * !!! 跳转后若提示`微信redirect_uri参数错误`
+     * 很大可能是微信号的 `网页授权获取用户基本信息` 无权限，或 `授权回调页面域名` 填写不正确
+     *
+     * Examples:
+     * ```
+     * $api->get_authorize_url('snsapi_base', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_base.php');
+     * $api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
+     * ```
+     *
+     * @param $scope 应用授权作用域
+     *  `snsapi_base` 不弹出授权页面，直接跳转，只能获取用户openid
+     *  `snsapi_userinfo` 弹出授权页面，可通过openid拿到昵称、性别、所在地。即使在未关注的情况下，只要用户授权，也能获取其信息
+     * @param $redirect_uri 授权后要跳转到的地址
+     * @param string $state 非必须, 重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值，最多128字节
+     *
+     * @return string
      */
-    public function get_user_info_by_snsapibase($code,$redirect_url){
-        if(empty($code)){
-            $url="https://open.weixin.qq.com/connect/oauth2/authorize?appid=" . $this->appId . "&redirect_uri=" . $redirect_url . "&response_type=code&scope=" . self::SNSAPI_BASE . "&state=STATE#wechat_redirect";
-            header("Location: $url");
-            exit;
-        }else{
-            $url="https://api.weixin.qq.com/sns/oauth2/access_token?appid=" . $this->appId . "&secret=". $this->appSecret ."&code=". $code ."&grant_type=authorization_code";
-            $res = HttpCurl::get($url, 'json');
-            // 异常处理: 获取时网络错误
-            if ($res === FALSE) {
-                return Error::code('ERR_POST');
-            }
-            // 判断是否调用成功
-            if (isset($res->openid)) {
-                return array(NULL, $res);
-            } else {
-                return array($res, NULL);
-            }
-        }
+    public function get_authorize_url($scope, $redirect_uri, $state = '')
+    {
+        $redirect_uri = urlencode($redirect_uri);
+        $url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . $this->appId .
+            '&redirect_uri=' . $redirect_uri . '&response_type=code&scope=' . $scope .
+            '&state=' . $state . '#wechat_redirect';
+        return $url;
     }
+
     /**
-     * 页面授权获取用户信息
-     * @param string $scope
+     * 获取用户授权后回调页面根据获取到的code，获取用户信息
+     * 注：本函数将获取access_token和拉取用户信息集成在了一起，未对获取到的access_token进行保存
+     *
+     * Examples:
+     * ```
+     * $api->get_userinfo_by_authorize('snsapi_base', $_GET['code']);
+     * $api->get_userinfo_by_authorize('snsapi_userinfo', $_GET['code']);
+     * ```
+     *
+     * @param $scope `get_authorize_url`时使用的授权类型
+     * @param $code 回调页面获取到的code
+     * @param string $lang 可选，返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语
+     *
+     * @return array|object
      */
-    public function get_user_info_by_snsapiuserinfo($code,$redirect_url){
-        if(empty($code)){
-            $url="https://open.weixin.qq.com/connect/oauth2/authorize?appid=" . $this->appId . "&redirect_uri=" . $redirect_url . "&response_type=code&scope=" . self::SNSAPI_USERINFO . "&state=STATE#wechat_redirect";
-            header("Location: $url");
-            exit;
-        }else{
-            $url="https://api.weixin.qq.com/sns/oauth2/access_token?appid=" . $this->appId . "&secret=". $this->appSecret ."&code=". $code ."&grant_type=authorization_code";
-            $res = HttpCurl::get($url, 'json');
-            // 异常处理: 获取时网络错误
-            if ($res === FALSE) {
-                return Error::code('ERR_POST');
-            }
-            // 判断是否调用成功
-            if (isset($res->access_token)) {
-                $url = "https://api.weixin.qq.com/sns/userinfo?access_token=". $res->access_token ."&openid=" . $res->openid . "&lang=zh_CN";
+    public function get_userinfo_by_authorize($scope, $code, $lang = 'zh_CN')
+    {
+        // 1. 通过code换取网页授权access_token
+        $url = self::API_DOMAIN . 'sns/oauth2/access_token?appid=' . $this->appId . '&secret=' . $this->appSecret .
+            '&code=' . $code . '&grant_type=authorization_code';
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return Error::code('ERR_POST');
+        }
+        // 判断是否调用成功
+        if (isset($res->access_token)) {
+            if ($scope == 'snsapi_userinfo') {
+                // 2.1 `snsapi_userinfo` 继续通过access_token和openid拉取用户信息
+                $url = self::API_DOMAIN . 'sns/userinfo?access_token=' . $res->access_token .
+                    '&openid=' . $res->openid . '&lang=' . $lang;
                 $res = HttpCurl::get($url, 'json');
-                if( !isset($res->errcode) ){
-                    return array(NULL, $res);
-                }else{
-                    return array($res, NULL);
+                // 异常处理: 获取时网络错误
+                if ($res === false) {
+                    return Error::code('ERR_POST');
+                }
+                // 判断是否调用成功
+                if (isset($res->openid)) {
+                    return array(null, $res);
+                } else {
+                    return array($res, null);
                 }
             } else {
-                return array($res, NULL);
+                // 2.2 `snsapi_base` 不弹出授权页面，直接跳转，只能获取用户openid
+                return array(null, $res);
             }
+        } else {
+            return array($res, null);
         }
     }
 }
