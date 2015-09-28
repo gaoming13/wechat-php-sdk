@@ -876,6 +876,7 @@ demo见项目内 `demo/snsapi/`
     $api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
     ```
 2. 在 `回调地址页面` 通过 `get_userinfo_by_authorize` 获取用户信息
+
     ```php
     list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_base');
     if ($user_info !== null) {
