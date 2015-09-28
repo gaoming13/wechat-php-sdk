@@ -43,7 +43,9 @@
 
     header('Content-type: text/html; charset=utf-8');
 
-    if (isset($_GET['code']) && !empty($_GET['code'])) {
-        $code = $_GET['code'];
-        print_r($api->get_userinfo_by_authorize('snsapi_userinfo', $code));
+    list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_userinfo');
+    if ($user_info !== null) {
+        var_dump($user_info);;
+    } else {
+        echo '授权失败！';
     }

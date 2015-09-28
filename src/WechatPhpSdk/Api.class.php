@@ -2269,44 +2269,48 @@ class Api
      * ```
      *
      * @param $scope `get_authorize_url`时使用的授权类型
-     * @param $code 回调页面获取到的code
      * @param string $lang 可选，返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语
      *
      * @return array|object
      */
-    public function get_userinfo_by_authorize($scope, $code, $lang = 'zh_CN')
+    public function get_userinfo_by_authorize($scope, $lang = 'zh_CN')
     {
-        // 1. 通过code换取网页授权access_token
-        $url = self::API_DOMAIN . 'sns/oauth2/access_token?appid=' . $this->appId . '&secret=' . $this->appSecret .
-            '&code=' . $code . '&grant_type=authorization_code';
-        $res = HttpCurl::get($url, 'json');
-        // 异常处理: 获取时网络错误
-        if ($res === false) {
-            return Error::code('ERR_POST');
-        }
-        // 判断是否调用成功
-        if (isset($res->access_token)) {
-            if ($scope == 'snsapi_userinfo') {
-                // 2.1 `snsapi_userinfo` 继续通过access_token和openid拉取用户信息
-                $url = self::API_DOMAIN . 'sns/userinfo?access_token=' . $res->access_token .
-                    '&openid=' . $res->openid . '&lang=' . $lang;
-                $res = HttpCurl::get($url, 'json');
-                // 异常处理: 获取时网络错误
-                if ($res === false) {
-                    return Error::code('ERR_POST');
-                }
-                // 判断是否调用成功
-                if (isset($res->openid)) {
-                    return array(null, $res);
+        if (isset($_GET['code']) && !empty($_GET['code'])) {
+            $code = $_GET['code'];
+            // 1. 通过code换取网页授权access_token
+            $url = self::API_DOMAIN . 'sns/oauth2/access_token?appid=' . $this->appId . '&secret=' . $this->appSecret .
+                '&code=' . $code . '&grant_type=authorization_code';
+            $res = HttpCurl::get($url, 'json');
+            // 异常处理: 获取时网络错误
+            if ($res === false) {
+                return Error::code('ERR_POST');
+            }
+            // 判断是否调用成功
+            if (isset($res->access_token)) {
+                if ($scope == 'snsapi_userinfo') {
+                    // 2.1 `snsapi_userinfo` 继续通过access_token和openid拉取用户信息
+                    $url = self::API_DOMAIN . 'sns/userinfo?access_token=' . $res->access_token .
+                        '&openid=' . $res->openid . '&lang=' . $lang;
+                    $res = HttpCurl::get($url, 'json');
+                    // 异常处理: 获取时网络错误
+                    if ($res === false) {
+                        return Error::code('ERR_POST');
+                    }
+                    // 判断是否调用成功
+                    if (isset($res->openid)) {
+                        return array(null, $res);
+                    } else {
+                        return array($res, null);
+                    }
                 } else {
-                    return array($res, null);
+                    // 2.2 `snsapi_base` 不弹出授权页面，直接跳转，只能获取用户openid
+                    return array(null, $res);
                 }
             } else {
-                // 2.2 `snsapi_base` 不弹出授权页面，直接跳转，只能获取用户openid
-                return array(null, $res);
+                return array($res, null);
             }
         } else {
-            return array($res, null);
+            return array('授权失败', null);
         }
     }
 }

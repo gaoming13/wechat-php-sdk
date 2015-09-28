@@ -309,24 +309,20 @@ $api = new Api(
 	array(
         'appId' => $appId,
         'appSecret'	=> $appSecret,
-        'get_access_token' => function() {
+        'get_access_token' => function() use ($m) {
             // 用户需要自己实现access_token的返回
-            global $m;
             return $m->get('access_token');
         },
-        'save_access_token' => function($token) {
+        'save_access_token' => function($token) use ($m) {
             // 用户需要自己实现access_token的保存
-            global $m;
             $m->set('access_token', $token, 0);
         },
-        'get_jsapi_ticket' => function() {
+        'get_jsapi_ticket' => function() use ($m) {
             // 可选：用户需要自己实现jsapi_ticket的返回（若使用get_jsapi_config，则必须定义）
-            global $m;
             return $m->get('jsapi_ticket');
         },
-        'save_jsapi_ticket' => function($jsapi_ticket) {
+        'save_jsapi_ticket' => function($jsapi_ticket) use ($m) {
             // 可选：用户需要自己实现jsapi_ticket的保存（若使用get_jsapi_config，则必须定义）
-            global $m;
             $m->set('jsapi_ticket', $jsapi_ticket, 0);
         }
     )
@@ -863,7 +859,39 @@ $api->get_user_list('ocNtAt_TirhYM6waGeNUbCfhtZoA');
 
 ### 网页授权获取用户基本信息
 
-TODO: 开发中...
+有两种授权类型：`snsapi_base` 与 `snsapi_userinfo`
+
+0. `snsapi_base` 静默授权，用户无感知，但只能获取到`openid`
+0. `snsapi_userinfo` 可以获得openid、昵称、性别、所在地等更详细的信息，但首次授权会跳转微信的一个授权页面，用户点击同意后授权成功
+
+本API将两种授权流程统一后：
+
+0. 通过 `get_authorize_url` 生成获取用户授权的链接，用户打开该链接后会跳转到 `回调地址页面`
+
+```php
+$api->get_authorize_url('授权类型', '回调地址');
+$api->get_authorize_url('snsapi_base','http://wx.diary8.com/demo/snsapi/callback_snsapi_base.php');
+$api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
+```
+
+0. 在 `回调地址页面` 通过 `get_userinfo_by_authorize` 获取用户信息
+```php
+list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_base');
+if ($user_info !== null) {
+    var_dump($user_info);;
+} else {
+    echo '授权失败！';
+}
+```
+
+```php
+list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_userinfo');
+if ($user_info !== null) {
+    var_dump($user_info);;
+} else {
+    echo '授权失败！';
+}
+```
 
 ## License
 
