@@ -886,14 +886,14 @@ demo见项目内 `demo/snsapi/`
     }
     ```
 
-```php
-list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_userinfo');
-if ($user_info !== null) {
-    var_dump($user_info);;
-} else {
-    echo '授权失败！';
-}
-```
+    ```php
+    list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_userinfo');
+    if ($user_info !== null) {
+        var_dump($user_info);;
+    } else {
+        echo '授权失败！';
+    }
+    ```
 
 ## License
 
