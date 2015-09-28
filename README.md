@@ -873,7 +873,6 @@ $api->get_authorize_url('授权类型', '回调地址');
 $api->get_authorize_url('snsapi_base','http://wx.diary8.com/demo/snsapi/callback_snsapi_base.php');
 $api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
 ```
-
 0. 在 `回调地址页面` 通过 `get_userinfo_by_authorize` 获取用户信息
 ```php
 list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_base');
