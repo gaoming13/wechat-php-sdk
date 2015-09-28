@@ -859,21 +859,23 @@ $api->get_user_list('ocNtAt_TirhYM6waGeNUbCfhtZoA');
 
 ### 网页授权获取用户基本信息
 
-有两种授权类型：`snsapi_base` 与 `snsapi_userinfo`
+有两种授权类型：
 
 0. `snsapi_base` 静默授权，用户无感知，但只能获取到`openid`
 0. `snsapi_userinfo` 可以获得openid、昵称、性别、所在地等更详细的信息，但首次授权会跳转微信的一个授权页面，用户点击同意后授权成功
 
-本API将两种授权流程统一后：
+两种授权流程使用说明：
 
-0. 通过 `get_authorize_url` 生成获取用户授权的链接，用户打开该链接后会跳转到 `回调地址页面`
+demo见项目内 `demo/snsapi/`
+
+1. 通过 `get_authorize_url` 生成获取用户授权的链接，用户打开该链接后会跳转到 `回调地址页面`
 
 ```php
 $api->get_authorize_url('授权类型', '回调地址');
 $api->get_authorize_url('snsapi_base','http://wx.diary8.com/demo/snsapi/callback_snsapi_base.php');
 $api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
 ```
-0. 在 `回调地址页面` 通过 `get_userinfo_by_authorize` 获取用户信息
+2. 在 `回调地址页面` 通过 `get_userinfo_by_authorize` 获取用户信息
 ```php
 list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_base');
 if ($user_info !== null) {
