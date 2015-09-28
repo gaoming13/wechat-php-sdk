@@ -870,20 +870,20 @@ demo见项目内 `demo/snsapi/`
 
 1. 通过 `get_authorize_url` 生成获取用户授权的链接，用户打开该链接后会跳转到 `回调地址页面`
 
-```php
-$api->get_authorize_url('授权类型', '回调地址');
-$api->get_authorize_url('snsapi_base','http://wx.diary8.com/demo/snsapi/callback_snsapi_base.php');
-$api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
-```
+    ```php
+    $api->get_authorize_url('授权类型', '回调地址');
+    $api->get_authorize_url('snsapi_base','http://wx.diary8.com/demo/snsapi/callback_snsapi_base.php');
+    $api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
+    ```
 2. 在 `回调地址页面` 通过 `get_userinfo_by_authorize` 获取用户信息
-```php
-list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_base');
-if ($user_info !== null) {
-    var_dump($user_info);;
-} else {
-    echo '授权失败！';
-}
-```
+    ```php
+    list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_base');
+    if ($user_info !== null) {
+        var_dump($user_info);;
+    } else {
+        echo '授权失败！';
+    }
+    ```
 
 ```php
 list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_userinfo');
