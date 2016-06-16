@@ -1,7 +1,13 @@
 <?php
+namespace Gaoming13\WechatPhpSdk;
+
+use Gaoming13\WechatPhpSdk\Utils\HttpCurl;
+use Gaoming13\WechatPhpSdk\Utils\Error;
+use Gaoming13\WechatPhpSdk\Utils\SHA1;
+
 /**
  * Api.php
- *  
+ *
  * Api模块 （处理需要access_token的主动接口）
  * - 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
  * - 多客服功能（客服管理、多客服回话控制、获取客服聊天记录...）
@@ -15,14 +21,10 @@
  * @author 		gaoming13 <gaoming13@yeah.net>
  * @link 		https://github.com/gaoming13/wechat-php-sdk
  * @link 		http://me.diary8.com/
+ *
+ * Class Api
+ * @package Gaoming13\WechatPhpSdk
  */
-
-namespace Gaoming13\WechatPhpSdk;
-
-use Gaoming13\WechatPhpSdk\Utils\HttpCurl;
-use Gaoming13\WechatPhpSdk\Utils\Error;
-use Gaoming13\WechatPhpSdk\Utils\SHA1;
-
 class Api 
 {
     // 微信API域名
@@ -36,14 +38,14 @@ class Api
     // 开发者中心-配置项-AppSecret(应用密钥)
     protected $appSecret;
 
-    // 用户自定义获取access_token的方法
+    /** @var callable $get_access_token_diy 用户自定义获取access_token的方法 */
     protected $get_access_token_diy;
-    // 用户自定义保存access_token的方法
+    /** @var callable $save_access_token_diy 用户自定义保存access_token的方法 */
     protected $save_access_token_diy;
 
-    // 用户自定义获取jsapi_ticket的方法
+    /** @var callable $get_jsapi_ticket_diy 用户自定义获取jsapi_ticket的方法 */
     protected $get_jsapi_ticket_diy;
-    // 用户自定义保存jsapi_ticket的方法
+    /** @var callable $save_jsapi_ticket_diy 用户自定义保存jsapi_ticket的方法 */
     protected $save_jsapi_ticket_diy;
 
 	/**
@@ -155,7 +157,6 @@ class Api
             $msg_type = $msg['type'];
         }
 
-        $xml = '';
         switch ($msg_type) {
             /**
              * 1.1 发送文本消息(简洁输入)
@@ -923,7 +924,7 @@ class Api
     /**
      * 新增永久图文素材
      *
-     * @param string $articles     
+     * @param array $articles
      *
      * @return array(err, res)
      * - `err`, 调用失败时得到的异常
@@ -2241,10 +2242,10 @@ class Api
      * $api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
      * ```
      *
-     * @param $scope 应用授权作用域
+     * @param string $scope 应用授权作用域
      *  `snsapi_base` 不弹出授权页面，直接跳转，只能获取用户openid
      *  `snsapi_userinfo` 弹出授权页面，可通过openid拿到昵称、性别、所在地。即使在未关注的情况下，只要用户授权，也能获取其信息
-     * @param $redirect_uri 授权后要跳转到的地址
+     * @param string $redirect_uri 授权后要跳转到的地址
      * @param string $state 非必须, 重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值，最多128字节
      *
      * @return string

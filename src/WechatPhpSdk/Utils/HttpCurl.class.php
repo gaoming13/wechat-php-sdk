@@ -1,7 +1,6 @@
 <?php
 /**
  * HttpCurl Curl模拟Http工具类
- * 
  *
  * @author      gaoming13 <gaoming13@yeah.net>
  * @link        https://github.com/gaoming13/wechat-php-sdk
@@ -25,7 +24,8 @@ class HttpCurl {
      * HttpCurl::get('http://api.example.com/?a=123&b=456', 'json');
      * ```               
      */
-    static public function get($url, $data_type='text') {
+    static public function get($url, $data_type='text')
+    {
         $cl = curl_init();
         if(stripos($url, 'https://') !== FALSE) {
             curl_setopt($cl, CURLOPT_SSL_VERIFYPEER, FALSE);
@@ -64,7 +64,8 @@ class HttpCurl {
      * HttpCurl::post('http://api.example.com/', array('abc'=>'123', 'file1'=>'@/data/1.jpg'), 'json');
      * ```               
      */
-    static public function post($url, $fields, $data_type='text') {
+    static public function post($url, $fields, $data_type='text')
+    {
         $cl = curl_init();
         if(stripos($url, 'https://') !== FALSE) {
             curl_setopt($cl, CURLOPT_SSL_VERIFYPEER, FALSE);
@@ -73,17 +74,7 @@ class HttpCurl {
         }
         curl_setopt($cl, CURLOPT_URL, $url);
         curl_setopt($cl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt($cl, CURLOPT_POST, true);
-        // convert @ prefixed file names to CurlFile class
-        // since @ prefix is deprecated as of PHP 5.6
-        if (class_exists('\CURLFile')) {
-            foreach ($fields as $k => $v) {
-                if (strpos($v, '@') === 0) {
-                    $v = ltrim($v, '@');
-                    $fields[$k] = new \CURLFile($v);
-                }
-            }
-        }
+        curl_setopt($cl, CURLOPT_POST, true);        
         curl_setopt($cl, CURLOPT_POSTFIELDS, $fields);
         $content = curl_exec($cl);
         $status = curl_getinfo($cl);

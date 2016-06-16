@@ -11,8 +11,6 @@
 
 namespace Gaoming13\WechatPhpSdk\Utils;
 
-use Gaoming13\WechatPhpSdk\Utils\Pkcs7Encoder;
-
 class Prpcrypt
 {
 	public $key;
@@ -26,14 +24,14 @@ class Prpcrypt
 	 * @param string $text 需要加密的明文
 	 * @return string 加密后的密文
 	 */
-	public function encrypt($text, $appid) {
+	public function encrypt($text, $appid)
+	{
 
 		try {
 			//获得16位随机字符串，填充到明文之前
 			$random = $this->getRandomStr();
 			$text = $random . pack("N", strlen($text)) . $text . $appid;
 			// 网络字节序
-			$size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
 			$module = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
 			$iv = substr($this->key, 0, 16);
 			//使用自定义的填充方式对明文进行补位填充
@@ -44,12 +42,12 @@ class Prpcrypt
 			$encrypted = mcrypt_generic($module, $text);
 			mcrypt_generic_deinit($module);
 			mcrypt_module_close($module);
-			
+
 			//使用BASE64对加密后的字符串进行编码
-			return base64_encode($encrypted);			
-		} catch (Exception $e) {
+			return base64_encode($encrypted);
+		} catch (\Exception $e) {
 			@error_log('Encrypt AES Error: ' . $e->getMessage(), 0);
-			return FALSE;			
+			return FALSE;
 		}
 	}
 
@@ -58,12 +56,13 @@ class Prpcrypt
 	 * @param string $encrypted 需要解密的密文
 	 * @return string 解密得到的明文
 	 */
-	public function decrypt($encrypted, $appid) {
+	public function decrypt($encrypted, $appid)
+    {
 
 		try {
 			//使用BASE64对需要解密的字符串进行解码
 			$ciphertext_dec = base64_decode($encrypted);
-			$module = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');			
+			$module = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
 			$iv = substr($this->key, 0, 16);
 			mcrypt_generic_init($module, $this->key, $iv);
 
@@ -71,9 +70,9 @@ class Prpcrypt
 			$decrypted = mdecrypt_generic($module, $ciphertext_dec);
 			mcrypt_generic_deinit($module);
 			mcrypt_module_close($module);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			@error_log('Decrypt AES Error: ' . $e->getMessage(), 0);
-			return FALSE;			
+			return FALSE;
 		}
 
 
@@ -90,15 +89,15 @@ class Prpcrypt
 			$xml_len = $len_list[1];
 			$xml_content = substr($content, 4, $xml_len);
 			$from_appid = substr($content, $xml_len + 4);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			@error_log('Illegal Buffer: ' . $e->getMessage(), 0);
-			return FALSE;			
+			return FALSE;
 		}
 		if ($from_appid != $appid) {
-			@error_log('Validate Appid Error: ' . $e->getMessage(), 0);
-			return FALSE;			
+			@error_log('Validate Appid Error', 0);
+			return FALSE;
 		}
-		return $xml_content;		
+		return $xml_content;
 	}
 
 
@@ -106,7 +105,8 @@ class Prpcrypt
 	 * 随机生成16位字符串
 	 * @return string 生成的字符串
 	 */
-	function getRandomStr() {
+	function getRandomStr()
+	{
 
 		$str = "";
 		$str_pol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
