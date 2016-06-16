@@ -93,4 +93,25 @@ class SHA1
         }
         return $str;
     }
+
+    /**
+     * 生成签名算法2
+     * @param array $params 数据
+     * @param string $suffix 后缀
+     * @return string
+     */
+    static function getSign2($params, $suffix)
+    {
+        ksort($params);
+        // 格式化参数格式化成url参数
+        $buff = '';
+        foreach ($params as $k => $v) {
+            if($k != 'sign' && $v != '' && !is_array($v)){
+                $buff .= $k . '=' . $v . '&';
+            }
+        }
+        $buff = trim($buff, '&');
+        $sign = $buff . '&' . $suffix;
+        return strtoupper(md5($sign));
+    }
 }

@@ -37,6 +37,10 @@ class Api
     protected $appId;
     // 开发者中心-配置项-AppSecret(应用密钥)
     protected $appSecret;
+    // 微信支付商户号，商户申请微信支付后，由微信支付分配的商户收款账号
+    protected $mchId;
+    // API密钥,微信商户平台(pay.weixin.qq.com)-->账户设置-->API安全-->密钥设置
+    protected $key;
 
     /** @var callable $get_access_token_diy 用户自定义获取access_token的方法 */
     protected $get_access_token_diy;
@@ -57,6 +61,8 @@ class Api
     {
         $this->appId                    =   $config['appId'];
         $this->appSecret                =   $config['appSecret'];
+        $this->mchId                    =   isset($config['mchId']) ? $config['mchId'] : false;
+        $this->key                      =   isset($config['key']) ? $config['key'] : false;
         $this->get_access_token_diy     =   isset($config['get_access_token']) ? $config['get_access_token'] : false;
         $this->save_access_token_diy    =   isset($config['save_access_token']) ? $config['save_access_token'] : false;
         $this->get_jsapi_ticket_diy     =   isset($config['get_jsapi_ticket']) ? $config['get_jsapi_ticket'] : false;
@@ -2313,5 +2319,94 @@ class Api
         } else {
             return array('授权失败', null);
         }
+    }
+
+    /**
+     * 微信支付 - 生成预订单
+     * @param string $openid 用户openid
+     * @param array $conf 配置数组
+     * @return bool|mixed
+     */
+    public function wxPayUnifiedOrder($openid, $conf = [])
+    {
+        $input = [
+            //必填：商户系统内部的订单号,32个字符内、可包含字母, 其他说明见商户订单号
+            'out_trade_no' => $conf['out_trade_no'],
+            //必填：商品或支付单简要描述
+            'body' => $conf['body'],
+            //必填：设置订单总金额，单位为分，只能为整数，详见支付金额
+            'total_fee' => $conf['total_fee'],
+            //必填：取值如下：JSAPI，NATIVE，APP
+            'trade_type' => isset($conf['trade_type']) ? $conf['trade_type'] : 'JSAPI',
+            //必填：设置接收微信支付异步通知回调地址
+            'notify_url' => isset($conf['notify_url']) ? $conf['notify_url'] : '',
+            //附加数据，在查询API和支付通知中原样返回，该字段主要用于商户携带订单的自定义数据
+            'attach' => isset($conf['attach']) ? $conf['attach'] : '',
+            //设置订单生成时间，格式为yyyyMMddHHmmss，如2009年12月25日9点10分10秒表示为20091225091010
+            'time_start' => isset($conf['time_start']) ? $conf['time_start'] : date('YmdHis'),
+            //设置订单失效时间，格式为yyyyMMddHHmmss，如2009年12月27日9点10分10秒表示为20091227091010
+            'time_expire' => isset($conf['time_expire']) ? $conf['time_expire'] : date('YmdHis', time() + 600),
+            //设置商品标记，代金券或立减优惠功能的参数，说明详见代金券或立减优惠
+            'goods_tag' => isset($conf['goods_tag']) ? $conf['goods_tag'] : '',
+            //设置trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识。下单前需要调用【网页授权获取用户信息】接口获取到用户的Openid
+            'openid' => $openid,
+            //微信分配的公众账号ID WxPayConfig::APPID
+            'appid' => $this->appId,
+            //商户号 WxPayConfig::MCHID
+            'mch_id' => $this->mchId,
+            //调用微信支付API的机器IP
+            'spbill_create_ip' => $_SERVER['REMOTE_ADDR'],
+            //设置随机字符串，不长于32位。推荐随机数生成算法
+            'nonce_str' => SHA1::get_random_str(32),
+        ];
+        // 签名
+        $input['sign'] = SHA1::getSign2($input, 'key='.$this->key);
+
+        // 生成xml
+        $xml = '<xml>';
+        foreach ($input as $key => $val) {
+            if (is_numeric($val)) {
+                $xml .= '<'.$key.'>'.$val.'</'.$key.'>';
+            } else {
+                $xml .= '<'.$key.'><![CDATA['.$val.']]></'.$key.'>';
+            }
+        }
+        $xml .= '</xml>';
+
+        // 调用接口
+        $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+        try {
+            $res = HttpCurl::post($url, $xml);
+            libxml_disable_entity_loader(true);
+            return json_decode(json_encode(simplexml_load_string($res, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * 微信支付 - 获取jsapi支付的参数
+     * 用于直接填入js函数作为参数
+     * @param string $prepayId 预生成订单ID
+     * @return string
+     */
+    public function getWxPayJsApiParameters($prepayId)
+    {
+        // 获取jsapi支付的参数
+        $input = [
+            //微信分配的公众账号ID WxPayConfig::APPID
+            'appId' => $this->appId,
+            //设置支付时间戳
+            'timeStamp' => (string)time(),
+            //随机字符串
+            'nonceStr' => SHA1::get_random_str(32),
+            //订单详情扩展字符串
+            'package' => 'prepay_id='.$prepayId,
+            //签名方式
+            'signType' => 'MD5',
+        ];
+        // 签名
+        $input['paySign'] = SHA1::getSign2($input, 'key='.$this->key);
+        return json_encode($input);
     }
 }

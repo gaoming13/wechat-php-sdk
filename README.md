@@ -17,6 +17,7 @@ Api （处理需要access_token的主动接口）([使用说明](#api-模块使�
 * [微信JSSDK（生成微信JSSDK所需的配置信息）](#api微信jssdk生成微信jssdk所需的配置信息)
 * [账号管理（生成带参数的二维码、长链接转短链接接口）](#api账号管理生成带参数的二维码长链接转短链接接口)
 * [用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）](#api用户管理用户分组管理设置用户备注名获取用户基本信息获取用户列表网页授权获取用户基本信息)
+* [微信JSAPI支付](#api微信公众号内支付)
 * 数据统计接口（开发中...）
 
 ## DEMO
@@ -894,6 +895,18 @@ demo见项目内 `demo/snsapi/`
         echo '授权失败！';
     }
     ```
+
+## Api：微信JSAPI支付
+
+[官方wiki](https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_1)
+
+[官方SDK](https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=11_1)
+
+支付过程中SDK使用流程：
+
+- 通过 网页授权获取用户基本信息 `openid`
+- 调用 `wxPayUnifiedOrder` 生成预订单
+- 调用 `getWxPayJsApiParameters` 生成jsapi支付的参数，作为js调用支付接口的参数
 
 ## License
 
