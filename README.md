@@ -908,6 +908,117 @@ demo见项目内 `demo/snsapi/`
 - 调用 `wxPayUnifiedOrder` 生成预订单
 - 调用 `getWxPayJsApiParameters` 生成jsapi支付的参数，作为js调用支付接口的参数
 
+eg: api
+
+	```php
+		/* @var $cache \yii\redis\cache */
+        $cache = \Yii::$app->cache;
+
+        $api = new Api([
+            'appId' => 'wx312273d5za28s525', //AppID
+            'appSecret' => '7d8e268465d6ec7ch2f4ed2364h5ef32', //AppSecret
+            'mchId' => '1633246021', //微信支付商户号
+            'key' => '613A60282Aa87E2B1A22E3A3DFD9AE32A', //微信商户API密钥
+            'get_access_token' => function() use ($cache) {
+                return $cache->get('WE_CHAT_SDK_ACCESS_TOKEN');
+            },
+            'save_access_token' => function($token) use ($cache) {
+                $cache->set('WE_CHAT_SDK_ACCESS_TOKEN', $token);
+            }
+        ]);;
+	```
+
+eg: 页面内调起微信支付
+
+	```php
+		// 获取用户的openid
+        list($err, $user_info) = $api->get_userinfo_by_authorize('snsapi_base');
+        if ($user_info == null) {
+            $url = $api->get_authorize_url('snsapi_base', Yii::$app->request->absoluteUrl);
+            return $this->controller->redirect($url);
+        }
+
+        // 生成预订单
+        $wxOrder = $api->wxPayUnifiedOrder($user_info->openid, [
+            'out_trade_no' => JiariOrder::getOutTradeNo($order['id']),
+            'body' => '[NO.'.$order['batch_id'].']'.$order['name'],
+            'total_fee' => (double)$order['total_pay_need'] * 100,
+            //'time_expire' => date('YmdHis', (int)$order['created_at'] + (int)$order['timeout']),
+            'notify_url' => HTTP.'://my.'.IDN.'/we-chat-pay/asyn-notify',
+        ]);
+        // 判断预订单是否生成成功
+        if ($wxOrder['return_code'] != 'SUCCESS') {
+            Yii::error(['微信支付预订单生成失败', $wxOrder, $order], __METHOD__);
+
+            throw new NotFoundHttpException('使用微信支付失败，请改用其它支付方式！');
+        }
+
+        // 生成微信支付JSAPI参数
+        if (! array_key_exists('prepay_id', $wxOrder)) {
+            Yii::error(['微信支付预订单生成失败', $wxOrder, $order], __METHOD__);
+            throw new NotFoundHttpException('使用微信支付失败，请改用其它支付方式！');
+        }
+        $jsApiParams = $api->getWxPayJsApiParameters($wxOrder['prepay_id']);
+	```
+
+	```html
+		<html>
+        <head>
+            <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <title>微信支付</title>
+            <script type="text/javascript">
+                function jsApiCall() {
+                    WeixinJSBridge.invoke(
+                        'getBrandWCPayRequest',
+                        <?= $jsApiParams ?>,
+                        function(res){
+                            alert(JSON.stringfy(res));
+                            WeixinJSBridge.log(res.err_msg);
+                            alert(res.err_code+res.err_desc+res.err_msg);
+                        }
+                    );
+                }
+                if (typeof WeixinJSBridge == 'undefined'){
+                    if( document.addEventListener ){
+                        document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
+                    }else if (document.attachEvent){
+                        document.attachEvent('WeixinJSBridgeReady', jsApiCall);
+                        document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
+                    }
+                }else{
+                    jsApiCall();
+                }
+            </script>
+        </head>
+        </html>
+	```
+
+eg: 处理微信支付结果异步回调
+
+	```php
+		// 处理微信支付异步通知
+		// $res: 是否支付成功
+		// $notifyData: 异步通知的原始数据
+		// $replyData: 回复微信异步通知的数据
+        list($res, $notifyData, $replyData) = $api->progressWxPayNotify();
+
+        // 处理业务逻辑
+        // ...
+
+        // 回复微信
+        $api->replyWxPayNotify($replyData);
+        exit();
+	```
+
+### 常见问题
+
+- `redirect_uri参数错误`
+ 开发者中心->功能服务[网页账号:网页授权获取用户基本信息]->修改->填写回调的域名
+- `当前页面的URl未注册`
+ 微信支付->公众号支付[填写支付授权目录](注意:微信限制比较严格,必须包含支付页面地址前的所有目录)
+- 微信支付结果通过纯post xml通知，但PHP7移除了 `HTTP_RAW_POST_DATA`，这里使用 `php://input`
+
 ## License
 
 MIT

@@ -4,6 +4,7 @@ namespace Gaoming13\WechatPhpSdk;
 use Gaoming13\WechatPhpSdk\Utils\HttpCurl;
 use Gaoming13\WechatPhpSdk\Utils\Error;
 use Gaoming13\WechatPhpSdk\Utils\SHA1;
+use Gaoming13\WechatPhpSdk\Utils\Xml;
 
 /**
  * Api.php
@@ -2345,7 +2346,7 @@ class Api
             //设置订单生成时间，格式为yyyyMMddHHmmss，如2009年12月25日9点10分10秒表示为20091225091010
             'time_start' => isset($conf['time_start']) ? $conf['time_start'] : date('YmdHis'),
             //设置订单失效时间，格式为yyyyMMddHHmmss，如2009年12月27日9点10分10秒表示为20091227091010
-            'time_expire' => isset($conf['time_expire']) ? $conf['time_expire'] : date('YmdHis', time() + 600),
+            'time_expire' => isset($conf['time_expire']) ? $conf['time_expire'] : date('YmdHis', time() + 86400),
             //设置商品标记，代金券或立减优惠功能的参数，说明详见代金券或立减优惠
             'goods_tag' => isset($conf['goods_tag']) ? $conf['goods_tag'] : '',
             //设置trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识。下单前需要调用【网页授权获取用户信息】接口获取到用户的Openid
@@ -2363,15 +2364,7 @@ class Api
         $input['sign'] = SHA1::getSign2($input, 'key='.$this->key);
 
         // 生成xml
-        $xml = '<xml>';
-        foreach ($input as $key => $val) {
-            if (is_numeric($val)) {
-                $xml .= '<'.$key.'>'.$val.'</'.$key.'>';
-            } else {
-                $xml .= '<'.$key.'><![CDATA['.$val.']]></'.$key.'>';
-            }
-        }
-        $xml .= '</xml>';
+        $xml = Xml::toXml($input);
 
         // 调用接口
         $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
@@ -2408,5 +2401,66 @@ class Api
         // 签名
         $input['paySign'] = SHA1::getSign2($input, 'key='.$this->key);
         return json_encode($input);
+    }
+
+    /**
+     * 处理微信支付异步通知
+     * @return array [是否支付成功, 异步通知的原始数据, 回复微信异步通知的数据]
+     */
+    public function progressWxPayNotify()
+    {
+        // PHP7移除了HTTP_RAW_POST_DATA
+        $xml = file_get_contents('php://input');
+        try {
+            libxml_disable_entity_loader(true);
+            $data = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+            if (! is_array($data)) {
+                return [false, $data, [
+                    'return_code' => 'FAIL',
+                    'return_msg' => ''
+                ]];
+            }
+            // 格式是否正确
+            if (! array_key_exists('return_code', $data)) {
+                return [false, $data, [
+                    'return_code' => 'FAIL',
+                    'return_msg' => 'return_code is not set'
+                ]];
+            }
+            // 是否支付成功
+            if ($data['return_code'] != 'SUCCESS') {
+                return [false, $data, [
+                    'return_code' => 'FAIL',
+                    'return_msg' => 'return_code is '.$data['return_code']
+                ]];
+            }
+            // 签名是否正确
+            $sign1 = SHA1::getSign2($data, 'key='.$this->key);
+            if ($sign1 != $data['sign']) {
+                return [false, $data, [
+                    'return_code' => 'FAIL',
+                    'return_msg' => '签名验证失败'
+                ]];
+            }
+            // 支付成功
+            return [true, $data, [
+                'return_code' => 'SUCCESS',
+                'return_msg' => 'OK'
+            ]];
+        } catch (\Exception $e) {
+            return [false, [], [
+                'return_code' => 'FAIL',
+                'return_msg' => $e->getMessage()
+            ]];
+        }
+    }
+
+    /**
+     * 回复微信异步通知
+     * @param array $info 回复内容数组
+     */
+    public static function replyWxPayNotify($info)
+    {
+        echo Xml::toXml($info);
     }
 }
