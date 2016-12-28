@@ -2323,48 +2323,78 @@ class Api
     }
 
     /**
-     * 微信支付 - 生成预订单
-     * @param string $openid 用户openid
+     * 微信支付 - 统一下单 - 生成预订单
+     * 包含
+     * 1. 公众号支付 wiki:https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1
+     * 2. App支付 wiki:https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_1
      * @param array $conf 配置数组
      * @return bool|mixed
      */
-    public function wxPayUnifiedOrder($openid, $conf = [])
+    public function wxPayUnifiedOrder($conf = [])
     {
-        $input = [
-            //必填：商户系统内部的订单号,32个字符内、可包含字母, 其他说明见商户订单号
-            'out_trade_no' => $conf['out_trade_no'],
-            //必填：商品或支付单简要描述
-            'body' => $conf['body'],
-            //必填：设置订单总金额，单位为分，只能为整数，详见支付金额
-            'total_fee' => $conf['total_fee'],
-            //必填：取值如下：JSAPI，NATIVE，APP
-            'trade_type' => isset($conf['trade_type']) ? $conf['trade_type'] : 'JSAPI',
-            //必填：设置接收微信支付异步通知回调地址
-            'notify_url' => isset($conf['notify_url']) ? $conf['notify_url'] : '',
-            //附加数据，在查询API和支付通知中原样返回，该字段主要用于商户携带订单的自定义数据
-            'attach' => isset($conf['attach']) ? $conf['attach'] : '',
-            //设置订单生成时间，格式为yyyyMMddHHmmss，如2009年12月25日9点10分10秒表示为20091225091010
-            'time_start' => isset($conf['time_start']) ? $conf['time_start'] : date('YmdHis'),
-            //设置订单失效时间，格式为yyyyMMddHHmmss，如2009年12月27日9点10分10秒表示为20091227091010
-            'time_expire' => isset($conf['time_expire']) ? $conf['time_expire'] : date('YmdHis', time() + 86400),
-            //设置商品标记，代金券或立减优惠功能的参数，说明详见代金券或立减优惠
-            'goods_tag' => isset($conf['goods_tag']) ? $conf['goods_tag'] : '',
-            //设置trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识。下单前需要调用【网页授权获取用户信息】接口获取到用户的Openid
-            'openid' => $openid,
-            //微信分配的公众账号ID WxPayConfig::APPID
-            'appid' => $this->appId,
-            //商户号 WxPayConfig::MCHID
-            'mch_id' => $this->mchId,
-            //调用微信支付API的机器IP
-            'spbill_create_ip' => $_SERVER['REMOTE_ADDR'],
-            //设置随机字符串，不长于32位。推荐随机数生成算法
-            'nonce_str' => SHA1::get_random_str(32),
-        ];
-        // 签名
-        $input['sign'] = SHA1::getSign2($input, 'key='.$this->key);
+
+        // [必填]公众账号ID、应用ID
+        $conf['appid'] = $this->appId;
+
+        // [必填]商户号、
+        $conf['mch_id'] = $this->mchId;
+
+        // 设备号
+        // - device_info
+
+        // [必填]nonce_str 随机字符串
+        $conf['nonce_str'] = SHA1::get_random_str(32);
+
+        // 签名类型
+        $conf['sign_type'] = 'MD5';
+
+        // [必填]商品描述
+        // - body
+
+        // 商品详情
+        // - detail
+
+        // 附加数据
+        // - attach
+
+        // [必填]商户订单号
+        // - out_trade_no
+
+        // 货币类型
+        // - fee_type
+
+        // [必填]总金额
+        // - total_fee
+
+        // [必填]终端IP
+        $conf['spbill_create_ip'] = $_SERVER['REMOTE_ADDR'];
+
+        // 交易起始时间
+        // - time_start
+
+        // 交易结束时间
+        // - time_expire
+
+        // 商品标记
+        // - goods_tag
+
+        // [必填]通知地址
+        // - notify_url
+
+        // [必填]交易类型
+        // - trade_type
+
+        // 指定支付方式
+        // - limit_pay
+
+        // 用户标识, trade_type=JSAPI时（即公众号支付），此参数必传
+        // - openid
+
+        // [必填]签名
+        $conf['sign'] = SHA1::getSign2($conf, 'key='.$this->key);
 
         // 生成xml
-        $xml = Xml::toXml($input);
+        $xml = Xml::toXml($conf);
 
         // 调用接口
         $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
@@ -2378,7 +2408,7 @@ class Api
     }
 
     /**
-     * 微信支付 - 获取jsapi支付的参数
+     * 公众号支付 - 获取jsapi支付的参数
      * 用于直接填入js函数作为参数
      * @param string $prepayId 预生成订单ID
      * @return string
@@ -2404,7 +2434,38 @@ class Api
     }
 
     /**
+     * App支付 - 获取App支付的参数
+     * 用于移动客户端调用移动端SDK调起微信支付
+     * @param string $prepayId 预生成订单ID
+     * @return array
+     */
+    public function getWxPayAppApiParameters($prepayId)
+    {
+        // 获取App支付的参数
+        $input = [
+            // 应用ID
+            'appId' => $this->appId,
+            // 商户号
+            'partnerid' => $this->mchId,
+            // 预支付交易会话ID
+            'prepayid' => $prepayId,
+            // 扩展字段
+            'package' => 'Sign=WXPay',
+            // 随机字符串
+            'nonceStr' => SHA1::get_random_str(32),
+            // 时间戳
+            'timestamp' => (string)time(),
+        ];
+        // 签名
+        $input['paySign'] = SHA1::getSign2($input, 'key='.$this->key);
+        return $input;
+    }
+
+    /**
      * 处理微信支付异步通知
+     * 包含
+     * 1. 公众号支付 wiki:https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1
+     * 2. App支付 wiki:https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_1
      * @return array [是否支付成功, 异步通知的原始数据, 回复微信异步通知的数据]
      */
     public function progressWxPayNotify()
@@ -2415,7 +2476,7 @@ class Api
             libxml_disable_entity_loader(true);
             $data = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
             if (! is_array($data)) {
-                return [false, $data, [
+                return [false, [], [
                     'return_code' => 'FAIL',
                     'return_msg' => ''
                 ]];
@@ -2457,6 +2518,9 @@ class Api
 
     /**
      * 回复微信异步通知
+     * 包含
+     * 1. 公众号支付 wiki:https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1
+     * 2. App支付 wiki:https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_1
      * @param array $info 回复内容数组
      */
     public static function replyWxPayNotify($info)

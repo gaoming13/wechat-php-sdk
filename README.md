@@ -61,7 +61,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 
   ```shell
   #安装composer依赖
-  composer require "gaoming13/wechat-php-sdk:1.5.*"
+  composer require "gaoming13/wechat-php-sdk:1.*"
   composer dump-autoload --optimize
   ``` 
 
@@ -897,7 +897,7 @@ demo见项目内 `demo/snsapi/`
     }
     ```
 
-## Api：微信JSAPI支付
+## Api：微信公众号支付(JSAPI)
 
 [官方wiki](https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_1)
 
@@ -940,26 +940,23 @@ if ($user_info == null) {
 }
 
 // 生成预订单
-$wxOrder = $api->wxPayUnifiedOrder($user_info->openid, [
-    'out_trade_no' => JiariOrder::getOutTradeNo($order['id']),
-    'body' => '[NO.'.$order['batch_id'].']'.$order['name'],
-    'total_fee' => (double)$order['total_pay_need'] * 100,
+$wxOrder = $api->wxPayUnifiedOrder([
+	'trade_type' => 'JSAPI',
+    'out_trade_no' => '100002',
+    'body' => '新鲜大白菜',
+    'total_fee' => 100, // 单位是分
     //'time_expire' => date('YmdHis', (int)$order['created_at'] + (int)$order['timeout']),
-    'notify_url' => HTTP.'://my.'.IDN.'/we-chat-pay/asyn-notify',
+    'notify_url' => 'http://example.com/we-chat-pay/asyn-notify',
+    'openid' => $user_info->openid,
 ]);
+
 // 判断预订单是否生成成功
-if ($wxOrder['return_code'] != 'SUCCESS') {
-    Yii::error(['微信支付预订单生成失败', $wxOrder, $order], __METHOD__);
-
-    throw new NotFoundHttpException('使用微信支付失败，请改用其它支付方式！');
+if ($wxOrder['return_code'] == 'SUCCESS' && $wxOrder['result_code'] == 'SUCCESS') {
+    // 成功处理，获取JSAPI支付的参数
+    $jsApiParams = $api->getWxPayJsApiParameters($wxOrder['prepay_id']);
+} else {
+	// 失败处理...
 }
-
-// 生成微信支付JSAPI参数
-if (! array_key_exists('prepay_id', $wxOrder)) {
-    Yii::error(['微信支付预订单生成失败', $wxOrder, $order], __METHOD__);
-    throw new NotFoundHttpException('使用微信支付失败，请改用其它支付方式！');
-}
-$jsApiParams = $api->getWxPayJsApiParameters($wxOrder['prepay_id']);
 ```
 
 ```html
@@ -1019,6 +1016,93 @@ exit();
 - `当前页面的URl未注册`
  微信支付->公众号支付[填写支付授权目录](注意:微信限制比较严格,必须包含支付页面地址前的所有目录)
 - 微信支付结果通过纯post xml通知，但PHP7移除了 `HTTP_RAW_POST_DATA`，这里使用 `php://input`
+
+## Api：微信App支付(App)
+
+[官方wiki](https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_1)
+
+微信App支付与微信公众号支付类似：
+
+支付过程中SDK使用流程：
+
+- [商户服务器]调用 `wxPayUnifiedOrder` 生成预订单
+- [商户服务器]调用 `getWxPayAppApiParameters` 生成App支付的参数，作为自己App调起微信打开支付界面的参数
+- [商户App客户端]通过以上的支付参数调用移动端SDK调起微信支付 [见官方wiki](https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=8_5)
+- 支付成功后，微信会异步通知[商户服务器]的notify_url，[商户服务器]调用 `progressWxPayNotify` 验证异步通知并做相应业务操作
+
+eg: 写个服务端接口[生成预订单,并得到App的支付参数] 供客户端App调用
+
+```php
+
+// 生成预订单
+$wxOrder = $api->wxPayUnifiedOrder([
+	'trade_type' => 'APP',
+    'out_trade_no' => '100002',
+    'body' => '新鲜大白菜',
+    'total_fee' => 100, // 单位是分
+    //'time_expire' => date('YmdHis', (int)$order['created_at'] + (int)$order['timeout']),
+    'notify_url' => 'http://example.com/we-chat-pay/asyn-notify',
+]);
+
+// 判断预订单是否生成成功
+if ($wxOrder['return_code'] == 'SUCCESS' && $wxOrder['result_code'] == 'SUCCESS') {
+    // 成功处理，获取App支付的参数
+    $apiParams = $api->getWxPayAppApiParameters($wxOrder['prepay_id']);
+
+    // 返回给app客户端
+	return json_encode($apiParams);
+} else {
+	// 失败处理...
+}
+```
+
+```
+# iOS调起微信支付 (微信官网的，未验证)
+
+PayReq *request = [[[PayReq alloc] init] autorelease];
+request.partnerId = @"10000100";
+request.prepayId= @"1101000000140415649af9fc314aa427";
+request.package = @"Sign=WXPay";
+request.nonceStr= @"a462b76e7436e98e0ed6e13c64b4fd1c";
+request.timeStamp= @"1397527777";
+request.sign= @"582282D72DD2B03AD892830965F428CB16E7A256";
+[WXApi sendReq：request];
+```
+
+```
+# android调起微信支付 (微信官网的，未验证)
+
+IWXAPI api;
+PayReq request = new PayReq();
+request.appId = "wxd930ea5d5a258f4f";
+request.partnerId = "1900000109";
+request.prepayId= "1101000000140415649af9fc314aa427",;
+request.packageValue = "Sign=WXPay";
+request.nonceStr= "1101000000140429eb40476f8896f4c9";
+request.timeStamp= "1398746574";
+request.sign= "7FFECB600D7157C5AA49810D2D8F28BC2811827B";
+api.sendReq(req);
+```
+
+eg: 处理微信支付结果异步回调
+
+```php
+// 处理微信支付异步通知
+// $res: 是否支付成功
+// $notifyData: 异步通知的原始数据
+// $replyData: 回复微信异步通知的数据
+list($res, $notifyData, $replyData) = $api->progressWxPayNotify();
+
+// 处理业务逻辑
+// ...
+
+// 回复微信
+$api->replyWxPayNotify($replyData);
+exit();
+```
+
+### 常见问题
+
 
 ## License
 
