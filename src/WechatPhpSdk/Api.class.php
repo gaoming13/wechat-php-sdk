@@ -1,11 +1,4 @@
 <?php
-namespace Gaoming13\WechatPhpSdk;
-
-use Gaoming13\WechatPhpSdk\Utils\HttpCurl;
-use Gaoming13\WechatPhpSdk\Utils\Error;
-use Gaoming13\WechatPhpSdk\Utils\SHA1;
-use Gaoming13\WechatPhpSdk\Utils\Xml;
-
 /**
  * Api.php
  *
@@ -19,13 +12,21 @@ use Gaoming13\WechatPhpSdk\Utils\Xml;
  * - 用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）
  * - 数据统计接口（开发中...）
  *
- * @author 		gaoming13 <gaoming13@yeah.net>
- * @link 		https://github.com/gaoming13/wechat-php-sdk
- * @link 		http://me.diary8.com/
+ * @author       gaoming13 <gaoming13@yeah.net>
+ * @link         https://github.com/gaoming13/wechat-php-sdk
+ * @link         http://me.diary8.com/
  *
  * Class Api
  * @package Gaoming13\WechatPhpSdk
  */
+ 
+namespace Gaoming13\WechatPhpSdk;
+
+use Gaoming13\WechatPhpSdk\Utils\HttpCurl;
+use Gaoming13\WechatPhpSdk\Utils\Error;
+use Gaoming13\WechatPhpSdk\Utils\SHA1;
+use Gaoming13\WechatPhpSdk\Utils\Xml;
+
 class Api 
 {
     // 微信API域名
@@ -53,7 +54,7 @@ class Api
     /** @var callable $save_jsapi_ticket_diy 用户自定义保存jsapi_ticket的方法 */
     protected $save_jsapi_ticket_diy;
 
-	/**
+    /**
      * 设定配置项
      *
      * @param array $config
@@ -124,7 +125,7 @@ class Api
         } else {
             // 异常处理: 获取access_token方法未定义
             @error_log('Not set get_tokenDiy method, AccessToken will be refreshed each time.', 0);
-        }        
+        }
         // 验证AccessToken是否有效        
         if (!$this->valid_access_token($token)) {
 
@@ -142,7 +143,7 @@ class Api
                 // 异常处理: 保存access_token方法未定义
                 @error_log('Not set saveTokenDiy method, AccessToken will be refreshed each time.', 0);
             }
-        }        
+        }
         return $token->access_token;
     }
     
@@ -160,7 +161,7 @@ class Api
         $msg_type = '';
         if (gettype($msg)=='string') {
             $msg_type = 'text_simple';
-        } elseif (gettype($msg)=='array') {         
+        } elseif (gettype($msg)=='array') {
             $msg_type = $msg['type'];
         }
 
@@ -174,14 +175,14 @@ class Api
              * ```
              */
             case 'text_simple':
-                $xml = sprintf('{
-                        "touser":"%s",
-                        "msgtype":"text",
-                        "text":{
-                            "content":"%s"
-                        }}',
+                $xml = sprintf('{'.
+                        '"touser":"%s",'.
+                        '"msgtype":"text",'.
+                        '"text":{'.
+                            '"content":"%s"'.
+                        '}}',
                         $openid,
-                        $msg);            
+                        $msg);
                 break;
 
             /**
@@ -194,14 +195,14 @@ class Api
              *  'content' => 'hello world!'
              * ));
              * ```
-             */         
+             */
             case 'text':
-                $xml = sprintf('{
-                        "touser":"%s",
-                        "msgtype":"text",
-                        "text":{
-                            "content":"%s"
-                        }%s}', 
+                $xml = sprintf('{'.
+                        '"touser":"%s",'.
+                        '"msgtype":"text",'.
+                        '"text":{'.
+                            '"content":"%s"'.
+                        '}%s}', 
                         $openid,
                         $msg['content'],
                         isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
@@ -217,15 +218,15 @@ class Api
              *  'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
              * ));
              * ```
-             */         
+             */
             case 'image':
-                $xml = sprintf('{
-                        "touser":"%s",
-                        "msgtype":"image",
-                        "image":{
-                            "media_id":"%s"
-                        }%s}', 
-                        $openid,                        
+                $xml = sprintf('{'.
+                        '"touser":"%s",'.
+                        '"msgtype":"image",'.
+                        '"image":{'.
+                            '"media_id":"%s"'.
+                        '}%s}', 
+                        $openid,
                         $msg['media_id'],
                         isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
                 break;
@@ -240,14 +241,14 @@ class Api
              *  'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
              *  ));
              * ```
-             */         
+             */
             case 'voice':
-                $xml = sprintf('{
-                        "touser":"%s",
-                        "msgtype":"voice",
-                        "voice":{
-                            "media_id":"%s"
-                        }%s}', 
+                $xml = sprintf('{'.
+                        '"touser":"%s",'.
+                        '"msgtype":"voice",'.
+                        '"voice":{'.
+                            '"media_id":"%s"'.
+                        '}%s}', 
                         $openid,
                         $msg['media_id'],
                         isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
@@ -264,19 +265,19 @@ class Api
              *  'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ',     // 可选(无效, 官方文档好像写错了)
              *  'title' => '视频消息的标题',           // 可选
              *  'description' => '视频消息的描述'      // 可选
-             * ));                         
+             * ));
              * ```
              */         
             case 'video':
-                $xml = sprintf('{
-                        "touser":"%s",
-                        "msgtype":"video",
-                        "video":{
-                            "media_id":"%s",
-                            "thumb_media_id":"%s",
-                            "title":"%s",
-                            "description":"%s"                            
-                        }%s}', 
+                $xml = sprintf('{'.
+                        '"touser":"%s",'.
+                        '"msgtype":"video",'.
+                        '"video":{'.
+                            '"media_id":"%s",'.
+                            '"thumb_media_id":"%s",'.
+                            '"title":"%s",'.
+                            '"description":"%s"'.
+                        '}%s}', 
                         $openid,
                         $msg['media_id'],
                         $msg['thumb_media_id'],
@@ -297,20 +298,20 @@ class Api
              *  'music_url' => 'http://me.diary8.com/data/music/2.mp3',     //可选
              *  'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',   //可选
              *  'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
-             * ));             
+             * ));
              * ```
              */         
             case 'music':
-                $xml = sprintf('{
-                        "touser":"%s",
-                        "msgtype":"music",
-                        "music":{
-                            "title":"%s",
-                            "description":"%s",
-                            "musicurl":"%s",
-                            "hqmusicurl":"%s",
-                            "thumb_media_id":"%s" 
-                        }%s}', 
+                $xml = sprintf('{'.
+                        '"touser":"%s",'.
+                        '"msgtype":"music",'.
+                        '"music":{'.
+                            '"title":"%s",'.
+                            '"description":"%s",'.
+                            '"musicurl":"%s",'.
+                            '"hqmusicurl":"%s",'.
+                            '"thumb_media_id":"%s"'.
+                        '}%s}', 
                         $openid,
                         isset($msg['title']) ? $msg['title'] : '',
                         isset($msg['description']) ? $msg['description'] : '',
@@ -348,28 +349,28 @@ class Api
              *      )
              *  ),
              *  'kf_account' => 'test1@kftest'      // 可选(指定某个客服发送, 会显示这个客服的头像)
-             * ));          
+             * ));
              * ```
-             */         
+             */
             case 'news':
-                $articles = array();             
+                $articles = array();
                 foreach ($msg['articles'] as $article) {
-                    array_push($articles, sprintf('{
-                        "title":"%s",
-                        "description":"%s",
-                        "url":"%s",
-                        "picurl":"%s"
-                        }',
+                    array_push($articles, sprintf('{'.
+                        '"title":"%s",'.
+                        '"description":"%s",'.
+                        '"url":"%s",'.
+                        '"picurl":"%s"'.
+                        '}',
                         $article['title'],
-                        $article['description'],                        
+                        $article['description'],
                         $article['url'],
                         $article['picurl']));
                 }
                 $articles = implode(",", $articles);
-                $xml = sprintf('{
-                        "touser":"%s",
-                        "msgtype":"news",
-                        "news":{"articles": [%s]}%s}',
+                $xml = sprintf('{'.
+                        '"touser":"%s",'.
+                        '"msgtype":"news",'.
+                        '"news":{"articles": [%s]}%s}',
                         $openid,
                         $articles,
                         isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
@@ -380,7 +381,7 @@ class Api
              *
              */ 
             default:
-            	return Error::code('ERR_MEG_TYPE');                
+                return Error::code('ERR_MEG_TYPE');
                 break;
         }
 
@@ -388,13 +389,13 @@ class Api
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取access_token网络错误
         if ($res === false) {
-        	return Error::code('ERR_GET');
+            return Error::code('ERR_GET');
         }
-        // 判断是否调用成功     
+        // 判断是否调用成功
         if ($res->errcode == 0) {
-        	return array(null, true);            
+            return array(null, true);
         } else {
-        	return array($res, null);            
+            return array($res, null);
         }
     }
 
@@ -405,35 +406,35 @@ class Api
      * @param string $kf_account
      * @param string $nickname
      * @param string $password
-	 *
+     *
      * @return array(err, res)
      * 
-	 * Examples:
-	 * ```	 
-	 * list($err, $res) = $api->add_kf('test1234@微信号', '客服昵称', '客服密码');
-	 * ```               
+     * Examples:
+     * ```
+     * list($err, $res) = $api->add_kf('test1234@微信号', '客服昵称', '客服密码');
+     * ```
      */
     public function add_kf ($kf_account, $nickname, $password)
     {
-    	$password = md5($password);
-    	$xml = sprintf('{
-    			"kf_account" : "%s",
-    			"nickname" : "%s",
-    			"password" : "%s"}',
-				$kf_account,
-				$nickname,
-				md5($password));
-    	$url = self::API_DOMAIN . 'customservice/kfaccount/add?access_token=' . $this->get_access_token();    	
+        $password = md5($password);
+        $xml = sprintf('{'.
+                '"kf_account" : "%s",'.
+                '"nickname" : "%s",'.
+                '"password" : "%s"}',
+                $kf_account,
+                $nickname,
+                md5($password));
+        $url = self::API_DOMAIN . 'customservice/kfaccount/add?access_token=' . $this->get_access_token();
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
-        	return Error::code('ERR_GET');
-        }        
-        // 判断是否调用成功        
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
         if ($res->errcode == 0) {
-        	return array(null, true);
+            return array(null, true);
         } else {
-        	return array($res, null);
+            return array($res, null);
         }
     }
 
@@ -443,35 +444,35 @@ class Api
      * @param string $kf_account
      * @param string $nickname
      * @param string $password
-	 *
+     *
      * @return array(err, res)
      * 
-	 * Examples:
-	 * ```	 
-	 * list($err, $res) = $api->update_kf('test1234@微信号', '客服昵称', '客服密码');
-	 * ```               
+     * Examples:
+     * ```
+     * list($err, $res) = $api->update_kf('test1234@微信号', '客服昵称', '客服密码');
+     * ```
      */
     public function update_kf($kf_account, $nickname, $password)
     {
-    	$password = md5($password);
-    	$xml = sprintf('{
-    			"kf_account" : "%s",
-    			"nickname" : "%s",
-    			"password" : "%s"}',
-				$kf_account,
-				$nickname,
-				md5($password));
-    	$url = self::API_DOMAIN . 'customservice/kfaccount/update?access_token=' . $this->get_access_token();    	
+        $password = md5($password);
+        $xml = sprintf('{'.
+                '"kf_account" : "%s",'.
+                '"nickname" : "%s",'.
+                '"password" : "%s"}',
+                $kf_account,
+                $nickname,
+                md5($password));
+        $url = self::API_DOMAIN . 'customservice/kfaccount/update?access_token=' . $this->get_access_token();
         $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
-        	return Error::code('ERR_GET');
-        }        
-        // 判断是否调用成功        
+            return Error::code('ERR_GET');
+        }
+        // 判断是否调用成功
         if ($res->errcode == 0) {
-        	return array(null, true);
+            return array(null, true);
         } else {
-        	return array($res, null);
+            return array($res, null);
         }
     }
 
@@ -479,29 +480,29 @@ class Api
      * 上传客服头像
      *
      * @param string $kf_account
-     * @param string $path     
-	 *
+     * @param string $path
+     *
      * @return array(err, res)
      * 
-	 * Examples:
-	 * ```	 
-	 * list($err, $res) = $api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
-	 * ```               
+     * Examples:
+     * ```
+     * list($err, $res) = $api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
+     * ```
      */
     public function set_kf_avatar($kf_account, $path)
     {
-    	$url = self::API_DOMAIN . 'customservice/kfaccount/uploadheadimg?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;        
-        $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');        
+        $url = self::API_DOMAIN . 'customservice/kfaccount/uploadheadimg?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;
+        $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
-        	return Error::code('ERR_GET');
-        }        
+            return Error::code('ERR_GET');
+        }
         // 判断是否调用成功        
         if ($res->errcode == 0) {
-        	return array(null, true);
+            return array(null, true);
         } else {
-        	return array($res, null);
-        }        
+            return array($res, null);
+        }
     }
 
     /**
@@ -511,24 +512,24 @@ class Api
      *
      * @return array(err, res)
      *
-	 * Examples:
-	 * ```	 
-	 * list($err, $res) = $api->del_kf('test1234@微信号');
-	 * ```               
+     * Examples:
+     * ```
+     * list($err, $res) = $api->del_kf('test1234@微信号');
+     * ```
      */
     public function del_kf($kf_account)
     {
-    	$url = self::API_DOMAIN . 'customservice/kfaccount/del?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;    	
+        $url = self::API_DOMAIN . 'customservice/kfaccount/del?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
-        	return Error::code('ERR_GET');
+            return Error::code('ERR_GET');
         }        
         // 判断是否调用成功
         if ($res->errcode == 0) {
-        	return array(null, true);
+            return array(null, true);
         } else {
-        	return array($res, null);
+            return array($res, null);
         }
     }
 
@@ -537,24 +538,24 @@ class Api
      *
      * @return array(err, data)
      *
-	 * Examples:
-	 * ```	 
-	 * list($err, $kf_list) = $api->get_kf_list();
-	 * ```               
+     * Examples:
+     * ```
+     * list($err, $kf_list) = $api->get_kf_list();
+     * ```
      */
     public function get_kf_list()
     {
-    	$url = self::API_DOMAIN . 'cgi-bin/customservice/getkflist?access_token=' . $this->get_access_token();
+        $url = self::API_DOMAIN . 'cgi-bin/customservice/getkflist?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
-        	return Error::code('ERR_GET');
+            return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if (isset($res->kf_list)) {
-        	return array(null, $res->kf_list);
-        } else {        	
-        	return array($res, null);
+            return array(null, $res->kf_list);
+        } else {            
+            return array($res, null);
         }
     }
 
@@ -563,24 +564,24 @@ class Api
      *
      * @return array(err, data)
      *
-	 * Examples:
-	 * ```
-	 * list($err, $kf_list) = $api->get_online_kf_list();
-	 * ```               
+     * Examples:
+     * ```
+     * list($err, $kf_list) = $api->get_online_kf_list();
+     * ```
      */
     public function get_online_kf_list ()
     {
-    	$url = self::API_DOMAIN . 'cgi-bin/customservice/getonlinekflist?access_token=' . $this->get_access_token();
+        $url = self::API_DOMAIN . 'cgi-bin/customservice/getonlinekflist?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
-        	return Error::code('ERR_GET');
+            return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if (isset($res->kf_online_list)) {
-        	return array(null, $res->kf_online_list);
-        } else {        	
-        	return array($res, null);
+            return array(null, $res->kf_online_list);
+        } else {
+            return array($res, null);
         }
     }
 
@@ -602,11 +603,11 @@ class Api
     public function get_kf_records($starttime, $endtime, $pageindex, $pagesize)
     {
         $url = self::API_DOMAIN . 'customservice/msgrecord/getrecord?access_token=' . $this->get_access_token();
-        $xml = sprintf('{
-                    "endtime" : %s,
-                    "pageindex" : %s,
-                    "pagesize" : %s,
-                    "starttime" : %s}',
+        $xml = sprintf('{'.
+                    '"endtime" : %s,'.
+                    '"pageindex" : %s,'.
+                    '"pagesize" : %s,'.
+                    '"starttime" : %s}',
                     $endtime,
                     $pageindex,
                     $pagesize,
@@ -619,7 +620,7 @@ class Api
         // 判断是否调用成功
         if (isset($res->recordlist)) {
             return array(null, $res->recordlist);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
@@ -641,10 +642,10 @@ class Api
     public function create_kf_session($openid, $kf_account, $text='')
     {
         $url = self::API_DOMAIN . 'customservice/kfsession/create?access_token=' . $this->get_access_token();
-        $xml = sprintf('{
-                    "kf_account" : "%s",
-                    "openid" : "%s",
-                    "text" : "%s"}',
+        $xml = sprintf('{'.
+                    '"kf_account" : "%s",'.
+                    '"openid" : "%s",'.
+                    '"text" : "%s"}',
                     $kf_account,
                     $openid,
                     $text);
@@ -656,7 +657,7 @@ class Api
         // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, true);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
@@ -678,10 +679,10 @@ class Api
     public function close_kf_session($openid, $kf_account, $text='')
     {
         $url = self::API_DOMAIN . 'customservice/kfsession/close?access_token=' . $this->get_access_token();
-        $xml = sprintf('{
-                    "kf_account" : "%s",
-                    "openid" : "%s",
-                    "text" : "%s"}',
+        $xml = sprintf('{'.
+                    '"kf_account" : "%s",'.
+                    '"openid" : "%s",'.
+                    '"text" : "%s"}',
                     $kf_account,
                     $openid,
                     $text);
@@ -728,7 +729,7 @@ class Api
 
     /**
      * 获取客服的会话列表
-     *     
+     *
      * @param string $kf_account
      *
      * @return array(err, data)
@@ -812,8 +813,8 @@ class Api
      */
     public function upload_media($type, $path)
     {
-        $url = self::API_DOMAIN . 'cgi-bin/media/upload?access_token=' . $this->get_access_token() . '&type=' . $type;        
-        $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');        
+        $url = self::API_DOMAIN . 'cgi-bin/media/upload?access_token=' . $this->get_access_token() . '&type=' . $type;
+        $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
@@ -830,17 +831,17 @@ class Api
      * 获取临时素材URL
      *
      * Examples:
-     * ```   
+     * ```
      * $url = $api->get_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
      * ```
      * Result:
      * ```
      * https://api.weixin.qq.com/cgi-bin/media/get?access_token=egpGMhgnhbrqOo77wkUS7HmEFp40bITkRZNJk1gCGTH8i-BiVxai9zs0CcWk223dz6LiypGprpLHBRL9upjKQLqPgtAnqUeK9qznUyDsNXg&media_id=CVS_UPz62LKIfDwc7bUWtI250x_KBLhOuYgkHr1GjVxJCP8N9rOYfgIKXSY5Wg9n  
-     * ```     
-     *     
+     * ```
+     *
      * @param string $media_id 媒体文件ID
      *
-     * @return string $url 媒体文件的URL     
+     * @return string $url 媒体文件的URL
      */
     public function get_media($media_id)
     {
@@ -861,7 +862,7 @@ class Api
      *
      * @return array(err, res)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象        
+     * - `res`, 调用正常时得到的对象
      */
     public function download_media($media_id)
     {
@@ -889,7 +890,7 @@ class Api
      * list($err, $res) = $api->add_material('thumb', '/data/img/sky.jpg');
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -897,7 +898,7 @@ class Api
      *         url: "https://mmbiz.qlogo.cn/mmbiz/InxuM0bx4ZWgxicicoy2tLibV2hyO5hWT4VlHNI6LticmppBiaG12cJ8icDoSR83zFSKDAz8qnY1miatZiaX8pZKUaIt7w/0?wx_fmt=jpeg"
      *     }
      * ]
-     * ```   
+     * ```
      *
      * @param string $type 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb）
      * @param string $path 要上传文件的绝对路径
@@ -910,12 +911,12 @@ class Api
      */
     public function add_material($type, $path, $title='', $introduction='')
     {
-        $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->get_access_token() . '&type=' . $type;                
+        $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->get_access_token() . '&type=' . $type;
         $post_data = array('media' => '@'.$path);
         if ($type == 'video') {
             $post_data['description'] = sprintf('{"title":"%s","introduction":"%s"}', $title, $introduction);
         }
-        $res = HttpCurl::post($url, $post_data, 'json');        
+        $res = HttpCurl::post($url, $post_data, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_POST');
@@ -938,7 +939,7 @@ class Api
      * - `res`, 调用正常时得到的对象 
      *
      * Examples:
-     * ```     
+     * ```
      * list($err, $res) = $api->add_news(array(
      *     array(
      *         'title' => '标题',
@@ -961,7 +962,7 @@ class Api
      * ));
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -973,25 +974,25 @@ class Api
     public function add_news($articles)
     {
         $url = self::API_DOMAIN . 'cgi-bin/material/add_news?access_token=' . $this->get_access_token();
-        $articles1 = array();             
+        $articles1 = array();
         foreach ($articles as $article) {
-            array_push($articles1, sprintf('{
-                "title":"%s",
-                "thumb_media_id":"%s",
-                "digest":"%s",
-                "show_cover_pic":"%s",
-                "content":"%s",
-                "content_source_url":"%s"}',
+            array_push($articles1, sprintf('{'.
+                '"title":"%s",'.
+                '"thumb_media_id":"%s",'.
+                '"digest":"%s",'.
+                '"show_cover_pic":"%s",'.
+                '"content":"%s",'.
+                '"content_source_url":"%s"}',
                 $article['title'],
-                $article['thumb_media_id'],                        
+                $article['thumb_media_id'],
                 $article['digest'],
                 $article['show_cover_pic'],
-                $article['content'],                
+                $article['content'],
                 $article['content_source_url']));
         }
         $articles1 = implode(",", $articles1);
         $xml = sprintf('{"articles": [%s]}', $articles1);
-        $res = HttpCurl::post($url, $xml, 'json');        
+        $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_POST');
@@ -1008,7 +1009,7 @@ class Api
      * 修改永久图文素材
      *
      * Examples:
-     * ```     
+     * ```
      * list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', array(
      *     'title' => '标题',
      *     'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
@@ -1020,7 +1021,7 @@ class Api
      * ), 1); 
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -1034,25 +1035,25 @@ class Api
      * @param string $article 
      * @param string $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
      *
-     * @return array(err, res)        
+     * @return array(err, res)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象      
+     * - `res`, 调用正常时得到的对象
      */
     public function update_news($media_id, $article, $index = 0)
     {
-        $url = self::API_DOMAIN . 'cgi-bin/material/update_news?access_token=' . $this->get_access_token();        
-        $xml = sprintf('{
-            "media_id":"%s",
-            "index":"%s",
-            "articles": {
-                "title": "%s",
-                "thumb_media_id": "%s",
-                "author": "%s",
-                "digest": "%s",
-                "show_cover_pic": "%s",
-                "content": "%s",
-                "content_source_url": "%s"
-            }}',
+        $url = self::API_DOMAIN . 'cgi-bin/material/update_news?access_token=' . $this->get_access_token();
+        $xml = sprintf('{'.
+            '"media_id":"%s",'.
+            '"index":"%s",'.
+            '"articles": {'.
+                '"title": "%s",'.
+                '"thumb_media_id": "%s",'.
+                '"author": "%s",'.
+                '"digest": "%s",'.
+                '"show_cover_pic": "%s",'.
+                '"content": "%s",'.
+                '"content_source_url": "%s"'.
+            '}}',
             $media_id, 
             $index,
             $article['title'],
@@ -1060,9 +1061,9 @@ class Api
             $article['author'],
             $article['digest'],
             $article['show_cover_pic'],
-            $article['content'],                
-            $article['content_source_url']);        
-        $res = HttpCurl::post($url, $xml, 'json');        
+            $article['content'],
+            $article['content_source_url']);
+        $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_POST');
@@ -1079,7 +1080,7 @@ class Api
      * 获取永久素材
      *
      * Examples:
-     * ```   
+     * ```
      * // 获取图片、音频、略缩图素材
      * // 返回素材的内容，可保存为文件或直接输出
      * header('Content-type: image/jpg');
@@ -1092,11 +1093,11 @@ class Api
      * var_dump(json_decode($data));
      *
      * // 获取图文素材
-     * // 返回图文的json字符串     
+     * // 返回图文的json字符串
      * list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g');
      * var_dump(json_decode($data));
-     * ```   
-     *     
+     * ```
+     *
      * @param string $media_id 要获取的素材的media_id
      *
      * @return array(err, res)
@@ -1108,7 +1109,7 @@ class Api
         $url = self::API_DOMAIN . 'cgi-bin/material/get_material?access_token=' . $this->get_access_token();
         $xml = '{"media_id":"' . $media_id . '"}';
         $res = HttpCurl::post($url, $xml);
-        // 异常处理: 获取时网络错误        
+        // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
         }
@@ -1119,14 +1120,14 @@ class Api
      * 删除永久素材
      *
      * Examples:
-     * ```   
+     * ```
      * list($err, $res) = $api->del_material('BZ-ih-dnjWDyNXjai6i6sbOICualzdwwnWWBqxW39Xk');
      * if (is_null($err)) {
      *  // 删除成功
      * }
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -1135,43 +1136,43 @@ class Api
      *     }
      * ]
      * ``` 
-     *     
+     *
      * @param string $media_id 要删除的素材的media_id
      *
      * @return array(err, res)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象                 
+     * - `res`, 调用正常时得到的对象
      */
     public function del_material($media_id)
     {
         $url = self::API_DOMAIN . 'cgi-bin/material/del_material?access_token=' . $this->get_access_token();
         $xml = '{"media_id":"' . $media_id . '"}';
         $res = HttpCurl::post($url, $xml, 'json');
-        // 异常处理: 获取时网络错误        
+        // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, $res);
-        } else {            
+        } else {
             return array($res, null);
-        }        
+        }
     }
 
     /**
-     * 获取素材总数        
-     *     
+     * 获取素材总数
+     *
      * @return array(err, data)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象       
+     * - `res`, 调用正常时得到的对象
      *
      * Examples:
      * ```
      * list($err, $data) = $api->get_material_count();
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -1185,22 +1186,22 @@ class Api
      */    
     public function get_material_count()
     {
-        $url = self::API_DOMAIN . 'cgi-bin/material/get_materialcount?access_token=' . $this->get_access_token();        
+        $url = self::API_DOMAIN . 'cgi-bin/material/get_materialcount?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
-        }    
+        }
         // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, $res);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
 
     /**
-     * 获取素材列表        
+     * 获取素材列表
      *
      * @param string $type 素材的类型，图片（image）、视频（video）、语音 （voice）、图文（news）
      * @param string $offset 从全部素材的该偏移位置开始返回，0表示从第一个素材 返回
@@ -1215,39 +1216,39 @@ class Api
      * list($err, $data) = $api->get_materials('video', 0, 20);
      * list($err, $data) = $api->get_materials('thumb', 0, 20);
      * ```
-     */    
+     */
     public function get_materials($type, $offset, $count)
     {
         $url = self::API_DOMAIN . 'cgi-bin/material/batchget_material?access_token=' . $this->get_access_token();
         $xml = sprintf('{"type":"%s","offset":"%s","count":"%s"}', $type, $offset, $count);
-        $res = HttpCurl::post($url, $xml, 'json');    
+        $res = HttpCurl::post($url, $xml, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
-        }    
+        }
         // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, $res);
-        } else {            
+        } else {
             return array($res, null);
-        }        
+        }
     }
 
     /**
-     * 自定义菜单创建接口        
-     *     
+     * 自定义菜单创建接口
+     *
      * @param string $json 菜单的json串，具体结构见微信公众平台文档
      *
      * @return array(err, data)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象       
+     * - `res`, 调用正常时得到的对象
      *
      * Examples:
      * ```
      * $api->create_menu('
      * {
      *     "button":[
-     *         {   
+     *         {
      *           "type":"click",
      *           "name":"主菜单1",
      *           "key":"V1001_TODAY_MUSIC"
@@ -1306,7 +1307,7 @@ class Api
      * }');
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -1318,7 +1319,7 @@ class Api
      */    
     public function create_menu($json)
     {
-        $url = self::API_DOMAIN . 'cgi-bin/menu/create?access_token=' . $this->get_access_token();        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/create?access_token=' . $this->get_access_token();
         $res = HttpCurl::post($url, $json, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
@@ -1327,24 +1328,24 @@ class Api
         // 判断是否调用成功        
         if ($res->errcode == 0) {
             return array(null, $res);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
 
     /**
-     * 自定义菜单查询接口        
+     * 自定义菜单查询接口
      *     
      * @return array(err, data)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象       
+     * - `res`, 调用正常时得到的对象
      *
      * Examples:
      * ```
      * list($err, $data) = $api->get_menu();
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -1376,38 +1377,38 @@ class Api
      *             ]
      *         }
      *     }
-     * ]     
+     * ]
      * ```
      */    
     public function get_menu()
     {
-        $url = self::API_DOMAIN . 'cgi-bin/menu/get?access_token=' . $this->get_access_token();        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/get?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
-        }        
-        // 判断是否调用成功        
+        }
+        // 判断是否调用成功
         if (isset($res->menu)) {
             return array(null, $res);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
 
     /**
-     * 自定义菜单删除接口        
-     *     
+     * 自定义菜单删除接口
+     *
      * @return array(err, data)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象       
+     * - `res`, 调用正常时得到的对象
      *
      * Examples:
      * ```
      * list($err, $data) = $api->delete_menu();
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -1419,33 +1420,33 @@ class Api
      */    
     public function delete_menu()
     {
-        $url = self::API_DOMAIN . 'cgi-bin/menu/delete?access_token=' . $this->get_access_token();        
+        $url = self::API_DOMAIN . 'cgi-bin/menu/delete?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
-        }        
-        // 判断是否调用成功        
+        }
+        // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, $res);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
 
     /**
-     * 获取自定义菜单配置接口        
-     *     
+     * 获取自定义菜单配置接口
+     *
      * @return array(err, data)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象       
+     * - `res`, 调用正常时得到的对象
      *
      * Examples:
      * ```
      * list($err, $data) = $api->get_selfmenu();
      * ```
      * Result:
-     * ```    
+     * ```
      * [
      *     null,
      *     {
@@ -1479,21 +1480,21 @@ class Api
      *     }
      * ]
      * ```
-     */    
+     */
     public function get_selfmenu()
     {
-        $url = self::API_DOMAIN . 'cgi-bin/get_current_selfmenu_info?access_token=' . $this->get_access_token();        
+        $url = self::API_DOMAIN . 'cgi-bin/get_current_selfmenu_info?access_token=' . $this->get_access_token();
         $res = HttpCurl::get($url, 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
-        }    
-        // 判断是否调用成功        
+        }
+        // 判断是否调用成功
         if (isset($res->is_menu_open)) {
             return array(null, $res);
-        } else {            
+        } else {
             return array($res, null);
-        }        
+        }
     }
 
     /**
