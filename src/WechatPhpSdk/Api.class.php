@@ -2445,7 +2445,7 @@ class Api
         // 获取App支付的参数
         $input = [
             // 应用ID
-            'appId' => $this->appId,
+            'appid' => $this->appId,
             // 商户号
             'partnerid' => $this->mchId,
             // 预支付交易会话ID
@@ -2453,7 +2453,7 @@ class Api
             // 扩展字段
             'package' => 'Sign=WXPay',
             // 随机字符串
-            'nonceStr' => SHA1::get_random_str(32),
+            'noncestr' => SHA1::get_random_str(32),
             // 时间戳
             'timestamp' => (string)time(),
         ];
