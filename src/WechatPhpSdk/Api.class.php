@@ -1193,7 +1193,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if (isset($res['errcode']) && $res->errcode == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
