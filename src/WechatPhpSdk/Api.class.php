@@ -1193,7 +1193,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if (!property_exists($res, 'errcode')) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1227,7 +1227,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if (!property_exists($res, 'errcode')) {
             return array(null, $res);
         } else {
             return array($res, null);
