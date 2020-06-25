@@ -6,7 +6,7 @@
 微信公众平台php版开发包
 * 支持消息加解密方式的明文模式、兼容模式、安全模式
 * 支持自动接入微信公众平台（[步骤](#接入微信公众平台开发方法)）
-* 支持php5.6+
+* 支持php5.3+
 
 ### 相关参考
 * [微信公众平台开发官方文档](https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Overview.html)
