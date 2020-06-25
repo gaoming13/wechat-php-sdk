@@ -1,7 +1,12 @@
 # wechat-php-sdk
 微信公众平台php版开发包
 * 支持消息加解密方式的明文模式、兼容模式、安全模式
-* 支持自动接入微信公众平台（[步骤](#接入微信公众平台开发方法)） 
+* 支持自动接入微信公众平台（[步骤](#接入微信公众平台开发方法)）
+* 支持php5.6+
+
+### 相关参考
+* [微信公众平台开发官方文档](https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Overview.html)
+* [微信公众平台接口测试帐号申请](http://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login)
 
 ## 功能模块
 Wechat （处理自动接入、获取与回复微信消息）([使用说明](#wechat模块使用说明))
@@ -19,7 +24,6 @@ Api （处理需要access_token的主动接口）([使用说明](#api模块使�
 * [用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）](#api用户管理)
 * [微信公众号支付(JSAPI)](#api微信公众号支付jsapi)
 * [微信App支付(App)](#api微信app支付app)
-* 数据统计接口（开发中...）
 
 ## DEMO
 项目内 `demo/demo_simple.php`
@@ -29,10 +33,10 @@ require 'wechat-php-sdk/autoload.php';
 
 use Gaoming13\WechatPhpSdk\Wechat;
 
-$wechat = new Wechat(array(		
-	'appId' 		=>	'wx733d7f24bd29224a',	
-	'token' 		=> 	'gaoming13',		
-	'encodingAESKey' =>	'072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
+$wechat = new Wechat(array(
+    'appId' 		=>	'wx733d7f24bd29224a',
+    'token' 		=> 	'gaoming13',
+    'encodingAESKey' =>	'072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
 ));
 
 // 获取消息
@@ -50,28 +54,28 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 1. 手动引入
 
   ```php
-  <?php	  
+  <?php
 	  require "wechat-php-sdk/autoload.php";	// 引入自动加载SDK类的方法
-	  
+
 	  use Gaoming13\WechatPhpSdk\Wechat;
 	  use Gaoming13\WechatPhpSdk\Api;
 	  ...
   ```
-            
+
 2. 使用 `composer`
 
   ```shell
   #安装composer依赖
   composer require "gaoming13/wechat-php-sdk:1.*"
   composer dump-autoload --optimize
-  ``` 
+  ```
 
-  ```php   
+  ```php
   require "vendor/autoload.php";
   use Gaoming13\WechatPhpSdk\Wechat;
   use Gaoming13\WechatPhpSdk\Api;
   ```
-  
+
 3. `ThinkPHP` 内使用
 
   将SDK内 `src` 文件夹重命名为 `Gaoming13`, 拷贝至 `ThinkPHP/Library/` 下即可使用 `Wechat` 和 `Api` 类库.
@@ -81,8 +85,8 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
   具体代码见: 项目内 `demo/demo_thinkPHP.php`
 
   ```php
-  $wechat = new \Gaoming13\WechatPhpSdk\Wechat(array(		
-  	'appId' => $appId,	
+  $wechat = new \Gaoming13\WechatPhpSdk\Wechat(array(
+  	'appId' => $appId,
   	'token' => 	$token,
   	'encodingAESKey' =>	$encodingAESKey
   ));
@@ -119,8 +123,8 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 ## Wechat：模块使用说明
 
 ```php
-$wechat = new Wechat(array(	
-    // 开发者中心-配置项-AppID(应用ID)		
+$wechat = new Wechat(array(
+    // 开发者中心-配置项-AppID(应用ID)
     'appId' 		=>	'wx733d7f24bd29224a',
     // 开发者中心-配置项-服务器配置-Token(令牌)
     'token' 		=> 	'gaoming13',
@@ -156,7 +160,7 @@ $msg = $wechat->serve();
 [官方wiki](http://mp.weixin.qq.com/wiki/14/89b871b5466b19b3efa4ada8e577d45e.html)
 
 ### 回复文本消息
-    
+
 ```php
 $wechat->reply('hello world!');
 // 或者
@@ -165,9 +169,9 @@ $wechat->reply(array(
 	'content' => '嘿嘿，呵呵~~'
 ));
 ```
-    
+
 ### 回复图片消息
-    
+
 ```php
 $wechat->reply(array(
 	'type' => 'image',
@@ -175,7 +179,7 @@ $wechat->reply(array(
 	'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
 ));
 ```
-        
+
 ### 回复语音消息
 
 ```php
@@ -185,9 +189,9 @@ $wechat->reply(array(
 	'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
 ));
 ```
-        
+
 ### 回复视频消息
-    
+
 ```php
 $wechat->reply(array(
 	'type' => 'video',
@@ -197,9 +201,9 @@ $wechat->reply(array(
 	'description' => '视频消息的描述'		//可选
 ));
 ```
-        
+
 ### 回复音乐消息
-    
+
 ```php
 $wechat->reply(array(
 	'type' => 'music',
@@ -212,7 +216,7 @@ $wechat->reply(array(
 ```
 
 ### 回复图文消息
-    
+
 ```php
 $wechat->reply(array(
 	'type' => 'news',
@@ -240,7 +244,7 @@ $wechat->reply(array(
 ```
 
 ## Wechat：转发到多客服接口
-    
+
 ```php
 $wechat->reply(array(
 	'type' => 'transfer_customer_service',
@@ -301,8 +305,8 @@ $m = new Memcached();
 $m->addServer('localhost', 11211);
 
 // wechat模块 - 处理用户发送的消息和回复消息
-$wechat = new Wechat(array(		
-	'appId' => $appId,	
+$wechat = new Wechat(array(
+	'appId' => $appId,
 	'token' => 	$token,
 	'encodingAESKey' =>	$encodingAESKey
 ));
@@ -347,7 +351,7 @@ $api->send($msg->FromUserName, '这是我主动发送的消息！');
 
 `$err`为错误信息, `$data`为正确处理返回的数据
 
-可用`list`接收: 
+可用`list`接收:
 
 ```php
 list($err, $kf_list) = $api->get_kf_list();
@@ -363,7 +367,7 @@ if (is_null($err)) {
 [官方wiki](http://mp.weixin.qq.com/wiki/1/70a29afed17f56d537c833f89be979c9.html)
 
 ### 主动发送文本消息
-    
+
 ```php
 $api->send($msg->FromUserName, 'heheh');
 // 或者
@@ -375,7 +379,7 @@ $api->send($msg->FromUserName, array(
 ```
 
 ### 主动发送图片消息
-    
+
 ```php
 $api->send($msg->FromUserName, array(
 	'type' => 'image',
@@ -385,7 +389,7 @@ $api->send($msg->FromUserName, array(
 ```
 
 ### 主动发送语音消息
-    
+
 ```php
 $api->send($msg->FromUserName, array(
 	'type' => 'voice',
@@ -395,7 +399,7 @@ $api->send($msg->FromUserName, array(
 ```
 
 ### 主动发送视频消息
-    
+
 ```php
 $api->send($msg->FromUserName, array(
 	'type' => 'video',
@@ -408,7 +412,7 @@ $api->send($msg->FromUserName, array(
 ```
 
 ### 主动发送音乐消息
-    
+
 ```php
 $api->send($msg->FromUserName, array(
 	'type' => 'music',
@@ -422,7 +426,7 @@ $api->send($msg->FromUserName, array(
 ```
 
 ### 主动发送图文消息
-    
+
 ```php
 $api->send($msg->FromUserName, array(
 	'type' => 'news',
@@ -455,73 +459,73 @@ $api->send($msg->FromUserName, array(
 [官方wiki](http://mp.weixin.qq.com/wiki/5/ae230189c9bd07a6b221f48619aeef35.html)
 
 ### 添加客服账号
-    
+
 ```php
 $api->add_kf('test1234@微信号', '客服昵称', '客服密码');
 ```
 
 ### 设置客服信息
-    
+
 ```php
 $api->update_kf('test1234@微信号', '客服昵称', '客服密码');
 ```
 
 ### 上传客服头像
-    
+
 ```php
 $api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
 ```
 
 ### 删除客服帐号
-    
+
 ```php
 $api->del_kf('test1234@微信号');
 ```
 
 ### 获取所有客服账号
-    
+
 ```php
 $api->get_kf_list();
 ```
 
 ### 获取在线客服接待信息
-    
+
 ```php
 $api->get_online_kf_list();
 ```
 
 ### 获取客服聊天记录接口
-    
+
 ```php
 $api->get_kf_records(1439348167, 1439384060, 1, 10);
 ```
 
 ### 创建客户与客服的会话
-    
+
 ```php
 $api->create_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '小明请求接入会话!');
 ```
 
 ### 关闭客户与客服的会话
-    
+
 ```php
 $api->close_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', 'test1@微信号', '与小明的回话已关闭!');
 ```
 
 ### 获取客户的会话状态
-    
+
 ```php
 $api->get_kf_session('ocNtAt_K8nRlAdmNEo_R0WVg_rRw');
 ```
 
 ### 获取客服的会话列表
-    
+
 ```php
 $api->get_kf_session_list('test1@微信号');
 ```
 
 ### 获取未接入会话列表的客户
-    
+
 ```php
 $api->get_waitcase_list();
 ```
@@ -531,7 +535,7 @@ $api->get_waitcase_list();
 [官方wiki](http://mp.weixin.qq.com/wiki/5/963fc70b80dc75483a271298a76a8d59.html)
 
 ### 新增临时素材
-    
+
 ```php
 $api->upload_media('image', '/data/img/fighting.jpg');
 $api->upload_media('voice', '/data/img/song.amr');
@@ -540,13 +544,13 @@ $api->upload_media('thumb', '/data/img/sky.jpg');
 ```
 
 ### 获取临时素材URL
-    
+
 ```php
 $api->get_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
 ```
 
 ### 下载临时素材
-    
+
 ```php
 header('Content-type: image/jpg');
 list($err, $data) = $api->download_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
@@ -554,7 +558,7 @@ echo $data;
 ```
 
 ### 新增永久素材
-    
+
 ```php
 // 新增图片素材
 list($err, $res) = $api->add_material('image', '/website/me/data/img/fighting.jpg');
@@ -567,7 +571,7 @@ list($err, $res) = $api->add_material('thumb', '/data/img/sky.jpg');
 ```
 
 ### 新增永久图文素材
-    
+
 ```php
 $api->add_news(array(
 	array(
@@ -592,7 +596,7 @@ $api->add_news(array(
 ```
 
 ### 修改永久图文素材
-    
+
 ```php
 list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', array(
 	'title' => '标题',
@@ -602,11 +606,11 @@ list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77M
 	'show_cover_pic' => true,
 	'content' => '图文消息的具体内容',
 	'content_source_url' => 'http://www.diandian.com/'
-), 1); 
+), 1);
 ```
 
 ### 获取永久素材
-    
+
 ```php
 // 获取图片、音频、略缩图素材
 // 返回素材的内容，可保存为文件或直接输出
@@ -620,13 +624,13 @@ list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sbOICualzdwwnWWBqxW3
 var_dump(json_decode($data));
 
 // 获取图文素材
-// 返回图文的json字符串     
+// 返回图文的json字符串
 list($err, $data) = $api->get_material('BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g');
 var_dump(json_decode($data));
 ```
 
 ### 删除永久素材
-    
+
 ```php
 list($err, $res) = $api->del_material('BZ-ih-dnjWDyNXjai6i6sbOICualzdwwnWWBqxW39Xk');
 if (is_null($err)) {
@@ -635,13 +639,13 @@ if (is_null($err)) {
 ```
 
 ### 获取素材总数
-    
+
 ```php
 $api->get_material_count();
 ```
 
 ### 获取素材列表
-    
+
 ```php
 $api->get_materials('image', 0, 20);
 $api->get_materials('voice', 0, 20);
@@ -654,12 +658,12 @@ $api->get_materials('thumb', 0, 20);
 [官方wiki](http://mp.weixin.qq.com/wiki/13/43de8269be54a0a6f64413e4dfa94f39.html)
 
 ### 自定义菜单创建接口
-    
+
 ```php
 $api->create_menu('
 {
     "button":[
-        {   
+        {
           "type":"click",
           "name":"主菜单1",
           "key":"V1001_TODAY_MUSIC"
@@ -719,19 +723,19 @@ $api->create_menu('
 ```
 
 ### 自定义菜单查询接口
-    
+
 ```php
 $api->get_menu();
 ```
 
 ### 自定义菜单删除接口
-    
+
 ```php
 $api->delete_menu();
 ```
 
 ### 获取自定义菜单配置接口
-    
+
 ```php
 $api->get_selfmenu();
 ```
@@ -1103,9 +1107,6 @@ list($res, $notifyData, $replyData) = $api->progressWxPayNotify();
 $api->replyWxPayNotify($replyData);
 exit();
 ```
-
-### 常见问题
-
 
 ## License
 

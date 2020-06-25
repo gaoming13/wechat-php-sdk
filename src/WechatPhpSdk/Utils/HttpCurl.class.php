@@ -2,9 +2,8 @@
 /**
  * HttpCurl Curl模拟Http工具类
  *
- * @author      gaoming13 <gaoming13@yeah.net>
- * @link        https://github.com/gaoming13/wechat-php-sdk
- * @link        http://me.diary8.com/
+ * @author gaoming13 <gaoming13@yeah.net>
+ * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk\Utils;

@@ -1,4 +1,4 @@
-<?php 
+<?php
     define("APPID","wx891964efedb07584");
     define("APPSECRET","1d4fb01eb8aee41eb0eb4f005cca721b");
     // 缓存目录
@@ -40,7 +40,7 @@
 </html>
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script>
-    
+
 wx.config({
     debug: false, // 开启调试模式
     appId: '<?php echo $jsapi_config['appId']; ?>', // 必填，公众号的唯一标识

@@ -2,9 +2,8 @@
 /**
  * FileCache 文件缓存
  *
- * @author      gaoming13 <gaoming13@yeah.net>
- * @link        https://github.com/gaoming13/wechat-php-sdk
- * @link        http://me.diary8.com/
+ * @author gaoming13 <gaoming13@yeah.net>
+ * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk\Utils;
@@ -51,24 +50,24 @@ class FileCache {
 
 
     public function get($name, $default = false)
-	{
+    {
         $filename = $this->getCacheKey($name);
         if (!is_file($filename)) {
             return $default;
         }
         $content = file_get_contents($filename);
         if (false !== $content) {
-        	$arr = json_decode($content,true);
-        	if($arr['expire'] <= time())
-        	{
-        		return false;
-        	}
-        	return $content;
+            $arr = json_decode($content,true);
+            if($arr['expire'] <= time())
+            {
+                return false;
+            }
+            return $content;
         }
-	}
+    }
 
     public function set($name, $value, $expire = null)
-	{
+    {
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -76,19 +75,19 @@ class FileCache {
         $json = json_encode(array($name=>$value,"expire"=>time()+$expire));
         $result = file_put_contents($filename,$json);
         if ($result) {
-        	return true;
+            return true;
         }
         return false;
-	}
+    }
 
-	/**
-	 * 获取缓存文件名
-	 * @dateTime 2018-01-29T14:32:49+0800
-	 * @author xm
-	 * @return   [type]                   [description]
-	 */
-	public function getCacheKey($name)
-	{
-		return $this->options['path']."/".$name.'_cache.php';
-	}
+    /**
+     * 获取缓存文件名
+     * @dateTime 2018-01-29T14:32:49+0800
+     * @author xm
+     * @return   [type]                   [description]
+     */
+    public function getCacheKey($name)
+    {
+        return $this->options['path']."/".$name.'_cache.php';
+    }
 }

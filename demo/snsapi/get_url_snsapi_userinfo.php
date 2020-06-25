@@ -4,9 +4,8 @@
      * `snsapi_userinfo` 授权方式获取用户信息（弹出授权页面，可通过openid拿到昵称、性别、所在地。
      * 即使在未关注的情况下，只要用户授权，也能获取其信息）
      *
-     * @author 		gaoming13 <gaoming13@yeah.net>
-     * @link 		https://github.com/gaoming13/wechat-php-sdk
-     * @link 		http://me.diary8.com/
+     * @author gaoming13 <gaoming13@yeah.net>
+     * @link https://github.com/gaoming13/wechat-php-sdk
      */
     require '../../autoload.php';
 
@@ -27,7 +26,7 @@
     $api = new Api(
         array(
             'appId' => $appId,
-            'appSecret'	=> $appSecret,
+            'appSecret' => $appSecret,
             'get_access_token' => function() use ($m) {
                 // 用户需要自己实现access_token的返回
                 return $m->get('access_token');

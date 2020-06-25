@@ -1,7 +1,7 @@
 <?php
 /**
  * Wechat.php
- * 
+ *
  * Wechat模块（处理获取微信消息与被动回复）
  * - 接收普通消息/事件推送
  * - 被动回复（文本、图片、语音、视频、音乐、图文）
@@ -9,9 +9,8 @@
  * - 支持消息加解密方式的明文模式、兼容模式、安全模式
  * - 支持接入微信公众平台
  *
- * @author       gaoming13 <gaoming13@yeah.net>
- * @link         https://github.com/gaoming13/wechat-php-sdk
- * @link         http://me.diary8.com/
+ * @author gaoming13 <gaoming13@yeah.net>
+ * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk;
@@ -27,7 +26,7 @@ class Wechat
     protected $token;
     // 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
     protected $encodingAESKey;
-    
+
     // 消息的加密签名
     protected $signature;
     // 消息的时间戳
@@ -42,7 +41,7 @@ class Wechat
     protected $msg_signature;
     // 消息对象数组
     protected $message;
-    
+
     /**
      * 设定配置项
      *
@@ -50,9 +49,9 @@ class Wechat
      */
     public function __construct($config)
     {
-        $this->appId              =     $config['appId'];
-        $this->token              =     $config['token'];
-        $this->encodingAESKey    =     isset($config['encodingAESKey']) && !empty($config['encodingAESKey']) ? $config['encodingAESKey'] : false;
+        $this->appId = $config['appId'];
+        $this->token = $config['token'];
+        $this->encodingAESKey = isset($config['encodingAESKey']) && !empty($config['encodingAESKey']) ? $config['encodingAESKey'] : false;
     }
 
     /**
@@ -106,7 +105,7 @@ class Wechat
                         '</xml>',
                         $this->message->FromUserName,
                         $this->message->ToUserName,
-                        time(), 
+                        time(),
                         $msg);
                 break;
 
@@ -128,10 +127,10 @@ class Wechat
                         '<CreateTime>%s</CreateTime>'.
                         '<MsgType><![CDATA[text]]></MsgType>'.
                         '<Content><![CDATA[%s]]></Content>'.
-                        '</xml>', 
+                        '</xml>',
                         $this->message->FromUserName,
                         $this->message->ToUserName,
-                        time(), 
+                        time(),
                         $msg['content']);
                 break;
 
@@ -153,10 +152,10 @@ class Wechat
                         '<CreateTime>%s</CreateTime>'.
                         '<MsgType><![CDATA[image]]></MsgType>'.
                         '<Image><MediaId><![CDATA[%s]]></MediaId></Image>'.
-                        '</xml>', 
+                        '</xml>',
                         $this->message->FromUserName,
                         $this->message->ToUserName,
-                        time(), 
+                        time(),
                         $msg['media_id']);
                 break;
 
@@ -166,11 +165,11 @@ class Wechat
              * Examples:
              * ```
              * $wechat->reply(array(
-              *     'type' => 'voice',
+              *    'type' => 'voice',
               *    'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
              * ));
              * ```
-             */            
+             */
             case 'voice':
                 $xml = sprintf('<xml>'.
                         '<ToUserName><![CDATA[%s]]></ToUserName>'.
@@ -178,10 +177,10 @@ class Wechat
                         '<CreateTime>%s</CreateTime>'.
                         '<MsgType><![CDATA[voice]]></MsgType>'.
                         '<Voice><MediaId><![CDATA[%s]]></MediaId></Voice>'.
-                        '</xml>', 
+                        '</xml>',
                         $this->message->FromUserName,
                         $this->message->ToUserName,
-                        time(), 
+                        time(),
                         $msg['media_id']);
                 break;
 
@@ -193,8 +192,8 @@ class Wechat
              * $wechat->reply(array(
               *    'type' => 'video',
               *    'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
-              *    'title' => '视频消息的标题',            //可选
-              *    'description' => '视频消息的描述'        //可选
+              *    'title' => '视频消息的标题',        //可选
+              *    'description' => '视频消息的描述'   //可选
              * ));
              * ```
              */
@@ -209,11 +208,11 @@ class Wechat
                         '<Title><![CDATA[%s]]></Title>'.
                         '<Description><![CDATA[%s]]></Description>'.
                         '</Video>'.
-                        '</xml>', 
+                        '</xml>',
                         $this->message->FromUserName,
                         $this->message->ToUserName,
-                        time(), 
-                        $msg['media_id'], 
+                        time(),
+                        $msg['media_id'],
                         isset($msg['title']) ? $msg['title'] : '',
                         isset($msg['description']) ? $msg['description'] : '');
                 break;
@@ -225,9 +224,9 @@ class Wechat
              * ```
              * $wechat->reply(array(
               *    'type' => 'music',
-              *    'title' => '音乐标题',                        //可选
-              *    'description' => '音乐描述',                //可选
-              *    'music_url' => 'http://me.diary8.com/data/music/2.mp3',        //可选
+              *    'title' => '音乐标题',           //可选
+              *    'description' => '音乐描述',     //可选
+              *    'music_url' => 'http://me.diary8.com/data/music/2.mp3',      //可选
               *    'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',    //可选
               *    'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
              * ));
@@ -246,7 +245,7 @@ class Wechat
                         '<HQMusicUrl><![CDATA[%s]]></HQMusicUrl>'.
                         '<ThumbMediaId><![CDATA[%s]]></ThumbMediaId>'.
                         '</Music>'.
-                        '</xml>', 
+                        '</xml>',
                         $this->message->FromUserName,
                         $this->message->ToUserName,
                         time(),
@@ -266,10 +265,10 @@ class Wechat
              *    'type' => 'news',
              *    'articles' => array(
              *        array(
-             *            'title' => '图文消息标题1',                                 //可选
-             *            'description' => '图文消息描述1',                           //可选
-             *            'picurl' => 'http://me.diary8.com/data/img/demo1.jpg',      //可选
-             *            'url' => 'http://www.example.com/'                          //可选
+             *            'title' => '图文消息标题1',                                //可选
+             *            'description' => '图文消息描述1',                          //可选
+             *            'picurl' => 'http://me.diary8.com/data/img/demo1.jpg',   //可选
+             *            'url' => 'http://www.example.com/'                       //可选
              *        ),
              *        array(
              *            'title' => '图文消息标题2',
@@ -295,7 +294,7 @@ class Wechat
                                     '<Description><![CDATA[%s]]></Description>'.
                                     '<PicUrl><![CDATA[%s]]></PicUrl>'.
                                     '<Url><![CDATA[%s]]></Url>'.
-                                '</item>', 
+                                '</item>',
                                 $article['title'],
                                 $article['description'],
                                 $article['picurl'],
@@ -308,14 +307,14 @@ class Wechat
                         '<MsgType><![CDATA[news]]></MsgType>'.
                         '<ArticleCount>%s</ArticleCount>'.
                         '<Articles>%s</Articles>'.
-                        '</xml>', 
+                        '</xml>',
                         $this->message->FromUserName,
                         $this->message->ToUserName,
                         time(),
                         count($msg['articles']),
                         $articles);
                 break;
-            
+
             /**
              * 0 转发到多客服接口
              *
@@ -323,7 +322,7 @@ class Wechat
              * ```
              * $wechat->reply(array(
              *    'type' => 'transfer_customer_service',
-             *    'kf_account' => 'test1@test'                // 可选
+             *    'kf_account' => 'test1@test'            // 可选
              * ));
              * ```
              */
@@ -340,7 +339,7 @@ class Wechat
                         '<FromUserName><![CDATA[%s]]></FromUserName>'.
                         '<CreateTime>%s</CreateTime>'.
                         '<MsgType><![CDATA[transfer_customer_service]]></MsgType>%s'.
-                        '</xml>', 
+                        '</xml>',
                         $this->message->FromUserName,
                         $this->message->ToUserName,
                         time(),
@@ -350,30 +349,30 @@ class Wechat
             /**
              * 0 异常消息处理
              *
-             */ 
+             */
             default:
-                @error_log("$msg_type is not a message type that can be used.", 0);
-                exit();                
+                @error_log("[wechat-php-sdk]$msg_type is not a message type that can be used.", 0);
+                exit();
                 break;
         }
-        
+
         // 对消息加解密方式 兼容模式\安全模式 - 加密消息
         if ($this->encrypt_type == 'aes' && $xml != '') {
 
             // 异常处理: 未配置encodingAESKey
             if ($this->encodingAESKey === false) {
-                @error_log('EncodingAESKey Not Defined.', 0);
+                @error_log('[wechat-php-sdk]EncodingAESKey Not Defined.', 0);
                 exit();
             }
 
             $reply_timestamp = time();
 
             // 消息加密
-            $pc = new Prpcrypt($this->encodingAESKey);            
+            $pc = new Prpcrypt($this->encodingAESKey);
             $reply_encrypt = $pc->encrypt($xml, $this->appId);
             // 消息加密: 异常处理
             if ($reply_encrypt === false) {
-                @error_log('Encrypt Message Error.', 0);
+                @error_log('[wechat-php-sdk]Encrypt Message Error.', 0);
                 exit();
             }
 
@@ -381,7 +380,7 @@ class Wechat
             $reply_signature = SHA1::getSHA1($this->token, $reply_timestamp, $this->nonce, $reply_encrypt);
             // 生成安全签名: 异常处理
             if ($reply_signature===false) {
-                @error_log('Get Message Signature Error.', 0);
+                @error_log('[wechat-php-sdk]Get Message Signature Error.', 0);
                 exit();
             }
 
@@ -391,13 +390,12 @@ class Wechat
                         '<MsgSignature><![CDATA[%s]]></MsgSignature>'.
                         '<TimeStamp>%s</TimeStamp>'.
                         '<Nonce><![CDATA[%s]]></Nonce>'.
-                        '</xml>', 
+                        '</xml>',
                         $reply_encrypt,
                         $reply_signature,
                         $reply_timestamp,
                         $this->nonce);
         }
-error_log($xml);
         echo $xml;
     }
 
@@ -405,7 +403,7 @@ error_log($xml);
      * 微信消息GET参数处理
      *
      */
-    private function checkParams() 
+    private function checkParams()
     {
         $this->signature = isset($_GET['signature']) && !empty($_GET['signature']) ? $_GET['signature'] : false;
         $this->timestamp = isset($_GET['timestamp']) && !empty($_GET['timestamp']) ? $_GET['timestamp'] : false;
@@ -414,18 +412,18 @@ error_log($xml);
         $this->encrypt_type = isset($_GET['encrypt_type']) && !empty($_GET['encrypt_type']) ? $_GET['encrypt_type'] : false;
         $this->msg_signature = isset($_GET['msg_signature']) && !empty($_GET['msg_signature']) ? $_GET['msg_signature'] : false;
     }
-    
+
     /**
      * 检查signature是否正确
      *
      * @return bool
      */
-    private function checkSignature() 
+    private function checkSignature()
     {
         if ($this->signature !== false && $this->timestamp !== false && $this->nonce !== false) {
             $tmp_signature = SHA1::getSignature($this->token, $this->timestamp, $this->nonce);
             if ($tmp_signature === false) {
-                error_log('Validate signature error.', 0);
+                error_log('[wechat-php-sdk]Validate signature error.', 0);
             } else if ($tmp_signature === $this->signature) {
                 return true;
             }
@@ -436,12 +434,16 @@ error_log($xml);
     /**
      * 处理服务器配置URL验证
      *
-     */    
+     */
     private function accessAuth()
     {
+        // 处理服务器配置URL验证成功
         if ($this->echostr !== false && $this->checkSignature()) {
-            @error_log('accessAuth Error.', 0);
+            // 返回echostr给微信服务器
             exit($this->echostr);
+        } else {
+            // 验证失败
+            @error_log('[wechat-php-sdk]accessAuth Error.', 0);
         }
     }
 
@@ -466,33 +468,33 @@ error_log($xml);
                 // XML解析微信消息体
                 libxml_disable_entity_loader(true);
                 $xml_obj = simplexml_load_string($xml_input, 'SimpleXMLElement', LIBXML_NOCDATA);
-                        
+
                 // 微信 兼容模式/安全模式 信息解密
                 if ($this->encrypt_type == 'aes') {
                     // 异常处理: 未配置encodingAESKey
                     if ($this->encodingAESKey===false) {
-                        @error_log('EncodingAESKey Not Defined.', 0);
+                        @error_log('[wechat-php-sdk]EncodingAESKey Not Defined.', 0);
                         exit();
                     }
                     // 验证用户消息的安全签名
                     $msg_signature = SHA1::getSHA1($this->token, $this->timestamp, $this->nonce, $xml_obj->Encrypt);
                     if ($msg_signature === false) {
-                        @error_log('getSHA1 Error.', 0);
+                        @error_log('[wechat-php-sdk]getSHA1 Error.', 0);
                         exit();
                     }
                     if ($msg_signature != $this->msg_signature){
-                        @error_log('MsgSignature Not Match.', 0);
+                        @error_log('[wechat-php-sdk]MsgSignature Not Match.', 0);
                         exit();
                     }
                     // 解密用户消息
                     $pc = new Prpcrypt($this->encodingAESKey);
                     $xml_input1 = $pc->decrypt($xml_obj->Encrypt, $this->appId);
                     if ($xml_input1 === false) {
-                        @error_log('Decode Message Error.', 0);
+                        @error_log('[wechat-php-sdk]Decode Message Error.', 0);
                         exit();
                     }
                     $xml_obj = simplexml_load_string($xml_input1, 'SimpleXMLElement', LIBXML_NOCDATA);
-                }    
+                }
                 $this->message = $xml_obj;
                 return $xml_obj;
             }

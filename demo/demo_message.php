@@ -5,9 +5,8 @@
      *
      * wechat-php-sdk DEMO
      *
-     * @author 		gaoming13 <gaoming13@yeah.net>
-     * @link 		https://github.com/gaoming13/wechat-php-sdk
-     * @link 		http://me.diary8.com/
+     * @author gaoming13 <gaoming13@yeah.net>
+     * @link https://github.com/gaoming13/wechat-php-sdk
      */
 
     require '../autoload.php';
@@ -33,15 +32,15 @@
     // wechat模块 - 处理用户发送的消息和回复消息
     $wechat = new Wechat(array(
         'appId' => $appId,
-        'token' => 	$token,
-        'encodingAESKey' =>	$encodingAESKey
+        'token' => $token,
+        'encodingAESKey' => $encodingAESKey
     ));
 
     // api模块 - 包含各种系统主动发起的功能
     $api = new Api(
         array(
             'appId' => $appId,
-            'appSecret'	=> $appSecret,
+            'appSecret' => $appSecret,
             'get_access_token' => function() use ($m) {
                 // 用户需要自己实现access_token的返回
                 return $m->get('access_token');
@@ -67,42 +66,42 @@
     $api->send($msg->FromUserName, array(
         'type' => 'text',
         'content' => 'hello world!',
-        'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+        'kf_account' => 'test1@kftest'        // 可选(指定某个客服发送, 会显示这个客服的头像)
     ));
 
     // 主动发送图片消息
     $api->send($msg->FromUserName, array(
         'type' => 'image',
         'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC',
-        'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+        'kf_account' => 'test1@kftest'        // 可选(指定某个客服发送, 会显示这个客服的头像)
     ));
 
     // 主动发送语音消息
     $api->send($msg->FromUserName, array(
         'type' => 'voice',
         'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_',
-        'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+        'kf_account' => 'test1@kftest'        // 可选(指定某个客服发送, 会显示这个客服的头像)
     ));
 
     // 主动发送视频消息
     $api->send($msg->FromUserName, array(
         'type' => 'video',
         'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
-        'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ',		// 可选(无效, 官方文档好像写错了)
-        'title' => '视频消息的标题',			// 可选
-        'description' => '视频消息的描述',		// 可选,
-        'kf_account' => 'test1@kftest'			// 可选(指定某个客服发送, 会显示这个客服的头像)
+        'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ',        // 可选(无效, 官方文档好像写错了)
+        'title' => '视频消息的标题',            // 可选
+        'description' => '视频消息的描述',      // 可选,
+        'kf_account' => 'test1@kftest'        // 可选(指定某个客服发送, 会显示这个客服的头像)
     ));
 
     // 主动发送音乐消息
     $api->send($msg->FromUserName, array(
         'type' => 'music',
-        'title' => '音乐标题',						//可选
-        'description' => '音乐描述',				//可选
-        'music_url' => 'http://me.diary8.com/data/music/2.mp3',		//可选
-        'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',	//可选
+        'title' => '音乐标题',                    //可选
+        'description' => '音乐描述',              //可选
+        'music_url' => 'http://me.diary8.com/data/music/2.mp3',      //可选
+        'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',    //可选
         'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
-        'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+        'kf_account' => 'test1@kftest'        // 可选(指定某个客服发送, 会显示这个客服的头像)
     ));
 
     // 主动发送图文消息
@@ -110,10 +109,10 @@
         'type' => 'news',
         'articles' => array(
             array(
-                'title' => '图文消息标题1',								//可选
-                'description' => '图文消息描述1',						//可选
-                'picurl' => 'http://me.diary8.com/data/img/demo1.jpg',	//可选
-                'url' => 'http://www.example.com/'						//可选
+                'title' => '图文消息标题1',                              //可选
+                'description' => '图文消息描述1',                        //可选
+                'picurl' => 'http://me.diary8.com/data/img/demo1.jpg', //可选
+                'url' => 'http://www.example.com/'                     //可选
             ),
             array(
                 'title' => '图文消息标题2',
@@ -128,5 +127,5 @@
                 'url' => 'http://www.example.com/'
             )
         ),
-        'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+        'kf_account' => 'test1@kftest'        // 可选(指定某个客服发送, 会显示这个客服的头像)
     ));

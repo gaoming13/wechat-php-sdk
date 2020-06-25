@@ -4,9 +4,8 @@
  *
  * 计算公众平台的消息签名接口.
  *
- * @author 		gaoming13 <gaoming13@yeah.net>
- * @link 		https://github.com/gaoming13/wechat-php-sdk
- * @link 		http://me.diary8.com/
+ * @author gaoming13 <gaoming13@yeah.net>
+ * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk\Utils;

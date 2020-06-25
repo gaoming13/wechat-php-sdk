@@ -12,14 +12,13 @@
  * - 用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）
  * - 数据统计接口（开发中...）
  *
- * @author       gaoming13 <gaoming13@yeah.net>
- * @link         https://github.com/gaoming13/wechat-php-sdk
- * @link         http://me.diary8.com/
+ * @author gaoming13 <gaoming13@yeah.net>
+ * @link https://github.com/gaoming13/wechat-php-sdk
  *
  * Class Api
  * @package Gaoming13\WechatPhpSdk
  */
- 
+
 namespace Gaoming13\WechatPhpSdk;
 
 use Gaoming13\WechatPhpSdk\Utils\HttpCurl;
@@ -27,7 +26,7 @@ use Gaoming13\WechatPhpSdk\Utils\Error;
 use Gaoming13\WechatPhpSdk\Utils\SHA1;
 use Gaoming13\WechatPhpSdk\Utils\Xml;
 
-class Api 
+class Api
 {
     // 微信API域名
     const API_DOMAIN = 'https://api.weixin.qq.com/';
@@ -61,14 +60,14 @@ class Api
      */
     public function __construct($config)
     {
-        $this->appId                    =   $config['appId'];
-        $this->appSecret                =   $config['appSecret'];
-        $this->mchId                    =   isset($config['mchId']) ? $config['mchId'] : false;
-        $this->key                      =   isset($config['key']) ? $config['key'] : false;
-        $this->get_access_token_diy     =   isset($config['get_access_token']) ? $config['get_access_token'] : false;
-        $this->save_access_token_diy    =   isset($config['save_access_token']) ? $config['save_access_token'] : false;
-        $this->get_jsapi_ticket_diy     =   isset($config['get_jsapi_ticket']) ? $config['get_jsapi_ticket'] : false;
-        $this->save_jsapi_ticket_diy    =   isset($config['save_jsapi_ticket']) ? $config['save_jsapi_ticket'] : false;
+        $this->appId                 = $config['appId'];
+        $this->appSecret             = $config['appSecret'];
+        $this->mchId                 = isset($config['mchId']) ? $config['mchId'] : false;
+        $this->key                   = isset($config['key']) ? $config['key'] : false;
+        $this->get_access_token_diy  = isset($config['get_access_token']) ? $config['get_access_token'] : false;
+        $this->save_access_token_diy = isset($config['save_access_token']) ? $config['save_access_token'] : false;
+        $this->get_jsapi_ticket_diy  = isset($config['get_jsapi_ticket']) ? $config['get_jsapi_ticket'] : false;
+        $this->save_jsapi_ticket_diy = isset($config['save_jsapi_ticket']) ? $config['save_jsapi_ticket'] : false;
     }
 
     /**
@@ -95,13 +94,13 @@ class Api
 
         // 异常处理: 获取access_token网络错误
         if ($res === false) {
-            @error_log('Http Get AccessToken Error.', 0);
-            return false;            
+            @error_log('[wechat-php-sdk]Http Get AccessToken Error.', 0);
+            return false;
         }
 
         // 异常处理: access_token获取失败
         if (!isset($res->access_token)) {
-            @error_log('Get AccessToken Error: ' . json_encode($res), 0);
+            @error_log('[wechat-php-sdk]Get AccessToken Error: ' . json_encode($res), 0);
             return false;
         }
         $res->expires_in += time();
@@ -124,9 +123,9 @@ class Api
             }
         } else {
             // 异常处理: 获取access_token方法未定义
-            @error_log('Not set get_tokenDiy method, AccessToken will be refreshed each time.', 0);
+            @error_log('[wechat-php-sdk]Not set get_tokenDiy method, AccessToken will be refreshed each time.', 0);
         }
-        // 验证AccessToken是否有效        
+        // 验证AccessToken是否有效
         if (!$this->valid_access_token($token)) {
 
             // 生成新的AccessToken
@@ -137,16 +136,16 @@ class Api
 
             // 保存新生成的AccessToken
             if ($this->save_access_token_diy !== false) {
-                // 用户自定义保存AccessToken方法    
+                // 用户自定义保存AccessToken方法
                 call_user_func($this->save_access_token_diy, json_encode($token));
             } else {
                 // 异常处理: 保存access_token方法未定义
-                @error_log('Not set saveTokenDiy method, AccessToken will be refreshed each time.', 0);
+                @error_log('[wechat-php-sdk]Not set saveTokenDiy method, AccessToken will be refreshed each time.', 0);
             }
         }
         return $token->access_token;
     }
-    
+
     /**
      * 发送客服消息（文本、图片、语音、视频、音乐、图文）
      *
@@ -202,7 +201,7 @@ class Api
                         '"msgtype":"text",'.
                         '"text":{'.
                             '"content":"%s"'.
-                        '}%s}', 
+                        '}%s}',
                         $openid,
                         $msg['content'],
                         isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
@@ -225,7 +224,7 @@ class Api
                         '"msgtype":"image",'.
                         '"image":{'.
                             '"media_id":"%s"'.
-                        '}%s}', 
+                        '}%s}',
                         $openid,
                         $msg['media_id'],
                         isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
@@ -248,7 +247,7 @@ class Api
                         '"msgtype":"voice",'.
                         '"voice":{'.
                             '"media_id":"%s"'.
-                        '}%s}', 
+                        '}%s}',
                         $openid,
                         $msg['media_id'],
                         isset($msg['kf_account']) ? ',"customservice":{"kf_account": "'.$msg['kf_account'].'"}' : '');
@@ -262,12 +261,12 @@ class Api
              * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
              *  'type' => 'video',
              *  'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
-             *  'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ',     // 可选(无效, 官方文档好像写错了)
-             *  'title' => '视频消息的标题',           // 可选
-             *  'description' => '视频消息的描述'      // 可选
+             *  'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ',  // 可选(无效, 官方文档好像写错了)
+             *  'title' => '视频消息的标题',       // 可选
+             *  'description' => '视频消息的描述'  // 可选
              * ));
              * ```
-             */         
+             */
             case 'video':
                 $xml = sprintf('{'.
                         '"touser":"%s",'.
@@ -277,7 +276,7 @@ class Api
                             '"thumb_media_id":"%s",'.
                             '"title":"%s",'.
                             '"description":"%s"'.
-                        '}%s}', 
+                        '}%s}',
                         $openid,
                         $msg['media_id'],
                         $msg['thumb_media_id'],
@@ -300,7 +299,7 @@ class Api
              *  'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
              * ));
              * ```
-             */         
+             */
             case 'music':
                 $xml = sprintf('{'.
                         '"touser":"%s",'.
@@ -311,7 +310,7 @@ class Api
                             '"musicurl":"%s",'.
                             '"hqmusicurl":"%s",'.
                             '"thumb_media_id":"%s"'.
-                        '}%s}', 
+                        '}%s}',
                         $openid,
                         isset($msg['title']) ? $msg['title'] : '',
                         isset($msg['description']) ? $msg['description'] : '',
@@ -379,7 +378,7 @@ class Api
             /**
              * 0 异常消息处理
              *
-             */ 
+             */
             default:
                 return Error::code('ERR_MEG_TYPE');
                 break;
@@ -408,7 +407,7 @@ class Api
      * @param string $password
      *
      * @return array(err, res)
-     * 
+     *
      * Examples:
      * ```
      * list($err, $res) = $api->add_kf('test1234@微信号', '客服昵称', '客服密码');
@@ -446,7 +445,7 @@ class Api
      * @param string $password
      *
      * @return array(err, res)
-     * 
+     *
      * Examples:
      * ```
      * list($err, $res) = $api->update_kf('test1234@微信号', '客服昵称', '客服密码');
@@ -483,7 +482,7 @@ class Api
      * @param string $path
      *
      * @return array(err, res)
-     * 
+     *
      * Examples:
      * ```
      * list($err, $res) = $api->set_kf_avatar('GB2@gbchina2000', '/website/wx/demo/test.jpg');
@@ -497,7 +496,7 @@ class Api
         if ($res === false) {
             return Error::code('ERR_GET');
         }
-        // 判断是否调用成功        
+        // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, true);
         } else {
@@ -524,7 +523,7 @@ class Api
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
-        }        
+        }
         // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, true);
@@ -554,7 +553,7 @@ class Api
         // 判断是否调用成功
         if (isset($res->kf_list)) {
             return array(null, $res->kf_list);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
@@ -694,14 +693,14 @@ class Api
         // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, true);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
 
     /**
      * 获取客户的会话状态
-     *     
+     *
      * @param string $openid
      *
      * @return array(err, data)
@@ -722,7 +721,7 @@ class Api
         // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, $res);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
@@ -750,13 +749,13 @@ class Api
         // 判断是否调用成功
         if (isset($res->sessionlist)) {
             return array(null, $res->sessionlist);
-        } else {            
+        } else {
             return array($res, null);
         }
     }
 
     /**
-     * 获取未接入会话列表的客户        
+     * 获取未接入会话列表的客户
      *
      * @return array(err, data)
      *
@@ -772,13 +771,13 @@ class Api
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
-        }    
+        }
         // 判断是否调用成功
         if (isset($res->waitcaselist)) {
             return array(null, $res->waitcaselist);
-        } else {            
+        } else {
             return array($res, null);
-        }        
+        }
     }
 
 
@@ -818,7 +817,7 @@ class Api
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
-        }        
+        }
         // 判断是否调用成功
         if (isset($res->media_id)) {
             return array(null, $res);
@@ -836,7 +835,7 @@ class Api
      * ```
      * Result:
      * ```
-     * https://api.weixin.qq.com/cgi-bin/media/get?access_token=egpGMhgnhbrqOo77wkUS7HmEFp40bITkRZNJk1gCGTH8i-BiVxai9zs0CcWk223dz6LiypGprpLHBRL9upjKQLqPgtAnqUeK9qznUyDsNXg&media_id=CVS_UPz62LKIfDwc7bUWtI250x_KBLhOuYgkHr1GjVxJCP8N9rOYfgIKXSY5Wg9n  
+     * https://api.weixin.qq.com/cgi-bin/media/get?access_token=egpGMhgnhbrqOo77wkUS7HmEFp40bITkRZNJk1gCGTH8i-BiVxai9zs0CcWk223dz6LiypGprpLHBRL9upjKQLqPgtAnqUeK9qznUyDsNXg&media_id=CVS_UPz62LKIfDwc7bUWtI250x_KBLhOuYgkHr1GjVxJCP8N9rOYfgIKXSY5Wg9n
      * ```
      *
      * @param string $media_id 媒体文件ID
@@ -852,7 +851,7 @@ class Api
      * 下载临时素材
      *
      * Examples:
-     * ```   
+     * ```
      * header('Content-type: image/jpg');
      * list($err, $data) = $api->download_media('UNsNhYrHG6e0oUtC8AyjCntIW1JYoBOmmwvM4oCcxZUBQ5PDFgeB9umDhrd9zOa-');
      * echo $data;
@@ -936,7 +935,7 @@ class Api
      *
      * @return array(err, res)
      * - `err`, 调用失败时得到的异常
-     * - `res`, 调用正常时得到的对象 
+     * - `res`, 调用正常时得到的对象
      *
      * Examples:
      * ```
@@ -966,7 +965,7 @@ class Api
      * [
      *     null,
      *     {
-     *         media_id: "BZ-ih-dnjWDyNXjai6i6sbK8hTy_bs-PHtnLn8C-IAs"     
+     *         media_id: "BZ-ih-dnjWDyNXjai6i6sbK8hTy_bs-PHtnLn8C-IAs"
      *     }
      * ]
      * ```
@@ -1018,7 +1017,7 @@ class Api
      *     'show_cover_pic' => true,
      *     'content' => '图文消息的具体内容',
      *     'content_source_url' => 'http://www.diandian.com/'
-     * ), 1); 
+     * ), 1);
      * ```
      * Result:
      * ```
@@ -1029,10 +1028,10 @@ class Api
      *         errmsg: "ok"
      *     }
      * ]
-     * ``` 
-     *     
+     * ```
+     *
      * @param string $media_id 要修改的图文消息的id
-     * @param string $article 
+     * @param string $article
      * @param string $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
      *
      * @return array(err, res)
@@ -1054,7 +1053,7 @@ class Api
                 '"content": "%s",'.
                 '"content_source_url": "%s"'.
             '}}',
-            $media_id, 
+            $media_id,
             $index,
             $article['title'],
             $article['thumb_media_id'],
@@ -1135,7 +1134,7 @@ class Api
      *         errmsg: "ok"
      *     }
      * ]
-     * ``` 
+     * ```
      *
      * @param string $media_id 要删除的素材的media_id
      *
@@ -1183,7 +1182,7 @@ class Api
      *     }
      * ]
      * ```
-     */    
+     */
     public function get_material_count()
     {
         $url = self::API_DOMAIN . 'cgi-bin/material/get_materialcount?access_token=' . $this->get_access_token();
@@ -1316,7 +1315,7 @@ class Api
      *     }
      * ]
      * ```
-     */    
+     */
     public function create_menu($json)
     {
         $url = self::API_DOMAIN . 'cgi-bin/menu/create?access_token=' . $this->get_access_token();
@@ -1325,7 +1324,7 @@ class Api
         if ($res === false) {
             return Error::code('ERR_GET');
         }
-        // 判断是否调用成功        
+        // 判断是否调用成功
         if ($res->errcode == 0) {
             return array(null, $res);
         } else {
@@ -1335,7 +1334,7 @@ class Api
 
     /**
      * 自定义菜单查询接口
-     *     
+     *
      * @return array(err, data)
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
@@ -1379,7 +1378,7 @@ class Api
      *     }
      * ]
      * ```
-     */    
+     */
     public function get_menu()
     {
         $url = self::API_DOMAIN . 'cgi-bin/menu/get?access_token=' . $this->get_access_token();
@@ -1417,7 +1416,7 @@ class Api
      *     }
      * ]
      * ```
-     */    
+     */
     public function delete_menu()
     {
         $url = self::API_DOMAIN . 'cgi-bin/menu/delete?access_token=' . $this->get_access_token();
@@ -1548,7 +1547,7 @@ class Api
             }
         } else {
             // 异常处理: 获取jsapi_ticket方法未定义
-            @error_log('Not set getTicketDiy method, jsapi_ticket will be refreshed each time.', 0);
+            @error_log('[wechat-php-sdk]Not set getTicketDiy method, jsapi_ticket will be refreshed each time.', 0);
         }
 
         // 验证jsapi_ticket是否有效
@@ -1566,7 +1565,7 @@ class Api
                 call_user_func($this->save_jsapi_ticket_diy, json_encode($ticket));
             } else {
                 // 异常处理: 保存access_token方法未定义
-                @error_log('Not set saveTokenDiy method, jsapi_ticket will be refreshed each time.', 0);
+                @error_log('[wechat-php-sdk]Not set saveTokenDiy method, jsapi_ticket will be refreshed each time.', 0);
             }
         }
         return $ticket->ticket;

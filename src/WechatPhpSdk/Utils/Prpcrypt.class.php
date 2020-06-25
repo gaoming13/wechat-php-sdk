@@ -4,9 +4,8 @@
  *
  * 提供接收和推送给公众平台消息的加解密接口.
  *
- * @author      gaoming13 <gaoming13@yeah.net>
- * @link        https://github.com/gaoming13/wechat-php-sdk
- * @link        http://me.diary8.com/
+ * @author gaoming13 <gaoming13@yeah.net>
+ * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk\Utils;
