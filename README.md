@@ -1,7 +1,7 @@
 # wechat-php-sdk
 
-[![Latest Stable Version](https://poser.pugx.org/phpmailer/phpmailer/v/stable.svg)](https://packagist.org/packages/phpmailer/phpmailer) [![Total Downloads](https://poser.pugx.org/phpmailer/phpmailer/downloads)](https://packagist.org/packages/phpmailer/phpmailer) [![Latest Unstable Version](https://poser.pugx.org/phpmailer/phpmailer/v/unstable.svg)](https://packagist.org/packages/phpmailer/phpmailer) [![License](https://poser.pugx.org/phpmailer/phpmailer/license.svg)](https://packagist.org/packages/phpmailer/phpmailer) [![API Docs](https://github.com/phpmailer/phpmailer/workflows/Docs/badge.svg)](http://phpmailer.github.io/PHPMailer/)
-
+[![Latest Stable Version](https://poser.pugx.org/gaoming13/wechat-php-sdk/v/stable.svg)](https://packagist.org/packages/gaoming13/wechat-php-sdk)
+[![Total Downloads](https://poser.pugx.org/gaoming13/wechat-php-sdk/downloads)](https://packagist.org/packages/gaoming13/wechat-php-sdk)
 
 微信公众平台php版开发包
 * 支持消息加解密方式的明文模式、兼容模式、安全模式
