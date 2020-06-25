@@ -1,4 +1,8 @@
 # wechat-php-sdk
+
+[![Latest Stable Version](https://poser.pugx.org/phpmailer/phpmailer/v/stable.svg)](https://packagist.org/packages/phpmailer/phpmailer) [![Total Downloads](https://poser.pugx.org/phpmailer/phpmailer/downloads)](https://packagist.org/packages/phpmailer/phpmailer) [![Latest Unstable Version](https://poser.pugx.org/phpmailer/phpmailer/v/unstable.svg)](https://packagist.org/packages/phpmailer/phpmailer) [![License](https://poser.pugx.org/phpmailer/phpmailer/license.svg)](https://packagist.org/packages/phpmailer/phpmailer) [![API Docs](https://github.com/phpmailer/phpmailer/workflows/Docs/badge.svg)](http://phpmailer.github.io/PHPMailer/)
+
+
 微信公众平台php版开发包
 * 支持消息加解密方式的明文模式、兼容模式、安全模式
 * 支持自动接入微信公众平台（[步骤](#接入微信公众平台开发方法)）
@@ -34,9 +38,9 @@ require 'wechat-php-sdk/autoload.php';
 use Gaoming13\WechatPhpSdk\Wechat;
 
 $wechat = new Wechat(array(
-    'appId' 		=>	'wx733d7f24bd29224a',
-    'token' 		=> 	'gaoming13',
-    'encodingAESKey' =>	'072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
+    'appId' => 'wx733d7f24bd29224a',
+    'token' => 'gaoming13',
+    'encodingAESKey' => '072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
 ));
 
 // 获取消息
@@ -44,9 +48,9 @@ $msg = $wechat->serve();
 
 // 回复消息
 if ($msg->MsgType == 'text' && $msg->Content == '你好') {
-	$wechat->reply("你也好！");
+    $wechat->reply("你也好！");
 } else {
-	$wechat->reply("听不懂！");
+    $wechat->reply("听不懂！");
 }
 ```
 
@@ -55,11 +59,11 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 
   ```php
   <?php
-	  require "wechat-php-sdk/autoload.php";	// 引入自动加载SDK类的方法
+      require "wechat-php-sdk/autoload.php";    // 引入自动加载SDK类的方法
 
-	  use Gaoming13\WechatPhpSdk\Wechat;
-	  use Gaoming13\WechatPhpSdk\Api;
-	  ...
+      use Gaoming13\WechatPhpSdk\Wechat;
+      use Gaoming13\WechatPhpSdk\Api;
+      ...
   ```
 
 2. 使用 `composer`
@@ -86,15 +90,15 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 
   ```php
   $wechat = new \Gaoming13\WechatPhpSdk\Wechat(array(
-  	'appId' => $appId,
-  	'token' => 	$token,
-  	'encodingAESKey' =>	$encodingAESKey
+      'appId' => $appId,
+      'token' =>     $token,
+      'encodingAESKey' =>    $encodingAESKey
   ));
 
   $api = new \Gaoming13\WechatPhpSdk\Api(
     array(
         'appId' => $appId,
-        'appSecret'	=> $appSecret,
+        'appSecret'    => $appSecret,
         'get_access_token' => function(){
             // 用户需要自己实现access_token的返回
             ...
@@ -108,7 +112,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
   ```
 
 ### 接入微信公众平台开发方法
-[官方wiki](http://mp.weixin.qq.com/wiki/17/2d4265491f12608cd170a95559800f2d.html)
+[官方:接入概述](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Access_Overview.html)
 
 以项目中的 `demo/demo_simple.php` 为例
 
@@ -125,12 +129,12 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 ```php
 $wechat = new Wechat(array(
     // 开发者中心-配置项-AppID(应用ID)
-    'appId' 		=>	'wx733d7f24bd29224a',
+    'appId'          =>  'wx733d7f24bd29224a',
     // 开发者中心-配置项-服务器配置-Token(令牌)
-    'token' 		=> 	'gaoming13',
+    'token'          =>  'gaoming13',
     // 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
     // 可选: 消息加解密方式勾选 兼容模式 或 安全模式 需填写
-    'encodingAESKey' =>	'072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
+    'encodingAESKey' =>  '072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
 ));
 
 // 获取微信消息
@@ -148,8 +152,8 @@ if ($msg->MsgType == 'text' && $msg->Content == '你好') {
 
 接受到的普通消息与事件推送会原样以数组对象返回，具体每种消息结构请看:
 
-[官方wiki 接收普通消息](http://mp.weixin.qq.com/wiki/10/79502792eef98d6e0c6e1739da387346.html)
-[官方wiki 接收事件推送](http://mp.weixin.qq.com/wiki/2/5baf56ce4947d35003b86a9805634b1e.html)
+[官方:接收普通消息](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Receiving_standard_messages.html)
+[官方:接收事件推送](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Receiving_event_pushes.html)
 
 ```php
 $msg = $wechat->serve();
@@ -157,7 +161,7 @@ $msg = $wechat->serve();
 
 ## Wechat：被动回复（文本、图片、语音、视频、音乐、图文）
 
-[官方wiki](http://mp.weixin.qq.com/wiki/14/89b871b5466b19b3efa4ada8e577d45e.html)
+[官方:被动回复用户消息](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Passive_user_reply_message.html)
 
 ### 回复文本消息
 
@@ -165,8 +169,8 @@ $msg = $wechat->serve();
 $wechat->reply('hello world!');
 // 或者
 $wechat->reply(array(
-	'type' => 'text',
-	'content' => '嘿嘿，呵呵~~'
+    'type' => 'text',
+    'content' => '嘿嘿，呵呵~~'
 ));
 ```
 
@@ -174,9 +178,9 @@ $wechat->reply(array(
 
 ```php
 $wechat->reply(array(
-	'type' => 'image',
-	// 通过素材管理接口上传多媒体文件，得到的id
-	'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
+    'type' => 'image',
+    // 通过素材管理接口上传多媒体文件，得到的id
+    'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
 ));
 ```
 
@@ -184,9 +188,9 @@ $wechat->reply(array(
 
 ```php
 $wechat->reply(array(
-	'type' => 'voice',
-	// 通过素材管理接口上传多媒体文件，得到的id
-	'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
+    'type' => 'voice',
+    // 通过素材管理接口上传多媒体文件，得到的id
+    'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
 ));
 ```
 
@@ -194,11 +198,11 @@ $wechat->reply(array(
 
 ```php
 $wechat->reply(array(
-	'type' => 'video',
-	// 通过素材管理接口上传多媒体文件，得到的id
-	'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
-	'title' => '视频消息的标题',			//可选
-	'description' => '视频消息的描述'		//可选
+    'type' => 'video',
+    // 通过素材管理接口上传多媒体文件，得到的id
+    'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
+    'title' => '视频消息的标题',            //可选
+    'description' => '视频消息的描述'        //可选
 ));
 ```
 
@@ -206,12 +210,12 @@ $wechat->reply(array(
 
 ```php
 $wechat->reply(array(
-	'type' => 'music',
-	'title' => '音乐标题',						//可选
-	'description' => '音乐描述',				//可选
-	'music_url' => 'http://me.diary8.com/data/music/2.mp3',		//可选
-	'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',	//可选
-	'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
+    'type' => 'music',
+    'title' => '音乐标题',             //可选
+    'description' => '音乐描述',       //可选
+    'music_url' => 'http://me.diary8.com/data/music/2.mp3',      //可选
+    'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',    //可选
+    'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
 ));
 ```
 
@@ -219,27 +223,27 @@ $wechat->reply(array(
 
 ```php
 $wechat->reply(array(
-	'type' => 'news',
-		'articles' => array(
-		 array(
-			'title' => '图文消息标题1',								//可选
-			'description' => '图文消息描述1',						//可选
-			'picurl' => 'http://me.diary8.com/data/img/demo1.jpg',	//可选
-			'url' => 'http://www.example.com/'						//可选
-		 ),
-		array(
-			'title' => '图文消息标题2',
-			'description' => '图文消息描述2',
-			'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
-			'url' => 'http://www.example.com/'
-		),
-		array(
-			'title' => '图文消息标题3',
-			'description' => '图文消息描述3',
-			'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
-			'url' => 'http://www.example.com/'
-		)
-	)
+    'type' => 'news',
+        'articles' => array(
+         array(
+            'title' => '图文消息标题1',                              //可选
+            'description' => '图文消息描述1',                        //可选
+            'picurl' => 'http://me.diary8.com/data/img/demo1.jpg', //可选
+            'url' => 'http://www.example.com/'                     //可选
+         ),
+        array(
+            'title' => '图文消息标题2',
+            'description' => '图文消息描述2',
+            'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
+            'url' => 'http://www.example.com/'
+        ),
+        array(
+            'title' => '图文消息标题3',
+            'description' => '图文消息描述3',
+            'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
+            'url' => 'http://www.example.com/'
+        )
+    )
 ));
 ```
 
@@ -247,8 +251,8 @@ $wechat->reply(array(
 
 ```php
 $wechat->reply(array(
-	'type' => 'transfer_customer_service',
-	'kf_account' => 'test1@test'				// 可选
+    'type' => 'transfer_customer_service',
+    'kf_account' => 'test1@test'           // 可选
 ));
 ```
 
@@ -306,16 +310,16 @@ $m->addServer('localhost', 11211);
 
 // wechat模块 - 处理用户发送的消息和回复消息
 $wechat = new Wechat(array(
-	'appId' => $appId,
-	'token' => 	$token,
-	'encodingAESKey' =>	$encodingAESKey
+    'appId' => $appId,
+    'token' =>     $token,
+    'encodingAESKey' =>    $encodingAESKey
 ));
 
 // api模块 - 包含各种系统主动发起的功能
 $api = new Api(
-	array(
+    array(
         'appId' => $appId,
-        'appSecret'	=> $appSecret,
+        'appSecret'    => $appSecret,
         'get_access_token' => function() use ($m) {
             // 用户需要自己实现access_token的返回
             return $m->get('access_token');
@@ -356,15 +360,15 @@ $api->send($msg->FromUserName, '这是我主动发送的消息！');
 ```php
 list($err, $kf_list) = $api->get_kf_list();
 if (is_null($err)) {
-	// 接口正确返回处理
+    // 接口正确返回处理
 } else {
-	// 接口错误返回处理
+    // 接口错误返回处理
 }
 ```
 
 ## Api：发送客服消息（文本、图片、语音、视频、音乐、图文）
 
-[官方wiki](http://mp.weixin.qq.com/wiki/1/70a29afed17f56d537c833f89be979c9.html)
+[官方:客服消息](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Service_Center_messages.html)
 
 ### 主动发送文本消息
 
@@ -372,9 +376,9 @@ if (is_null($err)) {
 $api->send($msg->FromUserName, 'heheh');
 // 或者
 $api->send($msg->FromUserName, array(
-	'type' => 'text',
-	'content' => 'hello world!',
-	'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+    'type' => 'text',
+    'content' => 'hello world!',
+    'kf_account' => 'test1@kftest'   // 可选(指定某个客服发送, 会显示这个客服的头像)
 ));
 ```
 
@@ -382,9 +386,9 @@ $api->send($msg->FromUserName, array(
 
 ```php
 $api->send($msg->FromUserName, array(
-	'type' => 'image',
-	'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC',
-	'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+    'type' => 'image',
+    'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC',
+    'kf_account' => 'test1@kftest'    // 可选(指定某个客服发送, 会显示这个客服的头像)
 ));
 ```
 
@@ -392,9 +396,9 @@ $api->send($msg->FromUserName, array(
 
 ```php
 $api->send($msg->FromUserName, array(
-	'type' => 'voice',
-	'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_',
-	'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+    'type' => 'voice',
+    'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_',
+    'kf_account' => 'test1@kftest'    // 可选(指定某个客服发送, 会显示这个客服的头像)
 ));
 ```
 
@@ -402,12 +406,12 @@ $api->send($msg->FromUserName, array(
 
 ```php
 $api->send($msg->FromUserName, array(
-	'type' => 'video',
-	'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
-	'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ',		// 可选(无效, 官方文档好像写错了)
-	'title' => '视频消息的标题',			// 可选
-	'description' => '视频消息的描述',		// 可选,
-	'kf_account' => 'test1@kftest'			// 可选(指定某个客服发送, 会显示这个客服的头像)
+    'type' => 'video',
+    'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
+    'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ', // 可选(无效, 官方文档好像写错了)
+    'title' => '视频消息的标题',        // 可选
+    'description' => '视频消息的描述',  // 可选,
+    'kf_account' => 'test1@kftest'    // 可选(指定某个客服发送, 会显示这个客服的头像)
 ));
 ```
 
@@ -415,13 +419,13 @@ $api->send($msg->FromUserName, array(
 
 ```php
 $api->send($msg->FromUserName, array(
-	'type' => 'music',
-	'title' => '音乐标题',						//可选
-	'description' => '音乐描述',				//可选
-	'music_url' => 'http://me.diary8.com/data/music/2.mp3',		//可选
-	'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',	//可选
-	'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
-	'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+    'type' => 'music',
+    'title' => '音乐标题',             // 可选
+    'description' => '音乐描述',       // 可选
+    'music_url' => 'http://me.diary8.com/data/music/2.mp3',   // 可选
+    'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3', // 可选
+    'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
+    'kf_account' => 'test1@kftest'        // 可选(指定某个客服发送, 会显示这个客服的头像)
 ));
 ```
 
@@ -429,34 +433,34 @@ $api->send($msg->FromUserName, array(
 
 ```php
 $api->send($msg->FromUserName, array(
-	'type' => 'news',
-	'articles' => array(
-		array(
-			'title' => '图文消息标题1',								//可选
-			'description' => '图文消息描述1',						//可选
-			'picurl' => 'http://me.diary8.com/data/img/demo1.jpg',	//可选
-			'url' => 'http://www.example.com/'						//可选
-		),
-		array(
-			'title' => '图文消息标题2',
-			'description' => '图文消息描述2',
-			'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
-			'url' => 'http://www.example.com/'
-		),
-		array(
-			'title' => '图文消息标题3',
-			'description' => '图文消息描述3',
-			'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
-			'url' => 'http://www.example.com/'
-		)
-	),
-	'kf_account' => 'test1@kftest'		// 可选(指定某个客服发送, 会显示这个客服的头像)
+    'type' => 'news',
+    'articles' => array(
+        array(
+            'title' => '图文消息标题1',                              // 可选
+            'description' => '图文消息描述1',                        // 可选
+            'picurl' => 'http://me.diary8.com/data/img/demo1.jpg', // 可选
+            'url' => 'http://www.example.com/'                     // 可选
+        ),
+        array(
+            'title' => '图文消息标题2',
+            'description' => '图文消息描述2',
+            'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
+            'url' => 'http://www.example.com/'
+        ),
+        array(
+            'title' => '图文消息标题3',
+            'description' => '图文消息描述3',
+            'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
+            'url' => 'http://www.example.com/'
+        )
+    ),
+    'kf_account' => 'test1@kftest'  // 可选(指定某个客服发送, 会显示这个客服的头像)
 ));
 ```
 
 ## Api：多客服功能（客服管理、多客服回话控制、获取客服聊天记录等）
 
-[官方wiki](http://mp.weixin.qq.com/wiki/5/ae230189c9bd07a6b221f48619aeef35.html)
+[官方:客服消息](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Service_Center_messages.html)
 
 ### 添加客服账号
 
@@ -532,7 +536,7 @@ $api->get_waitcase_list();
 
 ## Api：素材管理（临时素材、永久素材、素材统计）
 
-[官方wiki](http://mp.weixin.qq.com/wiki/5/963fc70b80dc75483a271298a76a8d59.html)
+[官方:素材管理](https://developers.weixin.qq.com/doc/offiaccount/Asset_Management/New_temporary_materials.html)
 
 ### 新增临时素材
 
@@ -574,24 +578,24 @@ list($err, $res) = $api->add_material('thumb', '/data/img/sky.jpg');
 
 ```php
 $api->add_news(array(
-	array(
-		'title' => '标题',
-		'thumb_media_id' => '图文消息的封面图片素材id（必须是永久mediaID）',
-		'author' => '作者',
-		'digest' => '图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空',
-		'show_cover_pic' => '是否显示封面，0为false，即不显示，1为true，即显示',
-		'content' => '图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS',
-		'content_source_url' => '图文消息的原文地址，即点击“阅读原文”后的URL'
-	),
-	array(
-		'title' => '这是图文的标题',
-		'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
-		'author' => '这是图文的作者',
-		'digest' => '',
-		'show_cover_pic' => true,
-		'content' => '这是图文消息的具体内容',
-		'content_source_url' => 'http://www.baidu.com/'
-	)
+    array(
+        'title' => '标题',
+        'thumb_media_id' => '图文消息的封面图片素材id（必须是永久mediaID）',
+        'author' => '作者',
+        'digest' => '图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空',
+        'show_cover_pic' => '是否显示封面，0为false，即不显示，1为true，即显示',
+        'content' => '图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS',
+        'content_source_url' => '图文消息的原文地址，即点击“阅读原文”后的URL'
+    ),
+    array(
+        'title' => '这是图文的标题',
+        'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
+        'author' => '这是图文的作者',
+        'digest' => '',
+        'show_cover_pic' => true,
+        'content' => '这是图文消息的具体内容',
+        'content_source_url' => 'http://www.baidu.com/'
+    )
 ));
 ```
 
@@ -599,13 +603,13 @@ $api->add_news(array(
 
 ```php
 list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', array(
-	'title' => '标题',
-	'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
-	'author' => '作者',
-	'digest' => '图文消息的摘要',
-	'show_cover_pic' => true,
-	'content' => '图文消息的具体内容',
-	'content_source_url' => 'http://www.diandian.com/'
+    'title' => '标题',
+    'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
+    'author' => '作者',
+    'digest' => '图文消息的摘要',
+    'show_cover_pic' => true,
+    'content' => '图文消息的具体内容',
+    'content_source_url' => 'http://www.diandian.com/'
 ), 1);
 ```
 
@@ -634,7 +638,7 @@ var_dump(json_decode($data));
 ```php
 list($err, $res) = $api->del_material('BZ-ih-dnjWDyNXjai6i6sbOICualzdwwnWWBqxW39Xk');
 if (is_null($err)) {
-	// 删除成功
+    // 删除成功
 }
 ```
 
@@ -655,7 +659,7 @@ $api->get_materials('thumb', 0, 20);
 
 ## Api：自定义菜单管理（创建、查询、删除菜单）
 
-[官方wiki](http://mp.weixin.qq.com/wiki/13/43de8269be54a0a6f64413e4dfa94f39.html)
+[官方:自定义菜单](https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Creating_Custom-Defined_Menu.html)
 
 ### 自定义菜单创建接口
 
@@ -742,7 +746,7 @@ $api->get_selfmenu();
 
 ## Api：微信JSSDK（生成微信JSSDK所需的配置信息）
 
-[官方wiki](http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html)
+[官方:JS-SDK说明文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html)
 
 ### 获取JS-SDK配置需要的信息
 
@@ -759,7 +763,7 @@ $api->get_jsapi_config('', 'jsonp', 'callback');
 
 ## Api：账号管理（生成带参数的二维码、长链接转短链接接口）
 
-[官方wiki](http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html)
+[官方:账户管理](https://developers.weixin.qq.com/doc/offiaccount/Account_Management/Generating_a_Parametric_QR_Code.html)
 
 ### 生成带参数的二维码
 
@@ -793,7 +797,7 @@ echo $data->short_url;
 
 包含：用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息
 
-[官方wiki](http://mp.weixin.qq.com/wiki/0/56d992c605a97245eb7e617854b169fc.html)
+[官方:用户管理](https://developers.weixin.qq.com/doc/offiaccount/User_Management/User_Tag_Management.html)
 
 ### 用户分组管理 - 创建分组
 
@@ -906,9 +910,9 @@ demo见项目内 `demo/snsapi/`
 
 ## Api：微信公众号支付(JSAPI)
 
-[官方wiki](https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_1)
+[官方:JSAPI支付](https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_1)
 
-[官方SDK](https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=11_1)
+[官方:SDK与DEMO下载](https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=11_1)
 
 支付过程中SDK使用流程：
 
@@ -948,7 +952,7 @@ if ($user_info == null) {
 
 // 生成预订单
 $wxOrder = $api->wxPayUnifiedOrder([
-	'trade_type' => 'JSAPI',
+    'trade_type' => 'JSAPI',
     'out_trade_no' => '100002',
     'body' => '新鲜大白菜',
     'total_fee' => 100, // 单位是分
@@ -962,7 +966,7 @@ if ($wxOrder['return_code'] == 'SUCCESS' && $wxOrder['result_code'] == 'SUCCESS'
     // 成功处理，获取JSAPI支付的参数
     $jsApiParams = $api->getWxPayJsApiParameters($wxOrder['prepay_id']);
 } else {
-	// 失败处理...
+    // 失败处理...
 }
 ```
 
@@ -1026,7 +1030,7 @@ exit();
 
 ## Api：微信App支付(App)
 
-[官方wiki](https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_1)
+[官方:APP支付](https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_1)
 
 微信App支付与微信公众号支付类似：
 
@@ -1043,7 +1047,7 @@ eg: 写个服务端接口[生成预订单,并得到App的支付参数] 供客户
 
 // 生成预订单
 $wxOrder = $api->wxPayUnifiedOrder([
-	'trade_type' => 'APP',
+    'trade_type' => 'APP',
     'out_trade_no' => '100002',
     'body' => '新鲜大白菜',
     'total_fee' => 100, // 单位是分
@@ -1057,9 +1061,9 @@ if ($wxOrder['return_code'] == 'SUCCESS' && $wxOrder['result_code'] == 'SUCCESS'
     $apiParams = $api->getWxPayAppApiParameters($wxOrder['prepay_id']);
 
     // 返回给app客户端
-	return json_encode($apiParams);
+    return json_encode($apiParams);
 } else {
-	// 失败处理...
+    // 失败处理...
 }
 ```
 
