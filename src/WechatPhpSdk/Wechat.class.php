@@ -1,16 +1,11 @@
 <?php
 /**
- * Wechat.php
- *
  * Wechat模块（处理获取微信消息与被动回复）
  * - 接收普通消息/事件推送
  * - 被动回复（文本、图片、语音、视频、音乐、图文）
  * - 转发到多客服接口
  * - 支持消息加解密方式的明文模式、兼容模式、安全模式
  * - 支持接入微信公众平台
- *
- * @author gaoming13 <gaoming13@yeah.net>
- * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk;
@@ -103,8 +98,8 @@ class Wechat
                         '<MsgType><![CDATA[text]]></MsgType>'.
                         '<Content><![CDATA[%s]]></Content>'.
                         '</xml>',
-                        $this->message->FromUserName,
-                        $this->message->ToUserName,
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
                         time(),
                         $msg);
                 break;
@@ -128,8 +123,8 @@ class Wechat
                         '<MsgType><![CDATA[text]]></MsgType>'.
                         '<Content><![CDATA[%s]]></Content>'.
                         '</xml>',
-                        $this->message->FromUserName,
-                        $this->message->ToUserName,
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
                         time(),
                         $msg['content']);
                 break;
@@ -153,8 +148,8 @@ class Wechat
                         '<MsgType><![CDATA[image]]></MsgType>'.
                         '<Image><MediaId><![CDATA[%s]]></MediaId></Image>'.
                         '</xml>',
-                        $this->message->FromUserName,
-                        $this->message->ToUserName,
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
                         time(),
                         $msg['media_id']);
                 break;
@@ -178,8 +173,8 @@ class Wechat
                         '<MsgType><![CDATA[voice]]></MsgType>'.
                         '<Voice><MediaId><![CDATA[%s]]></MediaId></Voice>'.
                         '</xml>',
-                        $this->message->FromUserName,
-                        $this->message->ToUserName,
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
                         time(),
                         $msg['media_id']);
                 break;
@@ -209,8 +204,8 @@ class Wechat
                         '<Description><![CDATA[%s]]></Description>'.
                         '</Video>'.
                         '</xml>',
-                        $this->message->FromUserName,
-                        $this->message->ToUserName,
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
                         time(),
                         $msg['media_id'],
                         isset($msg['title']) ? $msg['title'] : '',
@@ -246,8 +241,8 @@ class Wechat
                         '<ThumbMediaId><![CDATA[%s]]></ThumbMediaId>'.
                         '</Music>'.
                         '</xml>',
-                        $this->message->FromUserName,
-                        $this->message->ToUserName,
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
                         time(),
                         isset($msg['title']) ? $msg['title'] : '',
                         isset($msg['description']) ? $msg['description'] : '',
@@ -308,15 +303,15 @@ class Wechat
                         '<ArticleCount>%s</ArticleCount>'.
                         '<Articles>%s</Articles>'.
                         '</xml>',
-                        $this->message->FromUserName,
-                        $this->message->ToUserName,
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
                         time(),
                         count($msg['articles']),
                         $articles);
                 break;
 
             /**
-             * 0 转发到多客服接口
+             * 7 转发到多客服接口
              *
              * Examples:
              * ```
@@ -340,11 +335,78 @@ class Wechat
                         '<CreateTime>%s</CreateTime>'.
                         '<MsgType><![CDATA[transfer_customer_service]]></MsgType>%s'.
                         '</xml>',
-                        $this->message->FromUserName,
-                        $this->message->ToUserName,
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
                         time(),
                         $xml_transinfo);
                 break;
+
+             /**
+             * 8 回复设备消息
+             *
+             * Examples:
+             * ```
+             * $wechat->reply(array(
+              *    'type' => 'device_text',
+              *    'device_type' => '设备类型，目前为“公众账号原始ID”',
+              *    'device_id' => '设备ID，第三方提供',
+              *    'session_id' => '微信客户端生成的session id',
+              *    'content' => '消息内容，BASE64编码'
+             * ));
+             * ```
+             */
+            case 'device_text':
+                $xml = sprintf('<xml>'.
+                        '<ToUserName><![CDATA[%s]]></ToUserName>'.
+                        '<FromUserName><![CDATA[%s]]></FromUserName>'.
+                        '<CreateTime>%s</CreateTime>'.
+                        '<MsgType><![CDATA[device_text]]></MsgType>'.
+                        '<DeviceType><![CDATA[%s]]></DeviceType>'.
+                        '<DeviceID><![CDATA[%s]]></DeviceID>'.
+                        '<SessionID>%s</SessionID>'.
+                        '<Content><![CDATA[%s]]></Content>'.
+                        '</xml>',
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
+                        time(),
+                        isset($msg['device_type']) ? $msg['device_type'] : '',
+                        isset($msg['device_id']) ? $msg['device_id'] : '',
+                        isset($msg['session_id']) ? $msg['session_id'] : '',
+                        base64_encode(isset($msg['content']) ? $msg['content'] : ''));
+                break;
+
+            /**
+             * 8 回复设备连接状态消息
+             *
+             * Examples:
+             * ```
+             * $wechat->reply(array(
+              *    'type' => 'device_status',
+              *    'device_type' => '设备类型，目前为“公众账号原始ID”',
+              *    'device_id' => '设备ID，第三方提供',
+              *    'deviceStatus' => '设备状态:0未连接,1已连接'
+             * ));
+             * ```
+             */
+            case 'device_status':
+                $xml = sprintf('<xml>'.
+                        '<ToUserName><![CDATA[%s]]></ToUserName>'.
+                        '<FromUserName><![CDATA[%s]]></FromUserName>'.
+                        '<CreateTime>%s</CreateTime>'.
+                        '<MsgType><![CDATA[device_status]]></MsgType>'.
+                        '<DeviceType><![CDATA[%s]]></DeviceType>'.
+                        '<DeviceID><![CDATA[%s]]></DeviceID>'.
+                        '<DeviceStatus>%s</DeviceStatus>'.
+                        '</xml>',
+                        $this->message['FromUserName'],
+                        $this->message['ToUserName'],
+                        time(),
+                        isset($msg['device_type']) ? $msg['device_type'] : '',
+                        isset($msg['device_id']) ? $msg['device_id'] : '',
+                        isset($msg['device_status']) ? $msg['device_status'] : ''
+                    );
+                break;
+
 
             /**
              * 0 异常消息处理

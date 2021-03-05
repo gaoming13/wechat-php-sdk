@@ -1,12 +1,6 @@
 <?php
 /**
- * demo_simple.php
- * 简单接受用户消息并回复消息 DEMO
- *
- * wechat-php-sdk DEMO
- *
- * @author gaoming13 <gaoming13@yeah.net>
- * @link https://github.com/gaoming13/wechat-php-sdk
+ * 例子：接收用户发送消息并回复(简单版本)
  */
 
 require '../autoload.php';
@@ -27,7 +21,7 @@ $wechat = new Wechat(array(
 $msg = $wechat->serve();
 
 // 回复微信消息
-if ($msg->MsgType == 'text' && $msg->Content == '你好') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '你好') {
     $wechat->reply("你也好！");
 } else {
     $wechat->reply("听不懂！");

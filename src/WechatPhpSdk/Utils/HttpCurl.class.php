@@ -1,9 +1,6 @@
 <?php
 /**
  * HttpCurl Curl模拟Http工具类
- *
- * @author gaoming13 <gaoming13@yeah.net>
- * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk\Utils;
@@ -38,7 +35,7 @@ class HttpCurl {
         curl_close($cl);
         if (isset($status['http_code']) && $status['http_code'] == 200) {
             if ($data_type == 'json') {
-                $content = json_decode($content);
+                $content = json_decode($content, true);
             }
             return $content;
         } else {
@@ -89,7 +86,7 @@ class HttpCurl {
         curl_close($cl);
         if (isset($status['http_code']) && $status['http_code'] == 200) {
             if ($data_type == 'json') {
-                $content = json_decode($content);
+                $content = json_decode($content, true);
             }
             return $content;
         } else {

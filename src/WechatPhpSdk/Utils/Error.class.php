@@ -1,9 +1,6 @@
 <?php
 /**
  * Error 错误代码类
- *
- * @author gaoming13 <gaoming13@yeah.net>
- * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk\Utils;

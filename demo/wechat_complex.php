@@ -1,12 +1,6 @@
 <?php
 /**
- * demo_message.php
- * 主送发送客服消息 DEMO
- *
- * wechat-php-sdk DEMO
- *
- * @author gaoming13 <gaoming13@yeah.net>
- * @link https://github.com/gaoming13/wechat-php-sdk
+ * 示例：接收用户发送消息并回复(复杂版本)
  */
 
 require '../autoload.php';
@@ -75,14 +69,14 @@ $default_msg = <<<EOF
 EOF;
 
 // 用户关注微信号后 - 回复用户普通文本消息
-if ($msg->MsgType == 'event' && $msg->Event == 'subscribe') {
+if ($msg['MsgType'] == 'event' && $msg['Event'] == 'subscribe') {
 
     $wechat->reply($default_msg);
     exit();
 }
 
 // 用户回复1 - 回复文本消息
-if ($msg->MsgType == 'text' && $msg->Content == '1') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '1') {
 
     $wechat->reply("hello world!");
     /* 也可使用这种数组方式回复
@@ -95,7 +89,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '1') {
 }
 
 // 用户回复2 - 回复图片消息
-if ($msg->MsgType == 'text' && $msg->Content == '2') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '2') {
 
     $wechat->reply(array(
         'type' => 'image',
@@ -106,7 +100,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '2') {
 }
 
 // 用户回复3 - 回复语音消息
-if ($msg->MsgType == 'text' && $msg->Content == '3') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '3') {
 
     $wechat->reply(array(
         'type' => 'voice',
@@ -117,7 +111,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '3') {
 }
 
 // 用户回复4 - 回复视频消息
-if ($msg->MsgType == 'text' && $msg->Content == '4') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '4') {
 
     $wechat->reply(array(
         'type' => 'video',
@@ -130,7 +124,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '4') {
 }
 
 // 用户回复5 - 回复音乐消息
-if ($msg->MsgType == 'text' && $msg->Content == '5') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '5') {
 
     $wechat->reply(array(
         'type' => 'music',
@@ -144,7 +138,7 @@ if ($msg->MsgType == 'text' && $msg->Content == '5') {
 }
 
 // 用户回复6 - 回复图文消息
-if ($msg->MsgType == 'text' && $msg->Content == '6') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '6') {
 
     $wechat->reply(array(
         'type' => 'news',
@@ -173,39 +167,37 @@ if ($msg->MsgType == 'text' && $msg->Content == '6') {
 }
 
 // 用户回复7 - 发送主动消息
-if ($msg->MsgType == 'text' && $msg->Content == '7') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '7') {
     // 被动回复
     $wechat->reply("这是被动回复的一条消息");
     // 主动发送
-    $api->send($msg->FromUserName, '这是主动发送的一条消息');
+    $api->send($msg['FromUserName'], '这是主动发送的一条消息');
     // 主动发送
-    $api->send($msg->FromUserName, array(
+    $api->send($msg['FromUserName'], array(
         'type' => 'text',
         'content' => '这是一个客服主动发送的一条消息!',
         'kf_account' => 'test1@kftest'
     ));
     // 主动发送
-    $api->send($msg->FromUserName, '您的openid是: ' . $msg->FromUserName);
+    $api->send($msg['FromUserName'], '您的openid是: ' . $msg['FromUserName']);
     exit();
 }
 
 // 用户回复8 - snsapi_base授权获取用户信息
-if ($msg->MsgType == 'text' && $msg->Content == '8') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '8') {
     // 获取引导用户点击获取授权的地址
-    $authorize_url = $api->get_authorize_url('snsapi_base',
-        'http://wx.diary8.com/demo/snsapi/callback_snsapi_base.php');
+    $authorize_url = $api->get_authorize_url('snsapi_base', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_base.php');
     // 主动发送
-    $api->send($msg->FromUserName, $authorize_url);
+    $api->send($msg['FromUserName'], $authorize_url);
     exit();
 }
 
 // 用户回复9 - snsapi_userinfo授权获取用户信息
-if ($msg->MsgType == 'text' && $msg->Content == '9') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '9') {
     // 获取引导用户点击获取授权的地址
-    $authorize_url = $api->get_authorize_url('snsapi_userinfo',
-        'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
+    $authorize_url = $api->get_authorize_url('snsapi_userinfo', 'http://wx.diary8.com/demo/snsapi/callback_snsapi_userinfo.php');
     // 主动发送
-    $api->send($msg->FromUserName, $authorize_url);
+    $api->send($msg['FromUserName'], $authorize_url);
     exit();
 }
 

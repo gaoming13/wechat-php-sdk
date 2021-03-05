@@ -1,9 +1,6 @@
 <?php
 /**
  * FileCache 文件缓存
- *
- * @author gaoming13 <gaoming13@yeah.net>
- * @link https://github.com/gaoming13/wechat-php-sdk
  */
 
 namespace Gaoming13\WechatPhpSdk\Utils;
@@ -14,14 +11,11 @@ class FileCache {
         'expire'        => 7000,
         'cache_subdir'  => true,
         'prefix'        => '',
-        'path'          => CACHE_PATH,
+        'path'          => __DIR__.'/runtime/',
         'data_compress' => false,
     ];
 
-    /**
-     * 构造函数
-     * @param array $options
-     */
+    // 构造函数
     public function __construct($options = [])
     {
         if (!empty($options)) {
@@ -32,11 +26,8 @@ class FileCache {
         }
         $this->init();
     }
-    /**
-     * 初始化检查
-     * @access private
-     * @return boolean
-     */
+
+    // 初始化检查
     private function init()
     {
         // 创建项目缓存目录
@@ -48,7 +39,7 @@ class FileCache {
         return false;
     }
 
-
+    // 获取存储的数据
     public function get($name, $default = false)
     {
         $filename = $this->getCacheKey($name);
@@ -58,21 +49,21 @@ class FileCache {
         $content = file_get_contents($filename);
         if (false !== $content) {
             $arr = json_decode($content,true);
-            if($arr['expire'] <= time())
-            {
+            if ($arr['expire'] <= time()) {
                 return false;
             }
-            return $content;
+            return $arr['data'];
         }
     }
 
+    // 设置存储的数据
     public function set($name, $value, $expire = null)
     {
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
         $filename = $this->getCacheKey($name);
-        $json = json_encode(array($name=>$value,"expire"=>time()+$expire));
+        $json = json_encode(array('data' => $value, 'expire' => time() + $expire));
         $result = file_put_contents($filename,$json);
         if ($result) {
             return true;
@@ -80,12 +71,14 @@ class FileCache {
         return false;
     }
 
-    /**
-     * 获取缓存文件名
-     * @dateTime 2018-01-29T14:32:49+0800
-     * @author xm
-     * @return   [type]                   [description]
-     */
+    // 删除存储的数据
+    public function del($name)
+    {
+        $filename = $this->getCacheKey($name);
+        @unlink($filename);
+    }
+
+    // 获取缓存文件名
     public function getCacheKey($name)
     {
         return $this->options['path']."/".$name.'_cache.php';

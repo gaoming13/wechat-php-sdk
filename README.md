@@ -28,6 +28,7 @@ Api （处理需要access_token的主动接口）([使用说明](#api模块使�
 * [用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）](#api用户管理)
 * [微信公众号支付(JSAPI)](#api微信公众号支付jsapi)
 * [微信App支付(App)](#api微信app支付app)
+* [微信硬件平台基础消息接口](#api微信硬件平台基础消息接口)
 
 ## DEMO
 项目内 `demo/demo_simple.php`
@@ -47,7 +48,7 @@ $wechat = new Wechat(array(
 $msg = $wechat->serve();
 
 // 回复消息
-if ($msg->MsgType == 'text' && $msg->Content == '你好') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '你好') {
     $wechat->reply("你也好！");
 } else {
     $wechat->reply("听不懂！");
@@ -141,7 +142,7 @@ $wechat = new Wechat(array(
 $msg = $wechat->serve();
 
 // 回复微信消息
-if ($msg->MsgType == 'text' && $msg->Content == '你好') {
+if ($msg['MsgType'] == 'text' && $msg['Content'] == '你好') {
     $wechat->reply("你也好！");
 } else {
     $wechat->reply("听不懂！");
@@ -347,7 +348,7 @@ $msg = $wechat->serve();
 $wechat->reply('这是我被动发送的消息！');
 
 // 主动发送文本消息
-$api->send($msg->FromUserName, '这是我主动发送的消息！');
+$api->send($msg['FromUserName'], '这是我主动发送的消息！');
 ```
 
 ### Api模块接口返回值格式
@@ -366,6 +367,14 @@ if (is_null($err)) {
 }
 ```
 
+### 发送模版消息
+
+[官方:模版消息](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Template_Message_Interface.html)
+
+```php
+$api->message_template_send('接收者openid', '模板ID', '模版数据json', '模板跳转链接');
+```
+
 ## Api：发送客服消息（文本、图片、语音、视频、音乐、图文）
 
 [官方:客服消息](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Service_Center_messages.html)
@@ -373,9 +382,9 @@ if (is_null($err)) {
 ### 主动发送文本消息
 
 ```php
-$api->send($msg->FromUserName, 'heheh');
+$api->send($msg['FromUserName'], 'heheh');
 // 或者
-$api->send($msg->FromUserName, array(
+$api->send($msg['FromUserName'], array(
     'type' => 'text',
     'content' => 'hello world!',
     'kf_account' => 'test1@kftest'   // 可选(指定某个客服发送, 会显示这个客服的头像)
@@ -385,7 +394,7 @@ $api->send($msg->FromUserName, array(
 ### 主动发送图片消息
 
 ```php
-$api->send($msg->FromUserName, array(
+$api->send($msg['FromUserName'], array(
     'type' => 'image',
     'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC',
     'kf_account' => 'test1@kftest'    // 可选(指定某个客服发送, 会显示这个客服的头像)
@@ -395,7 +404,7 @@ $api->send($msg->FromUserName, array(
 ### 主动发送语音消息
 
 ```php
-$api->send($msg->FromUserName, array(
+$api->send($msg['FromUserName'], array(
     'type' => 'voice',
     'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_',
     'kf_account' => 'test1@kftest'    // 可选(指定某个客服发送, 会显示这个客服的头像)
@@ -405,7 +414,7 @@ $api->send($msg->FromUserName, array(
 ### 主动发送视频消息
 
 ```php
-$api->send($msg->FromUserName, array(
+$api->send($msg['FromUserName'], array(
     'type' => 'video',
     'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
     'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ', // 可选(无效, 官方文档好像写错了)
@@ -418,7 +427,7 @@ $api->send($msg->FromUserName, array(
 ### 主动发送音乐消息
 
 ```php
-$api->send($msg->FromUserName, array(
+$api->send($msg['FromUserName'], array(
     'type' => 'music',
     'title' => '音乐标题',             // 可选
     'description' => '音乐描述',       // 可选
@@ -432,7 +441,7 @@ $api->send($msg->FromUserName, array(
 ### 主动发送图文消息
 
 ```php
-$api->send($msg->FromUserName, array(
+$api->send($msg['FromUserName'], array(
     'type' => 'news',
     'articles' => array(
         array(
@@ -1110,6 +1119,64 @@ list($res, $notifyData, $replyData) = $api->progressWxPayNotify();
 // 回复微信
 $api->replyWxPayNotify($replyData);
 exit();
+```
+
+## 微信硬件平台基础消息接口
+
+[官方:微信硬件平台基础消息接口](https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-1)
+
+### 获取设备二维码
+
+```php
+$api->device_create_qrcode('设备ID');
+```
+
+### 设备授权
+
+```php
+$api->device_authorize_device($device, $opType, $productId);
+```
+
+### 通过openid获取用户绑定的deviceid
+
+```php
+$api->device_get_bind_device($openId);
+```
+
+### 获取设备绑定openID
+
+```php
+$api->device_get_openid($deviceId);
+```
+
+### 设备状态查询
+
+```php
+$api->device_get_stat($deviceId);
+```
+
+### 强制绑定用户和设备
+
+```php
+$api->device_compel_bind($deviceId, $openId);
+```
+
+### 强制解绑用户和设备
+
+```php
+$api->device_compel_unbind($deviceId, $openId);
+```
+
+### 主动发送消息给设备
+
+```php
+$api->device_transmsg($deviceId, $openId, $content);
+```
+
+### 第三方主动发送设备状态消息给微信终端
+
+```php
+$api->device_transmsg_device_status($deviceId, $openId, $deviceStatus);
 ```
 
 ## License

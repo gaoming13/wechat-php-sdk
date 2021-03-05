@@ -1,7 +1,5 @@
 <?php
 /**
- * Api.php
- *
  * Api模块 （处理需要access_token的主动接口）
  * - 主送发送客服消息（文本、图片、语音、视频、音乐、图文）
  * - 多客服功能（客服管理、多客服回话控制、获取客服聊天记录...）
@@ -10,13 +8,6 @@
  * - 微信JSSDK（生成微信JSSDK所需的配置信息）
  * - 账号管理（生成带参数的二维码、长链接转短链接接口）
  * - 用户管理（用户分组管理、设置用户备注名、获取用户基本信息、获取用户列表、网页授权获取用户基本信息）
- * - 数据统计接口（开发中...）
- *
- * @author gaoming13 <gaoming13@yeah.net>
- * @link https://github.com/gaoming13/wechat-php-sdk
- *
- * Class Api
- * @package Gaoming13\WechatPhpSdk
  */
 
 namespace Gaoming13\WechatPhpSdk;
@@ -34,6 +25,8 @@ class Api
     const SNSAPI_BASE = "snsapi_base";
     const SNSAPI_USERINFO = "snsapi_userinfo";
 
+    // 公众账号原始ID
+    protected $ghId;
     // 开发者中心-配置项-AppID(应用ID)
     protected $appId;
     // 开发者中心-配置项-AppSecret(应用密钥)
@@ -60,6 +53,7 @@ class Api
      */
     public function __construct($config)
     {
+        $this->ghId                  = isset($config['ghId']) ? $config['ghId'] : '';
         $this->appId                 = $config['appId'];
         $this->appSecret             = $config['appSecret'];
         $this->mchId                 = isset($config['mchId']) ? $config['mchId'] : false;
@@ -79,7 +73,7 @@ class Api
      */
     public function valid_access_token($token)
     {
-        return $token && isset($token->expires_in) && ($token->expires_in > time() + 1200);
+        return $token && isset($token['expires_in']) && ($token['expires_in'] > time() + 1200);
     }
 
     /**
@@ -99,11 +93,11 @@ class Api
         }
 
         // 异常处理: access_token获取失败
-        if (!isset($res->access_token)) {
+        if (!isset($res['access_token'])) {
             @error_log('[wechat-php-sdk]Get AccessToken Error: ' . json_encode($res), 0);
             return false;
         }
-        $res->expires_in += time();
+        $res['expires_in'] += time();
         return $res;
     }
 
@@ -119,14 +113,14 @@ class Api
             // 调用用户自定义获取AccessToken方法
             $token = call_user_func($this->get_access_token_diy);
             if ($token) {
-                $token = json_decode($token);
+                $token = json_decode($token, true);
             }
         } else {
             // 异常处理: 获取access_token方法未定义
             @error_log('[wechat-php-sdk]Not set get_tokenDiy method, AccessToken will be refreshed each time.', 0);
         }
         // 验证AccessToken是否有效
-        if (!$this->valid_access_token($token)) {
+        if (! $this->valid_access_token($token)) {
 
             // 生成新的AccessToken
             $token = $this->new_access_token();
@@ -143,7 +137,7 @@ class Api
                 @error_log('[wechat-php-sdk]Not set saveTokenDiy method, AccessToken will be refreshed each time.', 0);
             }
         }
-        return $token->access_token;
+        return $token['access_token'];
     }
 
     /**
@@ -325,7 +319,7 @@ class Api
              *
              * Examples:
              * ```
-             * $api->send($msg->FromUserName, array(
+             * $api->send($msg['FromUserName'], array(
              *  'type' => 'news',
              *  'articles' => array(
              *      array(
@@ -391,7 +385,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, true);
         } else {
             return array($res, null);
@@ -430,7 +424,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, true);
         } else {
             return array($res, null);
@@ -468,7 +462,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, true);
         } else {
             return array($res, null);
@@ -497,7 +491,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, true);
         } else {
             return array($res, null);
@@ -525,7 +519,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, true);
         } else {
             return array($res, null);
@@ -551,8 +545,8 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->kf_list)) {
-            return array(null, $res->kf_list);
+        if (isset($res['kf_list'])) {
+            return array(null, $res['kf_list']);
         } else {
             return array($res, null);
         }
@@ -577,8 +571,8 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->kf_online_list)) {
-            return array(null, $res->kf_online_list);
+        if (isset($res['kf_online_list'])) {
+            return array(null, $res['kf_online_list']);
         } else {
             return array($res, null);
         }
@@ -617,8 +611,8 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->recordlist)) {
-            return array(null, $res->recordlist);
+        if (isset($res['recordlist'])) {
+            return array(null, $res['recordlist']);
         } else {
             return array($res, null);
         }
@@ -654,7 +648,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, true);
         } else {
             return array($res, null);
@@ -691,7 +685,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, true);
         } else {
             return array($res, null);
@@ -719,7 +713,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -747,8 +741,8 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->sessionlist)) {
-            return array(null, $res->sessionlist);
+        if (isset($res['sessionlist'])) {
+            return array(null, $res['sessionlist']);
         } else {
             return array($res, null);
         }
@@ -773,8 +767,8 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->waitcaselist)) {
-            return array(null, $res->waitcaselist);
+        if (isset($res['waitcaselist'])) {
+            return array(null, $res['waitcaselist']);
         } else {
             return array($res, null);
         }
@@ -819,7 +813,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->media_id)) {
+        if (isset($res['media_id'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -921,7 +915,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if (isset($res->media_id)) {
+        if (isset($res['media_id'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -997,7 +991,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if (isset($res->media_id)) {
+        if (isset($res['media_id'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1068,7 +1062,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1152,7 +1146,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1325,7 +1319,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1388,7 +1382,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->menu)) {
+        if (isset($res['menu'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1426,7 +1420,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1489,7 +1483,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->is_menu_open)) {
+        if (isset($res['is_menu_open'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1510,10 +1504,10 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
-            return (object)array(
-                'ticket' => $res->ticket,
-                'expires_in' => $res->expires_in + time()
+        if ($res['errcode'] == 0) {
+            return array(
+                'ticket' => $res['ticket'],
+                'expires_in' => $res['expires_in'] + time()
             );
         } else {
             return false;
@@ -1528,7 +1522,7 @@ class Api
      */
     public function valid_jsapi_ticket($ticket)
     {
-        return $ticket && isset($ticket->expires_in) && ($ticket->expires_in > time() + 1200);
+        return $ticket && isset($ticket['expires_in']) && ($ticket['expires_in'] > time() + 1200);
     }
 
     /**
@@ -1543,7 +1537,7 @@ class Api
             // 调用用户自定义获取jsapi_ticket方法
             $ticket = call_user_func($this->get_jsapi_ticket_diy);
             if ($ticket) {
-                $ticket = json_decode($ticket);
+                $ticket = json_decode($ticket, true);
             }
         } else {
             // 异常处理: 获取jsapi_ticket方法未定义
@@ -1568,7 +1562,7 @@ class Api
                 @error_log('[wechat-php-sdk]Not set saveTokenDiy method, jsapi_ticket will be refreshed each time.', 0);
             }
         }
-        return $ticket->ticket;
+        return $ticket['ticket'];
     }
 
     /**
@@ -1692,7 +1686,7 @@ class Api
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
-        if (isset($res->ticket)) {
+        if (isset($res['ticket'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1774,7 +1768,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1817,7 +1811,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if (isset($res->group)) {
+        if (isset($res['group'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1870,7 +1864,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if (isset($res->groups)) {
+        if (isset($res['groups'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1910,7 +1904,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if (isset($res->groupid)) {
+        if (isset($res['groupid'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1952,7 +1946,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -1994,7 +1988,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -2041,7 +2035,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -2082,7 +2076,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -2124,7 +2118,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if ($res->errcode == 0) {
+        if ($res['errcode'] == 0) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -2179,7 +2173,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if (isset($res->openid)) {
+        if (isset($res['openid'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -2230,7 +2224,7 @@ class Api
             return Error::code('ERR_POST');
         }
         // 判断是否调用成功
-        if (isset($res->data)) {
+        if (isset($res['data'])) {
             return array(null, $res);
         } else {
             return array($res, null);
@@ -2294,18 +2288,18 @@ class Api
                 return Error::code('ERR_POST');
             }
             // 判断是否调用成功
-            if (isset($res->access_token)) {
+            if (isset($res['access_token'])) {
                 if ($scope == 'snsapi_userinfo') {
                     // 2.1 `snsapi_userinfo` 继续通过access_token和openid拉取用户信息
-                    $url = self::API_DOMAIN . 'sns/userinfo?access_token=' . $res->access_token .
-                        '&openid=' . $res->openid . '&lang=' . $lang;
+                    $url = self::API_DOMAIN . 'sns/userinfo?access_token=' . $res['access_token'] .
+                        '&openid=' . $res['openid'] . '&lang=' . $lang;
                     $res = HttpCurl::get($url, 'json');
                     // 异常处理: 获取时网络错误
                     if ($res === false) {
                         return Error::code('ERR_POST');
                     }
                     // 判断是否调用成功
-                    if (isset($res->openid)) {
+                    if (isset($res['openid'])) {
                         return array(null, $res);
                     } else {
                         return array($res, null);
@@ -2526,5 +2520,259 @@ class Api
     public static function replyWxPayNotify($info)
     {
         echo Xml::toXml($info);
+    }
+
+    // 创建二维码ticket
+    // https://developers.weixin.qq.com/doc/offiaccount/Account_Management/Generating_a_Parametric_QR_Code.html
+    public function qrcode_create($actionName, $sceneStr = '', $expireSeconds = 30)
+    {
+        $url = self::API_DOMAIN . 'cgi-bin/qrcode/create?access_token=' . $this->get_access_token();
+        $query = [
+            'action_name' => $actionName,
+            'action_info' => [
+                'scene' => ['scene_str' => $sceneStr]
+            ],
+        ];
+        if ($actionName === 'QR_SCENE' || $actionName === 'QR_STR_SCENE') {
+            $query['expire_seconds'] = $expireSeconds;
+        }
+        $res = HttpCurl::post($url, json_encode($query), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['url'])) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 发送模板消息
+    // https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Template_Message_Interface.html#5
+    public function message_template_send($openId, $templateId, $data = [], $url = '')
+    {
+        $url = self::API_DOMAIN . 'cgi-bin/message/template/send?access_token=' . $this->get_access_token();
+        $query = [
+            'touser' => $openId,
+            'template_id' => $templateId,
+            "data" => $data,
+        ];
+        if ($url !== '') {
+            $query['url'] = $url;
+        }
+        $res = HttpCurl::post($url, json_encode($query), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['ret']) && $res['ret'] == 0) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 获取设备二维码
+    // 第三方公众账号通过设备id从公众平台批量获取设备二维码
+    public function device_create_qrcode($deviceId)
+    {
+        $url = self::API_DOMAIN . 'device/create_qrcode?access_token=' . $this->get_access_token();
+        $res = HttpCurl::post($url, json_encode([
+            'device_num' => '1',
+            'device_id_list' => [$deviceId],
+        ]), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['errcode']) && $res['errcode'] == 0) {
+            return array(null, $res['code_list'][0]);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 设备授权
+    // 第三方公众账号将设备id及其属性信息提交公众平台进行授权
+    // https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-5
+    // opType 0设备授权,1设备更新
+    // productId 产品编号
+    public function device_authorize_device($device, $opType = 0, $productId = '')
+    {
+        $url = self::API_DOMAIN . 'device/authorize_device?access_token=' . $this->get_access_token();
+
+        $query = [
+            'device_num' => '1',
+            'device_list' => [$device],
+            'op_type' => $opType,
+        ];
+        if ($opType === 0) {
+            $query['product_id'] = $productId;
+        }
+        $res = HttpCurl::post($url, json_encode($query), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['errcode']) && $res['errcode'] == 0) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 通过openid获取用户绑定的deviceid
+    // 通过openid获取用户在当前devicetype下绑定的deviceid列表
+    // https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-12
+    public function device_get_bind_device($openId)
+    {
+        $url = self::API_DOMAIN . 'device/get_bind_device?access_token=' . $this->get_access_token() . '&openid='.$openId;
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['device_list'])) {
+            return array(null, $res['device_list']);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 获取设备绑定openID
+    // 通过device type和device id获取设备主人的openid
+    // https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-11
+    public function device_get_openid($deviceId)
+    {
+        $url = self::API_DOMAIN . 'device/get_openid?access_token=' . $this->get_access_token() . '&device_type=' . $this->ghId . '&device_id='.$deviceId;
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['open_id'])) {
+            return array(null, $res['open_id']);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 设备状态查询
+    // 第三方公众账号通过设备id查询该id的状态（三种状态：未授权、已授权、已绑定）
+    // https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-8
+    public function device_get_stat($deviceId)
+    {
+        $url = self::API_DOMAIN . 'device/get_stat?access_token=' . $this->get_access_token() . '&device_id='.$deviceId;
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['status_info'])) {
+            return array(null, $res['status_info']);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 强制绑定用户和设备
+    // 第三方强制绑定用户和设备
+    // https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-7
+    public function device_compel_bind($deviceId, $openId)
+    {
+        $url = self::API_DOMAIN . 'device/compel_bind?access_token=' . $this->get_access_token();
+        $res = HttpCurl::post($url, json_encode([
+            'device_id' => $deviceId,
+            'openid' => $openId,
+        ]), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if ($res['base_resp']['errcode'] == 0) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 强制解绑用户和设备
+    // 第三方强制解绑用户和设备
+    // https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-7
+    public function device_compel_unbind($deviceId, $openId)
+    {
+        $url = self::API_DOMAIN . 'device/compel_unbind?access_token=' . $this->get_access_token();
+        $res = HttpCurl::post($url, json_encode([
+            'device_id' => $deviceId,
+            'openid' => $openId,
+        ]), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if ($res['base_resp']['errcode'] == 0) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 主动发送消息给设备
+    // 第三方发送消息给设备主人的微信终端，并最终送达设备
+    // https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-3
+    public function device_transmsg($deviceId, $openId, $content)
+    {
+        $url = self::API_DOMAIN . 'device/transmsg?access_token=' . $this->get_access_token();
+        $res = HttpCurl::post($url, json_encode([
+            'device_type' => $this->ghId,
+            'device_id' => $deviceId,
+            'open_id' => $openId,
+            'content' => base64_encode($content),
+        ]), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['ret']) && $res['ret'] == 0) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 微信硬件 - 第三方主动发送设备状态消息给微信终端
+    // https://iot.weixin.qq.com/wiki/new/index.html?page=3-4-13
+    public function device_transmsg_device_status($deviceId, $openId, $deviceStatus)
+    {
+        $url = self::API_DOMAIN . 'device/transmsg?access_token=' . $this->get_access_token();
+        $res = HttpCurl::post($url, json_encode([
+            'device_type' => $this->ghId,
+            'device_id' => $deviceId,
+            'open_id' => $openId,
+            'msg_type' => 2,
+            // 设备状态:0未连接,1已连接
+            'device_status' => $deviceStatus,
+        ]), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['ret']) && $res['ret'] == 0) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
+        }
     }
 }
