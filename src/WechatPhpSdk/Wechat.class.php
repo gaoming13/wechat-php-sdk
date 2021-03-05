@@ -470,7 +470,7 @@ class Wechat
         $this->signature = isset($_GET['signature']) && !empty($_GET['signature']) ? $_GET['signature'] : false;
         $this->timestamp = isset($_GET['timestamp']) && !empty($_GET['timestamp']) ? $_GET['timestamp'] : false;
         $this->nonce = isset($_GET['nonce']) && !empty($_GET['nonce']) ? $_GET['nonce'] : false;
-        $this->echostr = isset($_GET['echostr']) && !empty($_GET['echostr']) ? $_GET['echostr'] : '';
+        $this->echostr = isset($_GET['echostr']) && !empty($_GET['echostr']) ? $_GET['echostr'] : false;
         $this->encrypt_type = isset($_GET['encrypt_type']) && !empty($_GET['encrypt_type']) ? $_GET['encrypt_type'] : false;
         $this->msg_signature = isset($_GET['msg_signature']) && !empty($_GET['msg_signature']) ? $_GET['msg_signature'] : false;
     }
@@ -501,12 +501,9 @@ class Wechat
     {
         // 处理服务器配置URL验证成功
         if ($this->echostr !== false && $this->checkSignature()) {
-        } else {
-            // 验证失败
-            @error_log('[wechat-php-sdk]accessAuth Error.', 0);
+            // 返回echostr给微信服务器
+            exit($this->echostr);
         }
-        // 返回echostr给微信服务器
-        exit($this->echostr);
     }
 
     /**
