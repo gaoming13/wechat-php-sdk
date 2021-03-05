@@ -9,45 +9,33 @@ use Gaoming13\WechatPhpSdk\Wechat;
 use Gaoming13\WechatPhpSdk\Api;
 use Gaoming13\WechatPhpSdk\Utils\FileCache;
 
-// 开发者中心-配置项-AppID(应用ID)
-$appId = 'wx733d7f24bd29224a';
-// 开发者中心-配置项-AppSecret(应用密钥)
-$appSecret = 'c6d165c5785226806f42440e376a410e';
-// 开发者中心-配置项-服务器配置-Token(令牌)
-$token = 'gaoming13';
-// 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
-$encodingAESKey = '072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV';
+$wechat = new Wechat([
+    // 开发者中心-配置项-AppID(应用ID)
+    'appId' => 'wx733d7f24bd29224a',
+    // 开发者中心-配置项-服务器配置-Token(令牌)
+    'token' => 'gaoming13',
+    // 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
+    // 可选: 消息加解密方式勾选 兼容模式 或 安全模式 需填写
+    'encodingAESKey' => '072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
+]);
 
-// wechat模块 - 处理用户发送的消息和回复消息
-$wechat = new Wechat(array(
-    'appId' => $appId,
-    'token' => $token,
-    'encodingAESKey' => $encodingAESKey
-));
+// 文件缓存用来暂存access_token(也可以用redis/memcached)
+$cache = new FileCache([
+    'path' => __DIR__.'/runtime/',
+]);
 
-// 这是使用了文件缓存来保存access_token
-// 由于access_token每日请求次数有限
-// 用户需要自己定义获取和保存access_token的方法(Memcached/Redis/...)
-// 缓存目录
-define("CACHE_PATH",__DIR__."/runtime/");
-// 文件缓存
-$cache =  new FileCache;
-
-// api模块 - 包含各种系统主动发起的功能
-$api = new Api(
-    array(
-        'appId' => $appId,
-        'appSecret' => $appSecret,
-        'get_access_token' => function() use ($cache) {
-            // 用户需要自己实现access_token的返回
-            return $cache->get('access_token');
-        },
-        'save_access_token' => function($token) use ($cache) {
-            // 用户需要自己实现access_token的保存
-            $cache->set('access_token', $token, 7000);
-        }
-    )
-);
+// api模块
+$api = new Api([
+    'ghId' => 'gh_965f8b675d0e',
+    'appId' => 'wx733d7f24bd29224a',
+    'appSecret' => 'c6d165c5785226806f42440e376a410e',
+    'get_access_token' => function() use ($cache) {
+        return $cache->get('access_token');
+    },
+    'save_access_token' => function($token) use ($cache) {
+        $cache->set('access_token', $token, 7000);
+    },
+]);
 
 
 // 获取微信消息
@@ -80,10 +68,10 @@ if ($msg['MsgType'] == 'text' && $msg['Content'] == '1') {
 
     $wechat->reply("hello world!");
     /* 也可使用这种数组方式回复
-    $wechat->reply(array(
+    $wechat->reply([
         'type' => 'text',
         'content' => 'hello world!'
-    ));
+    ]);
     */
     exit();
 }
@@ -91,78 +79,78 @@ if ($msg['MsgType'] == 'text' && $msg['Content'] == '1') {
 // 用户回复2 - 回复图片消息
 if ($msg['MsgType'] == 'text' && $msg['Content'] == '2') {
 
-    $wechat->reply(array(
+    $wechat->reply([
         'type' => 'image',
         // 通过素材管理接口上传多媒体文件，得到的id
         'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
-    ));
+    ]);
     exit();
 }
 
 // 用户回复3 - 回复语音消息
 if ($msg['MsgType'] == 'text' && $msg['Content'] == '3') {
 
-    $wechat->reply(array(
+    $wechat->reply([
         'type' => 'voice',
         // 通过素材管理接口上传多媒体文件，得到的id
         'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
-    ));
+    ]);
     exit();
 }
 
 // 用户回复4 - 回复视频消息
 if ($msg['MsgType'] == 'text' && $msg['Content'] == '4') {
 
-    $wechat->reply(array(
+    $wechat->reply([
         'type' => 'video',
         // 通过素材管理接口上传多媒体文件，得到的id
         'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
         'title' => '视频消息的标题',             //可选
         'description' => '视频消息的描述'        //可选
-    ));
+    ]);
     exit();
 }
 
 // 用户回复5 - 回复音乐消息
 if ($msg['MsgType'] == 'text' && $msg['Content'] == '5') {
 
-    $wechat->reply(array(
+    $wechat->reply([
         'type' => 'music',
         'title' => '音乐标题',                      //可选
         'description' => '音乐描述',                //可选
         'music_url' => 'http://me.diary8.com/data/music/2.mp3',      //可选
         'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',    //可选
         'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
-    ));
+    ]);
     exit();
 }
 
 // 用户回复6 - 回复图文消息
 if ($msg['MsgType'] == 'text' && $msg['Content'] == '6') {
 
-    $wechat->reply(array(
+    $wechat->reply([
         'type' => 'news',
-            'articles' => array(
-                array(
+        'articles' => [
+            [
                 'title' => '图文消息标题1',                              //可选
                 'description' => '图文消息描述1',                        //可选
                 'picurl' => 'http://me.diary8.com/data/img/demo1.jpg', //可选
                 'url' => 'http://www.example.com/'                     //可选
-                ),
-            array(
+            ],
+            [
                 'title' => '图文消息标题2',
                 'description' => '图文消息描述2',
                 'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
                 'url' => 'http://www.example.com/'
-            ),
-            array(
+            ],
+            [
                 'title' => '图文消息标题3',
                 'description' => '图文消息描述3',
                 'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
                 'url' => 'http://www.example.com/'
-            )
-        )
-    ));
+            ],
+        ],
+    ]);
     exit();
 }
 
@@ -173,11 +161,11 @@ if ($msg['MsgType'] == 'text' && $msg['Content'] == '7') {
     // 主动发送
     $api->send($msg['FromUserName'], '这是主动发送的一条消息');
     // 主动发送
-    $api->send($msg['FromUserName'], array(
+    $api->send($msg['FromUserName'], [
         'type' => 'text',
         'content' => '这是一个客服主动发送的一条消息!',
         'kf_account' => 'test1@kftest'
-    ));
+    ]);
     // 主动发送
     $api->send($msg['FromUserName'], '您的openid是: ' . $msg['FromUserName']);
     exit();

@@ -146,7 +146,7 @@ class Api
      * @param string $openid
      * @param array $msg
      *
-     * @return array(err, data)
+     * @return [err, data]
      */
     public function send($openid, $msg)
     {
@@ -183,10 +183,10 @@ class Api
              *
              * Examples:
              * ```
-             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', [
              *  'type' => 'text',
              *  'content' => 'hello world!'
-             * ));
+             * ]);
              * ```
              */
             case 'text':
@@ -206,10 +206,10 @@ class Api
              *
              * Examples:
              * ```
-             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', [
              *  'type' => 'image',
              *  'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
-             * ));
+             * ]);
              * ```
              */
             case 'image':
@@ -229,10 +229,10 @@ class Api
              *
              * Examples:
              * ```
-             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', [
              *  'type' => 'voice',
              *  'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
-             *  ));
+             *  ]);
              * ```
              */
             case 'voice':
@@ -252,13 +252,13 @@ class Api
              *
              * Examples:
              * ```
-             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', [
              *  'type' => 'video',
              *  'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
              *  'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ',  // 可选(无效, 官方文档好像写错了)
              *  'title' => '视频消息的标题',       // 可选
              *  'description' => '视频消息的描述'  // 可选
-             * ));
+             * ]);
              * ```
              */
             case 'video':
@@ -284,14 +284,14 @@ class Api
              *
              * Examples:
              * ```
-             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', array(
+             * $api->send('ocNtAt_K8nRlAdmNEo_R0WVg_rRw', [
              *  'type' => 'music',
              *  'title' => '音乐标题',                      //可选
              *  'description' => '音乐描述',                //可选
              *  'music_url' => 'http://me.diary8.com/data/music/2.mp3',     //可选
              *  'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',   //可选
              *  'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
-             * ));
+             * ]);
              * ```
              */
             case 'music':
@@ -319,34 +319,34 @@ class Api
              *
              * Examples:
              * ```
-             * $api->send($msg['FromUserName'], array(
+             * $api->send($msg['FromUserName'], [
              *  'type' => 'news',
-             *  'articles' => array(
-             *      array(
+             *  'articles' => [
+             *      [
              *          'title' => '图文消息标题1',                           //可选
              *          'description' => '图文消息描述1',                     //可选
              *          'picurl' => 'http://me.diary8.com/data/img/demo1.jpg',  //可选
              *          'url' => 'http://www.example.com/'                      //可选
-             *      ),
-             *      array(
+             *      ],
+             *      [
              *          'title' => '图文消息标题2',
              *          'description' => '图文消息描述2',
              *          'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
              *          'url' => 'http://www.example.com/'
-             *      ),
-             *      array(
+             *      ],
+             *      [
              *          'title' => '图文消息标题3',
              *          'description' => '图文消息描述3',
              *          'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
              *          'url' => 'http://www.example.com/'
-             *      )
-             *  ),
+             *      ],
+             *  ],
              *  'kf_account' => 'test1@kftest'      // 可选(指定某个客服发送, 会显示这个客服的头像)
-             * ));
+             * ]);
              * ```
              */
             case 'news':
-                $articles = array();
+                $articles = [];
                 foreach ($msg['articles'] as $article) {
                     array_push($articles, sprintf('{'.
                         '"title":"%s",'.
@@ -386,9 +386,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, true);
+            return [null, true];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -400,7 +400,7 @@ class Api
      * @param string $nickname
      * @param string $password
      *
-     * @return array(err, res)
+     * @return [err, res]
      *
      * Examples:
      * ```
@@ -425,9 +425,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, true);
+            return [null, true];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -438,7 +438,7 @@ class Api
      * @param string $nickname
      * @param string $password
      *
-     * @return array(err, res)
+     * @return [err, res]
      *
      * Examples:
      * ```
@@ -463,9 +463,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, true);
+            return [null, true];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -475,7 +475,7 @@ class Api
      * @param string $kf_account
      * @param string $path
      *
-     * @return array(err, res)
+     * @return [err, res]
      *
      * Examples:
      * ```
@@ -485,16 +485,16 @@ class Api
     public function set_kf_avatar($kf_account, $path)
     {
         $url = self::API_DOMAIN . 'customservice/kfaccount/uploadheadimg?access_token=' . $this->get_access_token() . '&kf_account=' . $kf_account;
-        $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');
+        $res = HttpCurl::post($url, ['media' => '@'.$path], 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, true);
+            return [null, true];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -503,7 +503,7 @@ class Api
      *
      * @param string $kf_account
      *
-     * @return array(err, res)
+     * @return [err, res]
      *
      * Examples:
      * ```
@@ -520,16 +520,16 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, true);
+            return [null, true];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
     /**
      * 获取所有客服账号
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -546,16 +546,16 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['kf_list'])) {
-            return array(null, $res['kf_list']);
+            return [null, $res['kf_list']];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
     /**
      * 获取在线客服接待信息
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -572,9 +572,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['kf_online_list'])) {
-            return array(null, $res['kf_online_list']);
+            return [null, $res['kf_online_list']];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -586,7 +586,7 @@ class Api
      * @param int $pageindex
      * @param int $pagesize
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -612,9 +612,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['recordlist'])) {
-            return array(null, $res['recordlist']);
+            return [null, $res['recordlist']];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -625,7 +625,7 @@ class Api
      * @param string $openid
      * @param string $text (可选)
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -649,9 +649,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, true);
+            return [null, true];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -662,7 +662,7 @@ class Api
      * @param string $openid
      * @param string $text (可选)
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -686,9 +686,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, true);
+            return [null, true];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -697,7 +697,7 @@ class Api
      *
      * @param string $openid
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -714,9 +714,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -725,7 +725,7 @@ class Api
      *
      * @param string $kf_account
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -742,16 +742,16 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['sessionlist'])) {
-            return array(null, $res['sessionlist']);
+            return [null, $res['sessionlist']];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
     /**
      * 获取未接入会话列表的客户
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -768,9 +768,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['waitcaselist'])) {
-            return array(null, $res['waitcaselist']);
+            return [null, $res['waitcaselist']];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -800,23 +800,23 @@ class Api
      * @param string $type 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb，主要用于视频与音乐格式的缩略图）
      * @param string $path 素材的绝对路径
      *
-     * @return array(err, res)
+     * @return [err, res]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
     public function upload_media($type, $path)
     {
         $url = self::API_DOMAIN . 'cgi-bin/media/upload?access_token=' . $this->get_access_token() . '&type=' . $type;
-        $res = HttpCurl::post($url, array('media' => '@'.$path), 'json');
+        $res = HttpCurl::post($url, ['media' => '@'.$path], 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
             return Error::code('ERR_GET');
         }
         // 判断是否调用成功
         if (isset($res['media_id'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -853,7 +853,7 @@ class Api
      *
      * @param string $media_id 媒体文件ID
      *
-     * @return array(err, res)
+     * @return [err, res]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -865,7 +865,7 @@ class Api
         if ($res === false) {
             return Error::code('ERR_GET');
         }
-        return array(null, $res);
+        return [null, $res];
     }
 
     /**
@@ -898,14 +898,14 @@ class Api
      * @param string $title 可选: 视频素材的标题（video）
      * @param string $introduction 可选: 视频素材的描述（video）
      *
-     * @return array(err, res)
+     * @return [err, res]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
     public function add_material($type, $path, $title='', $introduction='')
     {
         $url = self::API_DOMAIN . 'cgi-bin/material/add_material?access_token=' . $this->get_access_token() . '&type=' . $type;
-        $post_data = array('media' => '@'.$path);
+        $post_data = ['media' => '@'.$path];
         if ($type == 'video') {
             $post_data['description'] = sprintf('{"title":"%s","introduction":"%s"}', $title, $introduction);
         }
@@ -916,9 +916,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['media_id'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -927,14 +927,14 @@ class Api
      *
      * @param array $articles
      *
-     * @return array(err, res)
+     * @return [err, res]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      *
      * Examples:
      * ```
-     * list($err, $res) = $api->add_news(array(
-     *     array(
+     * list($err, $res) = $api->add_news([
+     *     [
      *         'title' => '标题',
      *         'thumb_media_id' => '图文消息的封面图片素材id（必须是永久mediaID）',
      *         'author' => '作者',
@@ -942,8 +942,8 @@ class Api
      *         'show_cover_pic' => '是否显示封面，0为false，即不显示，1为true，即显示',
      *         'content' => '图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS',
      *         'content_source_url' => '图文消息的原文地址，即点击“阅读原文”后的URL'
-     *     ),
-     *     array(
+     *     ],
+     *     [
      *         'title' => '这是图文的标题',
      *         'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
      *         'author' => '这是图文的作者',
@@ -951,8 +951,8 @@ class Api
      *         'show_cover_pic' => true,
      *         'content' => '这是图文消息的具体内容',
      *         'content_source_url' => 'http://www.baidu.com/'
-     *     )
-     * ));
+     *     ],
+     * ]);
      * ```
      * Result:
      * ```
@@ -967,7 +967,7 @@ class Api
     public function add_news($articles)
     {
         $url = self::API_DOMAIN . 'cgi-bin/material/add_news?access_token=' . $this->get_access_token();
-        $articles1 = array();
+        $articles1 = [];
         foreach ($articles as $article) {
             array_push($articles1, sprintf('{'.
                 '"title":"%s",'.
@@ -992,9 +992,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['media_id'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1003,7 +1003,7 @@ class Api
      *
      * Examples:
      * ```
-     * list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', array(
+     * list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', [
      *     'title' => '标题',
      *     'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
      *     'author' => '作者',
@@ -1011,7 +1011,7 @@ class Api
      *     'show_cover_pic' => true,
      *     'content' => '图文消息的具体内容',
      *     'content_source_url' => 'http://www.diandian.com/'
-     * ), 1);
+     * ], 1);
      * ```
      * Result:
      * ```
@@ -1028,7 +1028,7 @@ class Api
      * @param string $article
      * @param string $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
      *
-     * @return array(err, res)
+     * @return [err, res]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -1063,9 +1063,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1093,7 +1093,7 @@ class Api
      *
      * @param string $media_id 要获取的素材的media_id
      *
-     * @return array(err, res)
+     * @return [err, res]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -1106,7 +1106,7 @@ class Api
         if ($res === false) {
             return Error::code('ERR_GET');
         }
-        return array(null, $res);
+        return [null, $res];
     }
 
     /**
@@ -1132,7 +1132,7 @@ class Api
      *
      * @param string $media_id 要删除的素材的media_id
      *
-     * @return array(err, res)
+     * @return [err, res]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -1147,16 +1147,16 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
     /**
      * 获取素材总数
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      *
@@ -1187,9 +1187,9 @@ class Api
         }
         // 判断是否调用成功
         if (!property_exists($res, 'errcode')) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1200,7 +1200,7 @@ class Api
      * @param string $offset 从全部素材的该偏移位置开始返回，0表示从第一个素材 返回
      * @param string $count 返回素材的数量，取值在1到20之间
      *
-     * @return array(err, data)
+     * @return [err, data]
      *
      * Examples:
      * ```
@@ -1221,9 +1221,9 @@ class Api
         }
         // 判断是否调用成功
         if (!property_exists($res, 'errcode')) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1232,7 +1232,7 @@ class Api
      *
      * @param string $json 菜单的json串，具体结构见微信公众平台文档
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      *
@@ -1320,16 +1320,16 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
     /**
      * 自定义菜单查询接口
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      *
@@ -1383,16 +1383,16 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['menu'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
     /**
      * 自定义菜单删除接口
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      *
@@ -1421,16 +1421,16 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
     /**
      * 获取自定义菜单配置接口
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      *
@@ -1484,9 +1484,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['is_menu_open'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1505,10 +1505,10 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(
+            return [
                 'ticket' => $res['ticket'],
                 'expires_in' => $res['expires_in'] + time()
-            );
+            ];
         } else {
             return false;
         }
@@ -1621,19 +1621,19 @@ class Api
         $signature = SHA1::get_jsapi_signature($jsapi_ticket, $nonce_str, $timestamp, $url);
 
         if ($signature === false) {
-            $jsapi_config = array(
+            $jsapi_config = [
                 'errcode' => -1,
                 'errmsg' => 'get jsapi signature error.'
-            );
+            ];
         } else {
-            $jsapi_config = array(
+            $jsapi_config = [
                 'errcode' => 0,
                 'appId' => $this->appId,
                 'timestamp' => $timestamp,
                 'nonceStr' => $nonce_str,
                 'signature' => $signature,
                 'url' => $url
-            );
+            ];
         }
         if ($type == 'json' || $type == 'jsonp') {
             $jsapi_config = json_encode($jsapi_config);
@@ -1650,7 +1650,7 @@ class Api
      * @int $scene_id 场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
      * @int $expire_seconds 可选：该二维码有效时间，以秒为单位。 最大不超过604800（即7天），默认为永久二维码，填写该项为临时二维码
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      *
@@ -1687,9 +1687,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['ticket'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1736,7 +1736,7 @@ class Api
         if ($res === false) {
             return Error::code('ERR_GET');
         }
-        return array(null, $res);
+        return [null, $res];
     }
 
     /**
@@ -1744,7 +1744,7 @@ class Api
      *
      * @string $long_url [需要转换的长链接，支持http://、https://、weixin://wxpay 格式的url]
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      *
@@ -1769,9 +1769,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1797,7 +1797,7 @@ class Api
      *
      * @param string $group_name [分组名字（30个字符以内）]
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -1812,9 +1812,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['group'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1851,7 +1851,7 @@ class Api
      * ]
      * ```
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -1865,9 +1865,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['groups'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1890,7 +1890,7 @@ class Api
      *
      * @param string $open_id [用户的OpenID]
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -1905,9 +1905,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['groupid'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1932,7 +1932,7 @@ class Api
      * @param int $group_id [分组id，由微信分配]
      * @param string $group_name [分组名字（30个字符以内）]
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -1947,9 +1947,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -1974,7 +1974,7 @@ class Api
      * @param string $open_id [用户唯一标识符]
      * @param int $to_groupid [分组id]
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -1989,9 +1989,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2000,11 +2000,11 @@ class Api
      *
      * Examples:
      * ```
-     * $api->batchupdate_user_group(array(
+     * $api->batchupdate_user_group([
      *     'ocNtAt0YPGDme5tJBXyTphvrQIrc',
      *     'ocNtAt_TirhYM6waGeNUbCfhtZoA',
      *     'ocNtAt_K8nRlAdmNEo_R0WVg_rRw'
-     *     ), 100);
+     * ], 100);
      * ```
      * Result:
      * ```
@@ -2020,7 +2020,7 @@ class Api
      * @param array $open_id_arr
      * @param int $to_groupid
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -2036,9 +2036,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2062,7 +2062,7 @@ class Api
      *
      * @param int $group_id
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -2077,9 +2077,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2104,7 +2104,7 @@ class Api
      * @param string $open_id [用户标识]
      * @param string $remark [新的备注名，长度必须小于30字符]
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -2119,9 +2119,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2157,7 +2157,7 @@ class Api
      * @param string $open_id [普通用户的标识，对当前公众号唯一]
      * @param string $lang [可选：返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语]
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -2174,9 +2174,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['openid'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2208,7 +2208,7 @@ class Api
      *
      * @param string $next_openid [可选：第一个拉取的OPENID，不填默认从头开始拉取]
      *
-     * @return array(err, data)
+     * @return [err, data]
      * - `err`, 调用失败时得到的异常
      * - `res`, 调用正常时得到的对象
      */
@@ -2225,9 +2225,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['data'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2300,19 +2300,19 @@ class Api
                     }
                     // 判断是否调用成功
                     if (isset($res['openid'])) {
-                        return array(null, $res);
+                        return [null, $res];
                     } else {
-                        return array($res, null);
+                        return [$res, null];
                     }
                 } else {
                     // 2.2 `snsapi_base` 不弹出授权页面，直接跳转，只能获取用户openid
-                    return array(null, $res);
+                    return [null, $res];
                 }
             } else {
-                return array($res, null);
+                return [$res, null];
             }
         } else {
-            return array('授权失败', null);
+            return ['授权失败', null];
         }
     }
 
@@ -2543,9 +2543,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['url'])) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2569,9 +2569,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['ret']) && $res['ret'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2590,9 +2590,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['errcode']) && $res['errcode'] == 0) {
-            return array(null, $res['code_list'][0]);
+            return [null, $res['code_list'][0]];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2620,9 +2620,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['errcode']) && $res['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2639,9 +2639,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['device_list'])) {
-            return array(null, $res['device_list']);
+            return [null, $res['device_list']];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2658,9 +2658,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['open_id'])) {
-            return array(null, $res['open_id']);
+            return [null, $res['open_id']];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2677,9 +2677,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['status_info'])) {
-            return array(null, $res['status_info']);
+            return [null, $res['status_info']];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2699,9 +2699,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['base_resp']['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2721,9 +2721,9 @@ class Api
         }
         // 判断是否调用成功
         if ($res['base_resp']['errcode'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2745,9 +2745,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['ret']) && $res['ret'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 
@@ -2770,9 +2770,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['ret']) && $res['ret'] == 0) {
-            return array(null, $res);
+            return [null, $res];
         } else {
-            return array($res, null);
+            return [$res, null];
         }
     }
 }

@@ -21,7 +21,7 @@ class SHA1
     {
         //排序
         try {
-            $array = array($encrypt_msg, $token, $timestamp, $nonce);
+            $array = [$encrypt_msg, $token, $timestamp, $nonce];
             sort($array, SORT_STRING);
             $str = implode($array);
             return sha1($str);
@@ -42,7 +42,7 @@ class SHA1
     {
         //排序
         try {
-            $array = array($token, $timestamp, $nonce);
+            $array = [$token, $timestamp, $nonce];
             sort($array, SORT_STRING);
             $str = implode($array);
             return sha1($str);

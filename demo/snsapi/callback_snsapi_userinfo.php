@@ -17,19 +17,17 @@ $cache = new FileCache([
 ]);
 
 // api设备
-$api = new Api(
-    array(
-        'ghId' => 'gh_965f8b675d0e',
-        'appId' => 'wx733d7f24bd29224a',
-        'appSecret' => 'c6d165c5785226806f42440e376a410e',
-        'get_access_token' => function() use ($cache) {
-            return $cache->get('access_token');
-        },
-        'save_access_token' => function($token) use ($cache) {
-            $cache->set('access_token', $token, 7000);
-        }
-    )
-);
+$api = new Api([
+    'ghId' => 'gh_965f8b675d0e',
+    'appId' => 'wx733d7f24bd29224a',
+    'appSecret' => 'c6d165c5785226806f42440e376a410e',
+    'get_access_token' => function() use ($cache) {
+        return $cache->get('access_token');
+    },
+    'save_access_token' => function($token) use ($cache) {
+        $cache->set('access_token', $token, 7000);
+    },
+]);
 
 header('Content-type: text/html; charset=utf-8');
 

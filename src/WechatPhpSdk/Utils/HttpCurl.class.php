@@ -70,7 +70,7 @@ class HttpCurl {
         }
         if (class_exists('\CURLFile')) {
             if (isset($fields['media'])) {
-                $fields = array('media' => new \CURLFile(realpath(ltrim($fields['media'], '@'))));
+                $fields = ['media' => new \CURLFile(realpath(ltrim($fields['media'], '@')))];
             }
         } else {
             if (defined('CURLOPT_SAFE_UPLOAD')) {

@@ -63,7 +63,7 @@ class FileCache {
             $expire = $this->options['expire'];
         }
         $filename = $this->getCacheKey($name);
-        $json = json_encode(array('data' => $value, 'expire' => time() + $expire));
+        $json = json_encode(['data' => $value, 'expire' => time() + $expire]);
         $result = file_put_contents($filename,$json);
         if ($result) {
             return true;

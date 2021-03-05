@@ -6,7 +6,7 @@
 微信公众平台php版开发包
 * 支持消息加解密方式的明文模式、兼容模式、安全模式
 * 支持自动接入微信公众平台（[步骤](#接入微信公众平台开发方法)）
-* 支持php5.3+
+* 支持php5.4+
 
 ### 相关参考
 * [微信公众平台开发官方文档](https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Overview.html)
@@ -38,11 +38,11 @@ require 'wechat-php-sdk/autoload.php';
 
 use Gaoming13\WechatPhpSdk\Wechat;
 
-$wechat = new Wechat(array(
+$wechat = new Wechat([
     'appId' => 'wx733d7f24bd29224a',
     'token' => 'gaoming13',
     'encodingAESKey' => '072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
-));
+]);
 
 // 获取消息
 $msg = $wechat->serve();
@@ -90,26 +90,24 @@ if ($msg['MsgType'] == 'text' && $msg['Content'] == '你好') {
   具体代码见: 项目内 `demo/demo_thinkPHP.php`
 
   ```php
-  $wechat = new \Gaoming13\WechatPhpSdk\Wechat(array(
+  $wechat = new \Gaoming13\WechatPhpSdk\Wechat([
       'appId' => $appId,
       'token' =>     $token,
       'encodingAESKey' =>    $encodingAESKey
-  ));
+  ]);
 
-  $api = new \Gaoming13\WechatPhpSdk\Api(
-    array(
-        'appId' => $appId,
-        'appSecret'    => $appSecret,
-        'get_access_token' => function(){
-            // 用户需要自己实现access_token的返回
-            ...
-        },
-        'save_access_token' => function($token) {
-            // 用户需要自己实现access_token的保存
-            ...
-        }
-    )
-  );
+  $api = new \Gaoming13\WechatPhpSdk\Api([
+    'appId' => $appId,
+    'appSecret'    => $appSecret,
+    'get_access_token' => function(){
+        // 用户需要自己实现access_token的返回
+        ...
+    },
+    'save_access_token' => function($token) {
+        // 用户需要自己实现access_token的保存
+        ...
+    },
+]);
   ```
 
 ### 接入微信公众平台开发方法
@@ -128,7 +126,7 @@ if ($msg['MsgType'] == 'text' && $msg['Content'] == '你好') {
 ## Wechat：模块使用说明
 
 ```php
-$wechat = new Wechat(array(
+$wechat = new Wechat([
     // 开发者中心-配置项-AppID(应用ID)
     'appId'          =>  'wx733d7f24bd29224a',
     // 开发者中心-配置项-服务器配置-Token(令牌)
@@ -136,7 +134,7 @@ $wechat = new Wechat(array(
     // 开发者中心-配置项-服务器配置-EncodingAESKey(消息加解密密钥)
     // 可选: 消息加解密方式勾选 兼容模式 或 安全模式 需填写
     'encodingAESKey' =>  '072vHYArTp33eFwznlSvTRvuyOTe5YME1vxSoyZbzaV'
-));
+]);
 
 // 获取微信消息
 $msg = $wechat->serve();
@@ -169,92 +167,92 @@ $msg = $wechat->serve();
 ```php
 $wechat->reply('hello world!');
 // 或者
-$wechat->reply(array(
+$wechat->reply([
     'type' => 'text',
     'content' => '嘿嘿，呵呵~~'
-));
+]);
 ```
 
 ### 回复图片消息
 
 ```php
-$wechat->reply(array(
+$wechat->reply([
     'type' => 'image',
     // 通过素材管理接口上传多媒体文件，得到的id
     'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC'
-));
+]);
 ```
 
 ### 回复语音消息
 
 ```php
-$wechat->reply(array(
+$wechat->reply([
     'type' => 'voice',
     // 通过素材管理接口上传多媒体文件，得到的id
     'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_'
-));
+]);
 ```
 
 ### 回复视频消息
 
 ```php
-$wechat->reply(array(
+$wechat->reply([
     'type' => 'video',
     // 通过素材管理接口上传多媒体文件，得到的id
     'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
     'title' => '视频消息的标题',            //可选
     'description' => '视频消息的描述'        //可选
-));
+]);
 ```
 
 ### 回复音乐消息
 
 ```php
-$wechat->reply(array(
+$wechat->reply([
     'type' => 'music',
     'title' => '音乐标题',             //可选
     'description' => '音乐描述',       //可选
     'music_url' => 'http://me.diary8.com/data/music/2.mp3',      //可选
     'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3',    //可选
     'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
-));
+]);
 ```
 
 ### 回复图文消息
 
 ```php
-$wechat->reply(array(
+$wechat->reply([
     'type' => 'news',
-        'articles' => array(
-         array(
+        'articles' => [
+         [
             'title' => '图文消息标题1',                              //可选
             'description' => '图文消息描述1',                        //可选
             'picurl' => 'http://me.diary8.com/data/img/demo1.jpg', //可选
             'url' => 'http://www.example.com/'                     //可选
-         ),
-        array(
+        ],
+        [
             'title' => '图文消息标题2',
             'description' => '图文消息描述2',
             'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
             'url' => 'http://www.example.com/'
-        ),
-        array(
+        ],
+        [
             'title' => '图文消息标题3',
             'description' => '图文消息描述3',
             'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
             'url' => 'http://www.example.com/'
-        )
-    )
-));
+        ],
+    ],
+]);
 ```
 
 ## Wechat：转发到多客服接口
 
 ```php
-$wechat->reply(array(
+$wechat->reply([
     'type' => 'transfer_customer_service',
     'kf_account' => 'test1@test'           // 可选
-));
+]);
 ```
 
 ## Api：模块使用说明
@@ -268,20 +266,18 @@ $wechat->reply(array(
 
 
 ```php
-$api = new Api(
-    array(
-        'appId' => $appId,
-        'appSecret' => $appSecret,
-        'get_access_token' => function() {
-            // 用户需要在这里实现access_token的返回
-            ...
-        },
-        'save_access_token' => function($token) {
-            // 用户需要在这里实现access_token的保存
-            ...
-        }
-    )
-);
+$api = new Api([
+    'appId' => $appId,
+    'appSecret' => $appSecret,
+    'get_access_token' => function() {
+        // 用户需要在这里实现access_token的返回
+        ...
+    },
+    'save_access_token' => function($token) {
+        // 用户需要在这里实现access_token的保存
+        ...
+    }
+]);
 ```
 
 access_token可以保存在数据库、Memcached、xcache 等.
@@ -310,35 +306,33 @@ $m = new Memcached();
 $m->addServer('localhost', 11211);
 
 // wechat模块 - 处理用户发送的消息和回复消息
-$wechat = new Wechat(array(
+$wechat = new Wechat([
     'appId' => $appId,
-    'token' =>     $token,
-    'encodingAESKey' =>    $encodingAESKey
-));
+    'token' => $token,
+    'encodingAESKey' => $encodingAESKey,
+]);
 
 // api模块 - 包含各种系统主动发起的功能
-$api = new Api(
-    array(
-        'appId' => $appId,
-        'appSecret'    => $appSecret,
-        'get_access_token' => function() use ($m) {
-            // 用户需要自己实现access_token的返回
-            return $m->get('access_token');
-        },
-        'save_access_token' => function($token) use ($m) {
-            // 用户需要自己实现access_token的保存
-            $m->set('access_token', $token, 0);
-        },
-        'get_jsapi_ticket' => function() use ($m) {
-            // 可选：用户需要自己实现jsapi_ticket的返回（若使用get_jsapi_config，则必须定义）
-            return $m->get('jsapi_ticket');
-        },
-        'save_jsapi_ticket' => function($jsapi_ticket) use ($m) {
-            // 可选：用户需要自己实现jsapi_ticket的保存（若使用get_jsapi_config，则必须定义）
-            $m->set('jsapi_ticket', $jsapi_ticket, 0);
-        }
-    )
-);
+$api = new Api([
+    'appId' => $appId,
+    'appSecret' => $appSecret,
+    'get_access_token' => function() use ($m) {
+        // 用户需要自己实现access_token的返回
+        return $m->get('access_token');
+    },
+    'save_access_token' => function($token) use ($m) {
+        // 用户需要自己实现access_token的保存
+        $m->set('access_token', $token, 0);
+    },
+    'get_jsapi_ticket' => function() use ($m) {
+        // 可选：用户需要自己实现jsapi_ticket的返回（若使用get_jsapi_config，则必须定义）
+        return $m->get('jsapi_ticket');
+    },
+    'save_jsapi_ticket' => function($jsapi_ticket) use ($m) {
+        // 可选：用户需要自己实现jsapi_ticket的保存（若使用get_jsapi_config，则必须定义）
+        $m->set('jsapi_ticket', $jsapi_ticket, 0);
+    },
+]);
 
 
 // 获取微信消息
@@ -352,7 +346,7 @@ $api->send($msg['FromUserName'], '这是我主动发送的消息！');
 ```
 
 ### Api模块接口返回值格式
-所有Api模块的接口返回值格式为: `array($err, $data);`
+所有Api模块的接口返回值格式为: `[$err, $data];`
 
 `$err`为错误信息, `$data`为正确处理返回的数据
 
@@ -384,50 +378,50 @@ $api->message_template_send('接收者openid', '模板ID', '模版数据json', '
 ```php
 $api->send($msg['FromUserName'], 'heheh');
 // 或者
-$api->send($msg['FromUserName'], array(
+$api->send($msg['FromUserName'], [
     'type' => 'text',
     'content' => 'hello world!',
     'kf_account' => 'test1@kftest'   // 可选(指定某个客服发送, 会显示这个客服的头像)
-));
+]);
 ```
 
 ### 主动发送图片消息
 
 ```php
-$api->send($msg['FromUserName'], array(
+$api->send($msg['FromUserName'], [
     'type' => 'image',
     'media_id' => 'Uq7OczuEGEyUu--dYjg7seTm-EJTa0Zj7UDP9zUGNkVpjcEHhl7tU2Mv8mFRiLKC',
     'kf_account' => 'test1@kftest'    // 可选(指定某个客服发送, 会显示这个客服的头像)
-));
+]);
 ```
 
 ### 主动发送语音消息
 
 ```php
-$api->send($msg['FromUserName'], array(
+$api->send($msg['FromUserName'], [
     'type' => 'voice',
     'media_id' => 'rVT43tfDwjh4p1BV2gJ5D7Zl2BswChO5L_llmlphLaTPytcGcguBAEJ1qK4cg4r_',
     'kf_account' => 'test1@kftest'    // 可选(指定某个客服发送, 会显示这个客服的头像)
-));
+]);
 ```
 
 ### 主动发送视频消息
 
 ```php
-$api->send($msg['FromUserName'], array(
+$api->send($msg['FromUserName'], [
     'type' => 'video',
     'media_id' => 'yV0l71NL0wtpRA8OMX0-dBRQsMVyt3fspPUzurIS3psi6eWOrb_WlEeO39jasoZ8',
     'thumb_media_id' => '7ct_DvuwZXIO9e9qbIf2ThkonUX_FzLAoqBrK-jzUboTYJX0ngOhbz6loS-wDvyZ', // 可选(无效, 官方文档好像写错了)
     'title' => '视频消息的标题',        // 可选
     'description' => '视频消息的描述',  // 可选,
     'kf_account' => 'test1@kftest'    // 可选(指定某个客服发送, 会显示这个客服的头像)
-));
+]);
 ```
 
 ### 主动发送音乐消息
 
 ```php
-$api->send($msg['FromUserName'], array(
+$api->send($msg['FromUserName'], [
     'type' => 'music',
     'title' => '音乐标题',             // 可选
     'description' => '音乐描述',       // 可选
@@ -435,36 +429,36 @@ $api->send($msg['FromUserName'], array(
     'hqmusic_url' => 'http://me.diary8.com/data/music/2.mp3', // 可选
     'thumb_media_id' => 'O39wW0ZsXCb5VhFoCgibQs5PupFb6VZ2jH5A8gHUJCJz2Qmkrb7objoTue7bGTGQ',
     'kf_account' => 'test1@kftest'        // 可选(指定某个客服发送, 会显示这个客服的头像)
-));
+]);
 ```
 
 ### 主动发送图文消息
 
 ```php
-$api->send($msg['FromUserName'], array(
+$api->send($msg['FromUserName'], [
     'type' => 'news',
-    'articles' => array(
-        array(
+    'articles' => [
+        [
             'title' => '图文消息标题1',                              // 可选
             'description' => '图文消息描述1',                        // 可选
             'picurl' => 'http://me.diary8.com/data/img/demo1.jpg', // 可选
             'url' => 'http://www.example.com/'                     // 可选
-        ),
-        array(
+        ],
+        [
             'title' => '图文消息标题2',
             'description' => '图文消息描述2',
             'picurl' => 'http://me.diary8.com/data/img/demo2.jpg',
             'url' => 'http://www.example.com/'
-        ),
-        array(
+        ],
+        [
             'title' => '图文消息标题3',
             'description' => '图文消息描述3',
             'picurl' => 'http://me.diary8.com/data/img/demo3.jpg',
             'url' => 'http://www.example.com/'
-        )
-    ),
+        ],
+    ],
     'kf_account' => 'test1@kftest'  // 可选(指定某个客服发送, 会显示这个客服的头像)
-));
+]);
 ```
 
 ## Api：多客服功能（客服管理、多客服回话控制、获取客服聊天记录等）
@@ -586,8 +580,8 @@ list($err, $res) = $api->add_material('thumb', '/data/img/sky.jpg');
 ### 新增永久图文素材
 
 ```php
-$api->add_news(array(
-    array(
+$api->add_news([
+    [
         'title' => '标题',
         'thumb_media_id' => '图文消息的封面图片素材id（必须是永久mediaID）',
         'author' => '作者',
@@ -595,8 +589,8 @@ $api->add_news(array(
         'show_cover_pic' => '是否显示封面，0为false，即不显示，1为true，即显示',
         'content' => '图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS',
         'content_source_url' => '图文消息的原文地址，即点击“阅读原文”后的URL'
-    ),
-    array(
+    ],
+    [
         'title' => '这是图文的标题',
         'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
         'author' => '这是图文的作者',
@@ -604,14 +598,14 @@ $api->add_news(array(
         'show_cover_pic' => true,
         'content' => '这是图文消息的具体内容',
         'content_source_url' => 'http://www.baidu.com/'
-    )
-));
+    ],
+]);
 ```
 
 ### 修改永久图文素材
 
 ```php
-list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', array(
+list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77Ms', [
     'title' => '标题',
     'thumb_media_id' => 'BZ-ih-dnjWDyNXjai6i6sdvxOoXOHr9wO0pgMhcZR8g',
     'author' => '作者',
@@ -619,7 +613,7 @@ list($err, $res) = $api->update_news('BZ-ih-dnjWDyNXjai6i6sZp22xhHu6twVYKNPyl77M
     'show_cover_pic' => true,
     'content' => '图文消息的具体内容',
     'content_source_url' => 'http://www.diandian.com/'
-), 1);
+], 1);
 ```
 
 ### 获取永久素材
@@ -846,11 +840,11 @@ $api->update_user_group('ocNtAt0YPGDme5tJBXyTphvrQIrc', 100);
 ### 用户分组管理 - 批量移动用户分组
 
 ```php
-$api->batchupdate_user_group(array(
+$api->batchupdate_user_group([
     'ocNtAt0YPGDme5tJBXyTphvrQIrc',
     'ocNtAt_TirhYM6waGeNUbCfhtZoA',
     'ocNtAt_K8nRlAdmNEo_R0WVg_rRw'
-    ), 100);
+], 100);
 ```
 
 ### 用户分组管理 - 删除分组
