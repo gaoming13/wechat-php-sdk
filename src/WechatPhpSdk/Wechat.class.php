@@ -558,8 +558,8 @@ class Wechat
                     }
                     $xml_obj = simplexml_load_string($xml_input1, 'SimpleXMLElement', LIBXML_NOCDATA);
                 }
-                $this->message = $xml_obj;
-                return $xml_obj;
+                $this->message = json_decode(json_encode($xml_obj), true);
+                return $this->message;
             }
         }
         exit();
