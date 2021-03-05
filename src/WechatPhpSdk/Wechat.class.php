@@ -500,7 +500,11 @@ class Wechat
     private function accessAuth()
     {
         // 处理服务器配置URL验证成功
-        if ($this->echostr !== false && $this->checkSignature()) {
+        if ($this->echostr !== false) {
+            if (! $this->checkSignature()) {
+                // 验证失败
+                @error_log('[wechat-php-sdk]accessAuth Error.', 0);
+            }
             // 返回echostr给微信服务器
             exit($this->echostr);
         }
