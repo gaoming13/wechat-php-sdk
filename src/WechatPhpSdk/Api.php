@@ -1730,7 +1730,7 @@ class Api
      */
     public function get_qrcode($ticket)
     {
-        $url = self::get_qrcode_url($ticket);
+        $url = $this->get_qrcode_url($ticket);
         $res = HttpCurl::get($url);
         // 异常处理: 获取时网络错误
         if ($res === false) {
@@ -2551,7 +2551,7 @@ class Api
 
     // 发送模板消息
     // https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Template_Message_Interface.html#5
-    public function message_template_send($openId, $templateId, $data = [], $url = '')
+    public function message_template_send($openId, $templateId, $data = [], $url = '', $miniprogramAppId = '', $miniprogramPagePath = '')
     {
         $url = self::API_DOMAIN . 'cgi-bin/message/template/send?access_token=' . $this->get_access_token();
         $query = [
@@ -2562,6 +2562,12 @@ class Api
         if ($url !== '') {
             $query['url'] = $url;
         }
+        if ($miniprogramAppId !== '') {
+            $query['miniprogram'] = [
+                'appid' => $miniprogramAppId,
+                'pagepath' => $miniprogramPagePath,
+            ];
+        }
         $res = HttpCurl::post($url, json_encode($query), 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
@@ -2569,9 +2575,9 @@ class Api
         }
         // 判断是否调用成功
         if (isset($res['ret']) && $res['ret'] == 0) {
-            return [null, $res];
+            return array(null, $res);
         } else {
-            return [$res, null];
+            return array($res, null);
         }
     }
 
@@ -2773,6 +2779,48 @@ class Api
             return [null, $res];
         } else {
             return [$res, null];
+        }
+    }
+
+    // 小程序.临时登录凭证code获取openId
+    // https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html
+    public function sns_jscode2session($code)
+    {
+        $url = self::API_DOMAIN . 'sns/jscode2session?appid='.$this->appId.'&secret='.$this->appSecret.'&js_code='.$code.'&grant_type=authorization_code';
+        $res = HttpCurl::get($url, 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['openid']) && $res['openid'] == 0) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
+        }
+    }
+
+    // 小程序.发送订阅消息
+    // https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/subscribe-message/subscribeMessage.send.html
+    public function message_subscribe_send($openId, $templateId, $page, $data = [])
+    {
+        $url = self::API_DOMAIN . 'cgi-bin/message/subscribe/send?access_token=' . $this->get_access_token();
+        $query = [
+            'touser' => $openId,
+            'template_id' => $templateId,
+            'page' => $page,
+            "data" => $data,
+        ];
+        $res = HttpCurl::post($url, json_encode($query), 'json');
+        // 异常处理: 获取时网络错误
+        if ($res === false) {
+            return ['ERR_POST', null];
+        }
+        // 判断是否调用成功
+        if (isset($res['ret']) && $res['ret'] == 0) {
+            return array(null, $res);
+        } else {
+            return array($res, null);
         }
     }
 }
