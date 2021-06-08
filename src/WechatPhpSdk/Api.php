@@ -2553,7 +2553,6 @@ class Api
     // https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Template_Message_Interface.html#5
     public function message_template_send($openId, $templateId, $data = [], $url = '', $miniprogramAppId = '', $miniprogramPagePath = '')
     {
-        $url = self::API_DOMAIN . 'cgi-bin/message/template/send?access_token=' . $this->get_access_token();
         $query = [
             'touser' => $openId,
             'template_id' => $templateId,
@@ -2568,6 +2567,7 @@ class Api
                 'pagepath' => $miniprogramPagePath,
             ];
         }
+        $url = self::API_DOMAIN . 'cgi-bin/message/template/send?access_token=' . $this->get_access_token();
         $res = HttpCurl::post($url, json_encode($query), 'json');
         // 异常处理: 获取时网络错误
         if ($res === false) {
